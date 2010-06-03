@@ -27,8 +27,8 @@ import appindicator
 
 gtk.gdk.threads_init()
 
-APP_NAME = 'Screen Key'
-APP_DESC = 'Screencast yours keys'
+APP_NAME = 'Screenkey'
+APP_DESC = 'Screencast your keys'
 APP_URL = 'http://launchpad.net/screenkey'
 VERSION = '0.1'
 AUTHOR = 'Pablo Seminario'
@@ -87,7 +87,7 @@ class DesktopWidget(threading.Thread):
 		self.modifiers = modmap.get_modifier_map()
 
 		self.ind = appindicator.Indicator(
-				"screencast-key", "indicator-messages", 
+				"screenkey", "indicator-messages", 
 				appindicator.CATEGORY_APPLICATION_STATUS)
 		self.ind.set_status(appindicator.STATUS_ACTIVE)
 		self.ind.set_attention_icon("indicator-messages-new")
@@ -247,6 +247,8 @@ class DesktopWidget(threading.Thread):
 					mod = mod + "Ctrl+"
 				if self.cmd_keys['alt']:
 					mod = mod + "Alt+"
+				if self.cmd_keys['super']:
+					mod = mod + "Super+"
 
 				if self.cmd_keys['shift']:
 					key = key_shift
@@ -265,7 +267,6 @@ class DesktopWidget(threading.Thread):
 			else:
 				return
 		self.show_indicator()
-		print code_num
 		self.update_text(key)
 		if self.timer:
 			self.timer.cancel()
