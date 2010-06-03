@@ -14,44 +14,44 @@ import appindicator
 
 gtk.gdk.threads_init()
 
-APP_NAME = 'Screenkey'
+APP_NAME = 'Screen Key'
 APP_DESC = 'Screencast yours keys'
 APP_URL = 'http://launchpad.net/screenkey'
 VERSION = '0.1'
 AUTHOR = 'Pablo Seminario'
 
 REPLACE_KEYS = {
-1:u'Esc ',
-15:u'\u21B9 ',
-28:u'\u23CE ',
-57:u' ',
-58:u'Caps ',
-59:u'F1 ', 
-60:u'F2 ', 
-61:u'F3 ', 
-62:u'F4 ', 
-63:u'F5 ', 
-64:u'F6 ', 
-65:u'F7 ', 
-66:u'F8 ', 
-67:u'F9 ', 
-68:u'F10 ', 
-87:u'F11 ', 
-88:u'F12 ', 
-102:u'Home ',
-103:u'\u2191',
-104:u'PgUp ',
-105:u'\u2190',
-106:u'\u2192',
-107:u'End ',
-108:u'\u2193',
-109:u'PgDn ',
-110:u'Ins ',
-111:u'Del ',
-127:u'',
+	1:u'Esc ',
+	15:u'\u21B9 ',
+	28:u'\u23CE ',
+	57:u' ',
+	58:u'Caps ',
+	59:u'F1 ', 
+	60:u'F2 ', 
+	61:u'F3 ', 
+	62:u'F4 ', 
+	63:u'F5 ', 
+	64:u'F6 ', 
+	65:u'F7 ', 
+	66:u'F8 ', 
+	67:u'F9 ', 
+	68:u'F10 ', 
+	87:u'F11 ', 
+	88:u'F12 ', 
+	102:u'Home ',
+	103:u'\u2191',
+	104:u'PgUp ',
+	105:u'\u2190',
+	106:u'\u2192',
+	107:u'End ',
+	108:u'\u2193',
+	109:u'PgDn ',
+	110:u'Ins ',
+	111:u'Del ',
+	127:u'',
 }
 
-class DesktopWindow(threading.Thread):
+class DesktopWidget(threading.Thread):
 
 	stopthread = threading.Event()
 
@@ -66,8 +66,6 @@ class DesktopWindow(threading.Thread):
 			nodes = [x.block for x in finder.keyboards.values()]
 			self.devices = evdev.DeviceGroup(nodes)
 		except OSError, e:
-			if str(e) == 'Permission denied':
-				gksudo()
 			print
 			print 'You may need to run this as %r' % 'sudo %s' % sys.argv[0]
 			sys.exit(-1)
@@ -75,15 +73,14 @@ class DesktopWindow(threading.Thread):
 		self.keymap = modmap.get_keymap_table()
 		self.modifiers = modmap.get_modifier_map()
 
-		self.ind = appindicator.Indicator("screencast-key", "indicator-messages", appindicator.CATEGORY_APPLICATION_STATUS)
+		self.ind = appindicator.Indicator(
+				"screencast-key", "indicator-messages", 
+				appindicator.CATEGORY_APPLICATION_STATUS)
 		self.ind.set_status(appindicator.STATUS_ACTIVE)
 		self.ind.set_attention_icon("indicator-messages-new")
 		self.ind.set_icon("gtk-bold")
 
 		menu = gtk.Menu()
-		pref_item = gtk.ImageMenuItem(gtk.STOCK_PREFERENCES)
-		pref_item.connect("activate", self.preferences_dialog)
-		pref_item.show()
 		about_item = gtk.ImageMenuItem(gtk.STOCK_ABOUT)
 		about_item.connect("activate", self.about_dialog)
 		about_item.show()
@@ -92,7 +89,6 @@ class DesktopWindow(threading.Thread):
 		quit_item = gtk.ImageMenuItem(gtk.STOCK_QUIT)
 		quit_item.connect("activate", self.quit)
 		quit_item.show()
-		menu.append(pref_item)
 		menu.append(about_item)
 		menu.append(separator_item)
 		menu.append(quit_item)
@@ -107,7 +103,14 @@ class DesktopWindow(threading.Thread):
 		self.timer = None
 		self.command = None
 		self.shift = None
-		self.cmd_keys = {'shift': False, 'ctrl': False, 'alt': False, 'capslock': False, 'meta': False, 'super':False}
+		self.cmd_keys = {
+			'shift': False,
+			'ctrl': False,
+			'alt': False,
+			'capslock': False,
+			'meta': False,
+			'super':False
+			}
 
 		screen_width = gtk.gdk.screen_width()	
 		screen_height = gtk.gdk.screen_height()	
@@ -129,11 +132,6 @@ class DesktopWindow(threading.Thread):
 
 		self.window.set_gravity(gtk.gdk.GRAVITY_CENTER)
 
-		# Top
-		#self.window.move(0, window_height * 2)
-		# Center
-		#self.window.move(0, screen_height / 2)
-		# Bottom
 		self.window.move(0, screen_height - window_height * 2)
 
 		self.window.connect("delete_event", lambda w,e: gtk.main_quit())
@@ -150,7 +148,6 @@ class DesktopWindow(threading.Thread):
 		self.window.set_keep_above(True)
 
 	def hide_indicator(self):
-		#self.window.hide()
 		self.text = ""
 		self.update_text()
 		self.window.set_opacity(0.0)
@@ -159,7 +156,10 @@ class DesktopWindow(threading.Thread):
 
 	def update_text(self, string=None):
 		if not string is None:
-			self.label.set_markup("<span font='Sans Bold 28'><span color='#777'>%s</span><span color='#fff'>%s</span></span>" % (self.text, string))
+			self.label.set_markup("<span font='Sans Bold 28'>"
+				"<span color='#777'>%s</span>"
+				"<span color='#fff'>%s</span></span>"
+				% (self.text, string))
 			self.text = "%s%s" % (self.text, string)
 		else:
 			self.label.set_markup("")
@@ -249,7 +249,6 @@ class DesktopWindow(threading.Thread):
 					key = "%s%s " % (mod, key)
 				else:
 					key = "%s%s" % (mod, key)
-				#print key
 			else:
 				return
 		self.show_indicator()
@@ -261,116 +260,11 @@ class DesktopWindow(threading.Thread):
 		self.timer = threading.Timer(2.5, self.hide_indicator)
 		self.timer.start()
 
-	def key_press_old(self, event):
-		#print dir(event)
-		code_num = event.codeMaps[event.type].toNumber(event.code)
-		if code_num in self.modmap:
-		  	code, medium_name, short_name = self.modmap[code_num]
-		else:
-		  	print 'No mapping for scan_code %d' % scan_code
-			return
-
-		print "code %s medium %s and shot %s" % (code, medium_name, short_name)
-		key = ''
-		if medium_name == "Alt":
-			if event.value in (1, 2):
-				self.cmd_keys['alt'] = True
-			else:
-				self.cmd_keys['alt'] = False
-			return
-		elif medium_name == "Ctrl":
-			if event.value in (1, 2):
-				self.cmd_keys['ctrl'] = True
-			else:
-				self.cmd_keys['ctrl'] = False
-			return
-		elif medium_name == "Back" and event.value == 1:
-			self.text = self.text[:-1]
-			key = ""
-		elif medium_name == "Shift":
-			if event.value in (1,2):
-				self.cmd_keys['shift'] = True
-			else:
-				self.cmd_keys['shift'] = False
-			return
-		else:
-			if event.value == 1:
-				if not self.cmd_keys['shift'] or not self.cmd_keys['shift']:
-					medium_name = medium_name.lower()
-				if self.cmd_keys['ctrl']:
-					key = key + "Ctrl+"
-				if self.cmd_keys['alt']:
-					key = key + "Alt+"
-
-				if medium_name == "tab":
-					medium_name = u"\u21B9 "
-				if medium_name == "return":
-					medium_name = u"\u23CE "
-				if medium_name == "space":
-					medium_name = " "
-				if medium_name == "esc":
-					medium_name = "Esc "
-
-				if key != '':
-					key = "%s%s " % (key, medium_name)
-				else:
-					key = "%s%s" % (key, medium_name)
-				print key
-			else:
-				return
-		self.show_indicator()
-		self.update_text(key)
-		if self.timer:
-			self.timer.cancel()
-
-		self.timer = threading.Timer(2.0, self.hide_indicator)
-		self.timer.start()
-
-	def on_key_press_event(self, widget, event):
-		key = None
-		#self.show_indicator()
-		#print event.state
-		print event.keyval
-		#print event.string
-		#print event.hardware_keycode
-		#print unichr(event.keyval)
-		if event.keyval == 65307:
-			gtk.main_quit()
-			return
-		elif event.keyval == 65513:
-			key = "Alt "
-		elif event.keyval == 65507:
-			key = "Ctrl "
-		elif event.keyval == 65506 or event.keyval == 65505:
-			key = "Shift"
-			return
-		else:
-			key = unichr(event.keyval)
-		self.show_indicator()
-		self.update_text(key)
-		if self.timer:
-			self.timer.cancel()
-
-		self.timer = threading.Timer(2.0, self.hide_indicator)
-		self.timer.start()
-
-	def preferences_dialog(self, widget, data=None):
-		pref = gtk.Dialog()
-		content = pref.get_content_area()
-		frame = gtk.Frame('Preferences')
-		label = gtk.Label('Etiqueta')
-		frame.add(label)
-		content.pack_start(frame)
-		pref.set_has_separator(True)
-		pref.add_button(gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE)
-		pref.run()
-		pref.destroy()
-
 	def about_dialog(self, widget, data=None):
 		about = gtk.AboutDialog()
 		about.set_program_name(APP_NAME)
 		about.set_version(VERSION)
-		about.set_copyright(u"\u00a9 2010 %s" % AUTHOR)
+		about.set_copyright(u"2010 \u00a9 %s" % AUTHOR)
 		about.set_comments(APP_DESC)
 		about.set_website(APP_URL)
 		about.set_icon_name('preferences-desktop-keyboard-shortcuts')
@@ -409,6 +303,7 @@ class DesktopWindow(threading.Thread):
 
 
 if __name__ == "__main__":
-	dw = DesktopWindow()
+	dw = DesktopWidget()
 	dw.start()
 	gtk.main()
+
