@@ -239,10 +239,7 @@ class DesktopWidget(threading.Thread):
 			key = ""
 		else:
 			if event.value == 1:
-				if code_num in REPLACE_KEYS:
-					key = REPLACE_KEYS[code_num]
-				else:
-					key = key_normal
+				key = key_normal
 				if self.cmd_keys['ctrl']:
 					mod = mod + "Ctrl+"
 				if self.cmd_keys['alt']:
@@ -259,6 +256,8 @@ class DesktopWidget(threading.Thread):
 				if self.cmd_keys['shift'] and self.cmd_keys['meta']:
 					key = key_deadshift
 
+				if code_num in REPLACE_KEYS:
+					key = REPLACE_KEYS[code_num]
 
 				if mod != '':
 					key = "%s%s " % (mod, key)
@@ -267,6 +266,7 @@ class DesktopWidget(threading.Thread):
 			else:
 				return
 		self.show_indicator()
+		print "Debug: %s %s --" % (key, code_num)
 		self.update_text(key)
 		if self.timer:
 			self.timer.cancel()
