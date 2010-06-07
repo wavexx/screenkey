@@ -74,16 +74,6 @@ class Screenkey(gtk.Window):
         self.listenkbd = ListenKbd(self.label)
         self.listenkbd.start()
 
-        try:
-            import appindicator
-            self.systray = appindicator.Indicator(APP_NAME, 'indicator-messages', appindicator.CATEGORY_APPLICATION_STATUS)
-            self.systray.set_status (appindicator.STATUS_ACTIVE)
-            self.systray.set_attention_icon ("indicator-messages-new")
-            self.systray.set_icon("preferences-desktop-keyboard-shortcuts")
-        except(ImportError):
-            self.systray = gtk.StatusIcon()
-            self.systray.set_from_stock(gtk.STOCK_ITALIC)
-
 
         menu = gtk.Menu()
 
@@ -106,18 +96,32 @@ class Screenkey(gtk.Window):
         image.connect("activate", self.quit)
         image.show()
         menu.append(image)
-                    
         menu.show()
 
-        self.systray.set_menu(menu)
+        try:
+            import appindicator
+            self.systray = appindicator.Indicator(APP_NAME, 'indicator-messages', appindicator.CATEGORY_APPLICATION_STATUS)
+            self.systray.set_status (appindicator.STATUS_ACTIVE)
+            self.systray.set_attention_icon ("indicator-messages-new")
+            self.systray.set_icon("preferences-desktop-keyboard-shortcuts")
+            self.systray.set_menu(menu)
+        except(ImportError):
+            self.systray = gtk.StatusIcon()
+            self.systray.set_from_stock(gtk.STOCK_ITALIC)
+            self.systray.connect("popup-menu", self.on_statusicon_popup, menu)
 
-        
 
         self.connect("delete-event", self.quit)
 
     def quit(self, widget, data=None):
         self.listenkbd.stop()
         gtk.main_quit()
+
+    def on_statusicon_popup(self, widget, button, timestamp, data=None):
+        if button == 3:
+            if data:
+                data.show()
+                data.popup(None, None, gtk.status_icon_position_menu, 3, timestamp, widget)
 
     def on_label_change(self, widget, data=None):
         if not self.get_property('visible'):
