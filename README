@@ -7,6 +7,26 @@ Screencast your keys.
 A screencast tool to display your keys inspired by Screenflick
 and based on the key-mon project code.
 
+Usage
+=====
+Download the lastest version from https://launchpad.net/screenkey/+download 
+To run without installing (change x.x by current version number)
+
+  tar xvfz screenkey-x.x.tar.gz
+  cd screenkey-x.x/
+  sudo ./screenkey
+
+To install
+
+  tar xvfz screenkey-x.x.tar.gz
+  cd screenkey-x.x/
+  sudo ./setup.py install
+
+Or you can use dpkg (Debian and Ubuntu)
+
+  sudo dpkg -i screenkey_x.x-y_all.deb
+
+
 Author
 ======
 Pablo Seminario <pabluk@gmail.com>
