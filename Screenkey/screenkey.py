@@ -26,7 +26,7 @@ gtk.gdk.threads_init()
 APP_NAME = 'Screenkey'
 APP_DESC = 'Screencast your keys'
 APP_URL = 'http://launchpad.net/screenkey'
-VERSION = '0.1'
+VERSION = '0.1.1'
 AUTHOR = 'Pablo Seminario'
 
 class Screenkey(gtk.Window):

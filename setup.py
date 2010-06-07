@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
     name = 'screenkey',
-    version = '0.1',
+    version = '0.1.1',
     packages = ['Screenkey'],
     package_dir = {'Screenkey': 'Screenkey'},
     data_files = [('/usr/share/applications', ['data/screenkey.desktop'])],
