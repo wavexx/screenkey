@@ -87,17 +87,20 @@ class Screenkey(gtk.Window):
 
         menu = gtk.Menu()
 
-        check = gtk.CheckMenuItem("Run thread")
-        check.set_active(True)
-        check.connect("toggled", self.on_thread_toggle)
-        check.show()
-        menu.append(check)
-
-        show_item = gtk.CheckMenuItem("Show window")
+        show_item = gtk.CheckMenuItem("Show keys")
         show_item.set_active(True)
-        show_item.connect("toggled", self.on_window_show_toggle)
+        show_item.connect("toggled", self.on_show_keys)
         show_item.show()
         menu.append(show_item)
+
+        about_item = gtk.ImageMenuItem(gtk.STOCK_ABOUT)
+        about_item.connect("activate", self.on_about_dialog)
+        about_item.show()
+        menu.append(about_item)
+
+        separator_item = gtk.SeparatorMenuItem()
+        separator_item.show()
+        menu.append(separator_item)
 
         image = gtk.ImageMenuItem(gtk.STOCK_QUIT)
         image.connect("activate", self.quit)
@@ -133,19 +136,26 @@ class Screenkey(gtk.Window):
         self.hide()
         self.label.set_text("")
 
-    def on_window_show_toggle(self, widget, data=None):
-        if widget.get_active():
-            self.show()
-        else:
-            self.hide()
-
-    def on_thread_toggle(self, widget, data=None):
+    def on_show_keys(self, widget, data=None):
         if widget.get_active():
             self.listenkbd.stopEvent.clear()
             self.listenkbd = ListenKbd(self.label)
             self.listenkbd.start()
         else:
             self.listenkbd.stop()
+
+    def on_about_dialog(self, widget, data=None):
+        about = gtk.AboutDialog()
+        about.set_program_name(APP_NAME)
+        about.set_version(VERSION)
+        about.set_copyright(u"2010 \u00a9 %s" % AUTHOR)
+        about.set_comments(APP_DESC)
+        about.set_website(APP_URL)
+        about.set_icon_name('preferences-desktop-keyboard-shortcuts')
+        about.set_logo_icon_name('preferences-desktop-keyboard-shortcuts')
+        about.run()
+        about.destroy()
+
 
 def Main():
     s = Screenkey()
