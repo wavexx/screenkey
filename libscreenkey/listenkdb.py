@@ -99,7 +99,7 @@ class ListenKbd(threading.Thread):
                 self.cmd_keys['alt'] = False
             return
         # Meta key 
-        # Fixme: we must use self.modifiers['mod5']
+        # Fixme: it must use self.modifiers['mod5']
         #        but doesn't work
         if code_num == 100:
             if event.value in (1, 2):
@@ -138,7 +138,7 @@ class ListenKbd(threading.Thread):
             return
         # Backspace key
         elif code_num == 14 and event.value == 1:
-            self.text = self.text[:-1]
+            self.label.set_text(self.label.get_text()[:-1])
             key = ""
         else:
             if event.value == 1:
@@ -168,14 +168,7 @@ class ListenKbd(threading.Thread):
                     key = "%s%s" % (mod, key)
             else:
                 return
-        #self.show_indicator()
-        #print "Debug: %s %s --" % (key, code_num)
         self.update_text(key)
-        #if self.timer:
-        #    self.timer.cancel()
-
-        #self.timer = threading.Timer(2.5, self.hide_indicator)
-        #self.timer.start()
 
     def DeviceFound(self, finder, device):
         dev = evdev.Device(device.block)
