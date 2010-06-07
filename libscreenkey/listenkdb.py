@@ -75,7 +75,7 @@ class ListenKbd(threading.Thread):
 
     def update_text(self, string=None):
         if not string is None:
-            self.text = "%s%s" % (self.text, string)
+            self.text = "%s%s" % (self.label.get_text(), string)
             self.label.set_text(self.text)
         else:
             self.label.set_text("")
