@@ -1,11 +1,13 @@
 #!/bin/bash
 
+# To run from another directory
 DIR=`dirname $0`
 cd $DIR
 
+# Test input device read access
 if [ -r /dev/input/event0 ]
 then
-  python -c 'import libscreenkey.screenkey as s;s.Main()' $*
+  python -c 'import Screenkey.screenkey as s;s.Main()' $*
 else
-  gksu -D Screenkey "python -c 'import libscreenkey.screenkey as s;s.Main()' $*"
+  gksu -D Screenkey "python -c 'import Screenkey.screenkey as s;s.Main()' $*"
 fi
