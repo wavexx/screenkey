@@ -2,9 +2,9 @@
 Encoding=UTF-8
 Name=Screenkey
 Comment=Screencast your keys
-Version=1.0
-Exec=/home/pabluk/dev/projects/screenkey/screenkey
+Version=0.1
+Exec=screenkey
 Terminal=false
-Icon=/usr/share/icons/gnome/scalable/apps/preferences-desktop-keyboard-shortcuts.svg
+Icon=preferences-desktop-keyboard-shortcuts
 Type=Application
 Categories=GNOME;Utility

@@ -9,5 +9,5 @@ if [ -r /dev/input/event0 ]
 then
   python -c 'import Screenkey.screenkey as s;s.Main()' $*
 else
-  gksu -D Screenkey "python -c 'import Screenkey.screenkey as s;s.Main()' $*"
+  gksu -D "Screenkey " "python -c 'import Screenkey.screenkey as s;s.Main()' $*"
 fi

@@ -79,7 +79,7 @@ class Screenkey(gtk.Window):
             self.systray = appindicator.Indicator(APP_NAME, 'indicator-messages', appindicator.CATEGORY_APPLICATION_STATUS)
             self.systray.set_status (appindicator.STATUS_ACTIVE)
             self.systray.set_attention_icon ("indicator-messages-new")
-            self.systray.set_icon("gtk-bold")
+            self.systray.set_icon("preferences-desktop-keyboard-shortcuts")
         except(ImportError):
             self.systray = gtk.StatusIcon()
             self.systray.set_from_stock(gtk.STOCK_ITALIC)
