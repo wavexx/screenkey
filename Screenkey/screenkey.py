@@ -128,6 +128,7 @@ class Screenkey(gtk.Window):
             gtk.gdk.threads_enter()
             window_width, window_height = self.get_size()
             self.move(0, self.screen_height - window_height * 2)
+            self.stick()
             self.show()
             gtk.gdk.threads_leave()
         if self.timer:
