@@ -75,13 +75,10 @@ class ListenKbd(threading.Thread):
 
     def update_text(self, string=None):
         if not string is None:
-            self.label.set_markup("<span font='Sans Bold 28'>"
-                "<span color='#777'>%s</span>"
-                "<span color='#fff'>%s</span></span>"
-                % (self.text, string))
             self.text = "%s%s" % (self.text, string)
+            self.label.set_text(self.text)
         else:
-            self.label.set_markup("")
+            self.label.set_text("")
         self.label.emit("text-changed")
  
     def key_press(self, event):

@@ -53,13 +53,18 @@ class Screenkey(gtk.Window):
         self.screen_width = gtk.gdk.screen_width()   
         self.screen_height = gtk.gdk.screen_height() 
         window_width = self.screen_width
-        window_height = 10 * self.screen_height / 100
+        window_height = 12 * self.screen_height / 100
         self.set_default_size(window_width, window_height)
         self.move(0, self.screen_height - window_height * 2)
 
         gobject.signal_new("text-changed", gtk.Label, gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ())
-        self.label = gtk.Label("screenkey")
-        self.label.set_use_markup(True)
+        attr = pango.AttrList()
+        attr.change(pango.AttrSize((50 * window_height / 100) * 1000, 0, -1))
+        attr.change(pango.AttrFamily("Sans", 0, -1))
+        attr.change(pango.AttrWeight(pango.WEIGHT_BOLD, 0, -1))
+        attr.change(pango.AttrForeground(65535, 65535, 65535, 0, -1))
+        self.label = gtk.Label()
+        self.label.set_attributes(attr)
         self.label.set_justify(gtk.JUSTIFY_RIGHT)
         self.label.set_ellipsize(pango.ELLIPSIZE_START)
         self.label.connect("text-changed", self.on_label_change)
@@ -106,7 +111,6 @@ class Screenkey(gtk.Window):
         
 
         self.connect("delete-event", self.quit)
-        #self.show_all()
 
     def quit(self, widget, data=None):
         self.listenkbd.stop()
@@ -122,8 +126,12 @@ class Screenkey(gtk.Window):
         if self.timer:
             self.timer.cancel()
 
-        self.timer = Timer(2.5, self.hide)
+        self.timer = Timer(2.5, self.on_timeout)
         self.timer.start()
+
+    def on_timeout(self):
+        self.hide()
+        self.label.set_text("")
 
     def on_window_show_toggle(self, widget, data=None):
         if widget.get_active():
