@@ -1,0 +1,2 @@
+include screenkey README
+recursive-include data *
