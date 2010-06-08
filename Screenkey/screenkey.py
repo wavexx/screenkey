@@ -107,7 +107,7 @@ class Screenkey(gtk.Window):
             self.systray.set_menu(menu)
         except(ImportError):
             self.systray = gtk.StatusIcon()
-            self.systray.set_from_stock(gtk.STOCK_ITALIC)
+            self.systray.set_from_icon_name("preferences-desktop-keyboard-shortcuts")
             self.systray.connect("popup-menu", self.on_statusicon_popup, menu)
 
 
