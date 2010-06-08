@@ -37,6 +37,7 @@ REPLACE_KEYS = {
     68:u'F10 ', 
     87:u'F11 ', 
     88:u'F12 ', 
+    99:u'', 
     102:u'Home ',
     103:u'\u2191',
     104:u'PgUp ',
@@ -105,6 +106,7 @@ class ListenKbd(threading.Thread):
 
         key = ''
         mod = ''
+
         # Alt key
         if code_num in self.modifiers['mod1']:
             if event.value in (1, 2):
@@ -175,6 +177,8 @@ class ListenKbd(threading.Thread):
 
                 if code_num in REPLACE_KEYS:
                     key = REPLACE_KEYS[code_num]
+                    if not key:
+                        return
 
                 if mod != '':
                     key = "%s%s " % (mod, key)
