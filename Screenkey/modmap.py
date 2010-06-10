@@ -33,29 +33,48 @@ def get_keymap_table():
         if len(line) > 0:
             keycode = re.search(r'\s+(\d+).*', line)
             if keycode:
-		new_keysyms = []
+                new_keysyms = []
                 keycode = int(keycode.group(1))
                 keysyms = re_line.findall(line)
                 # When you press only one key
+                unicode_char = ''
                 try:
-                    new_keysyms.append(unichr(int(keysyms[0], 16)))
+                    unicode_char = unichr(int(keysyms[0], 16))
                 except:
-                    new_keysyms.append('')
+                    unicode_char = ''
+                if unicode_char == u'\x00':
+                    unicode_char = ''
+                new_keysyms.append(unicode_char)
+
                 # When you press a key plus Shift key
+                unicode_char = ''
                 try:
-                    new_keysyms.append(unichr(int(keysyms[1], 16)))
+                    unicode_char = unichr(int(keysyms[1], 16))
                 except:
-                    new_keysyms.append('')
+                    unicode_char = ''
+                if unicode_char == u'\x00':
+                    unicode_char = ''
+                new_keysyms.append(unicode_char)
+
                 # When you press a key plus meta (dead keys)
+                unicode_char = ''
                 try:
-                    new_keysyms.append(unichr(int(keysyms[4], 16)))
+                    unicode_char = unichr(int(keysyms[4], 16))
                 except:
-                    new_keysyms.append('')
+                    unicode_char = ''
+                if unicode_char == u'\x00':
+                    unicode_char = ''
+                new_keysyms.append(unicode_char)
+
                 # When you press a key plus meta plus Shift key (dead keys)
+                unicode_char = ''
                 try:
-                    new_keysyms.append(unichr(int(keysyms[5], 16)))
+                    unicode_char = unichr(int(keysyms[5], 16))
                 except:
-                    new_keysyms.append('')
+                    unicode_char = ''
+                if unicode_char == u'\x00':
+                    unicode_char = ''
+                new_keysyms.append(unicode_char)
 
     		keymap[keycode-8] = new_keysyms
 
@@ -75,7 +94,7 @@ def get_modifier_map():
                 keycodes = re_line.findall(line)
                 # Convert key codes from hex to dec for use them
                 # with the keymap table
-		# range from 8 to 255 (-8)
+                # range from 8 to 255 (-8)
                 keycodes =[ int(kc, 16)-8 for kc in keycodes]
                 
                 modifiers[mod_name] = keycodes
