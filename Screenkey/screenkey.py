@@ -155,7 +155,7 @@ class Screenkey(gtk.Window):
         about.set_version(VERSION)
         about.set_copyright(u"2010 \u00a9 %s" % AUTHOR)
         about.set_comments(APP_DESC)
-        about.set_documenters(["Jose Maria Quiroga <pepelandia@gmail.com>"])
+        about.set_documenters([u"Jos\xe9 Mar\xeda Quiroga <pepelandia@gmail.com>"])
         about.set_website(APP_URL)
         about.set_icon_name('preferences-desktop-keyboard-shortcuts')
         about.set_logo_icon_name('preferences-desktop-keyboard-shortcuts')
