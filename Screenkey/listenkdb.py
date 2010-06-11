@@ -55,8 +55,10 @@ class ListenKbd(threading.Thread):
 
     stopEvent = threading.Event()
 
-    def __init__(self, label):
+    def __init__(self, label, logger):
         threading.Thread.__init__(self)
+
+        self.logger = logger
         self.label = label
         self.text = ""
         self.timer = None
@@ -100,8 +102,9 @@ class ListenKbd(threading.Thread):
         code_num = event.codeMaps[event.type].toNumber(event.code)
         if code_num in self.keymap:
             key_normal, key_shift, key_dead, key_deadshift = self.keymap[code_num]
+            self.logger.debug("keycode %s keys %s" % (code_num, self.keymap[code_num]))
         else:
-            print 'No mapping for scan_code %d' % code_num
+            self.logger.info('No mapping for scan_code %d' % code_num)
             return
 
         key = ''

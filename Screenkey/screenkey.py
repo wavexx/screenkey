@@ -19,6 +19,9 @@ pygtk.require('2.0')
 import gtk
 import gobject
 import pango
+import logging
+from optparse import OptionParser
+
 from threading import Timer
 from listenkdb import ListenKbd
 
@@ -32,12 +35,14 @@ AUTHOR = 'Pablo Seminario'
 
 class Screenkey(gtk.Window):
 
-    def __init__(self):
+    def __init__(self, logger):
         gtk.Window.__init__(self)
 
         self.timer = None
+        self.logger = logger
 
         self.drop_tty()
+
         self.set_skip_taskbar_hint(True)
         self.set_skip_pager_hint(True)
         self.set_keep_above(True)
@@ -73,7 +78,7 @@ class Screenkey(gtk.Window):
         self.label.show()
         self.add(self.label)
 
-        self.listenkbd = ListenKbd(self.label)
+        self.listenkbd = ListenKbd(self.label, logger=self.logger)
         self.listenkbd.start()
 
 
@@ -173,7 +178,24 @@ class Screenkey(gtk.Window):
         os.setsid()
 
 def Main():
-    s = Screenkey()
+    parser = OptionParser(description=APP_DESC)
+    parser.add_option("-d", "--debug", action="store_true", dest="debug",
+        default=False, help="show debug information")
+    (options, args) = parser.parse_args()
+
+    if options.debug:
+        logfile = os.path.join(os.path.expanduser('~'), '.screenkey.log')
+        username = os.environ.get('SUDO_USER')
+        if username:
+            homedir = os.path.expanduser('~%s' % username)
+            if homedir != '~%s' % username:
+                logfile = os.path.join(homedir, '.screenkey.log')
+        logging.basicConfig(filename=logfile, level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(APP_NAME)
+
+    s = Screenkey(logger=logger)
     gtk.main()
 
 
