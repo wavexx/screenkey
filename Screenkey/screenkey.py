@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # Copyright (c) 2010 Pablo Seminario <pabluk@gmail.com>
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -12,6 +11,8 @@
 # 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import os
 
 import pygtk
 pygtk.require('2.0')
@@ -36,6 +37,7 @@ class Screenkey(gtk.Window):
 
         self.timer = None
 
+        self.drop_tty()
         self.set_skip_taskbar_hint(True)
         self.set_skip_pager_hint(True)
         self.set_keep_above(True)
@@ -162,6 +164,13 @@ class Screenkey(gtk.Window):
         about.run()
         about.destroy()
 
+    def drop_tty(self):
+        # We fork and setsid so that we drop the controlling
+        # tty.
+        if os.fork() != 0:
+            os._exit(0)
+
+        os.setsid()
 
 def Main():
     s = Screenkey()
