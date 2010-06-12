@@ -188,7 +188,7 @@ class ListenKbd(threading.Thread):
                 # Backspace key
                 elif event.detail == 22 and event.type == X.KeyPress:
                     if len(self.label.get_text()) > 0:
-                        self.label.set_text(self.label.get_text()[:-1])
+                        self.label.set_text(unicode(self.label.get_text(), 'utf-8')[:-1])
                         key = ""
                     else:
                         return
