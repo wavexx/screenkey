@@ -119,7 +119,7 @@ class ListenKbd(threading.Thread):
         if reply.category != record.FromServer:
             return
         if reply.client_swapped:
-            print "* received swapped protocol data, cowardly ignored"
+            self.logger.warning("* received swapped protocol data, cowardly ignored")
             return
         if not len(reply.data) or ord(reply.data[0]) < 2:
             # not an event
@@ -220,8 +220,6 @@ class ListenKbd(threading.Thread):
                     else:
                         return
 
-        print len(key)
-        print "--%s--" % key
         self.update_text(key)
 
     def stop(self):
