@@ -76,7 +76,8 @@ def get_keymap_table():
                     unicode_char = ''
                 new_keysyms.append(unicode_char)
 
-    		keymap[keycode-8] = new_keysyms
+    		#keymap[keycode-8] = new_keysyms
+    		keymap[keycode] = new_keysyms
 
     return keymap
 
@@ -94,8 +95,7 @@ def get_modifier_map():
                 keycodes = re_line.findall(line)
                 # Convert key codes from hex to dec for use them
                 # with the keymap table
-                # range from 8 to 255 (-8)
-                keycodes =[ int(kc, 16)-8 for kc in keycodes]
+                keycodes =[ int(kc, 16) for kc in keycodes]
                 
                 modifiers[mod_name] = keycodes
 
