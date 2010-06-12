@@ -13,35 +13,27 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-
 import pygtk
 pygtk.require('2.0')
 import gtk
 import gobject
 import pango
-import logging
-from optparse import OptionParser
-
 from threading import Timer
+
+from Screenkey import APP_NAME, APP_DESC, APP_URL, VERSION, AUTHOR
 from listenkdb import ListenKbd
 
-gtk.gdk.threads_init()
-
-APP_NAME = 'Screenkey'
-APP_DESC = 'Screencast your keys'
-APP_URL = 'http://launchpad.net/screenkey'
-VERSION = '0.1.1'
-AUTHOR = 'Pablo Seminario'
 
 class Screenkey(gtk.Window):
 
-    def __init__(self, logger):
+    def __init__(self, logger, nodetach):
         gtk.Window.__init__(self)
 
         self.timer = None
         self.logger = logger
 
-        self.drop_tty()
+        if not nodetach:
+            self.drop_tty()
 
         self.set_skip_taskbar_hint(True)
         self.set_skip_pager_hint(True)
@@ -150,10 +142,12 @@ class Screenkey(gtk.Window):
 
     def on_show_keys(self, widget, data=None):
         if widget.get_active():
-            self.listenkbd.stopEvent.clear()
-            self.listenkbd = ListenKbd(self.label)
+            pass
+            #self.listenkbd.stopEvent.clear()
+            self.listenkbd = ListenKbd(self.label, logger=self.logger)
             self.listenkbd.start()
         else:
+            pass
             self.listenkbd.stop()
 
     def on_about_dialog(self, widget, data=None):
@@ -166,7 +160,9 @@ class Screenkey(gtk.Window):
         about.set_website(APP_URL)
         about.set_icon_name('preferences-desktop-keyboard-shortcuts')
         about.set_logo_icon_name('preferences-desktop-keyboard-shortcuts')
+        gtk.gdk.threads_enter()
         about.run()
+        gtk.gdk.threads_leave()
         about.destroy()
 
     def drop_tty(self):
@@ -176,29 +172,4 @@ class Screenkey(gtk.Window):
             os._exit(0)
 
         os.setsid()
-
-def Main():
-    parser = OptionParser(description=APP_DESC)
-    parser.add_option("-d", "--debug", action="store_true", dest="debug",
-        default=False, help="show debug information")
-    (options, args) = parser.parse_args()
-
-    if options.debug:
-        logfile = os.path.join(os.path.expanduser('~'), '.screenkey.log')
-        username = os.environ.get('SUDO_USER')
-        if username:
-            homedir = os.path.expanduser('~%s' % username)
-            if homedir != '~%s' % username:
-                logfile = os.path.join(homedir, '.screenkey.log')
-        logging.basicConfig(filename=logfile, level=logging.DEBUG)
-    else:
-        logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(APP_NAME)
-
-    s = Screenkey(logger=logger)
-    gtk.main()
-
-
-if __name__ == "__main__":
-    Main()
 
