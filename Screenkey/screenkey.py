@@ -17,7 +17,9 @@ import pygtk
 pygtk.require('2.0')
 import gtk
 import gobject
+import glib
 import pango
+import pickle
 from threading import Timer
 
 from Screenkey import APP_NAME, APP_DESC, APP_URL, VERSION, AUTHOR
@@ -51,18 +53,22 @@ class Screenkey(gtk.Window):
         MODE_NORMAL:'Normal',
     }
 
+    STATE_FILE = os.path.join(glib.get_user_cache_dir(), 'screenkey.dat')
+
     def __init__(self, logger, nodetach):
         gtk.Window.__init__(self)
 
         self.timer = None
         self.logger = logger
 
-        self.options = {
-            'timeout': 2.5,
-            'position': POS_BOTTOM,
-            'size': SIZE_MEDIUM,
-            'mode': MODE_NORMAL,
-            }
+        self.options = self.load_state()
+        if not self.options:
+            self.options = {
+                'timeout': 2.5,
+                'position': POS_BOTTOM,
+                'size': SIZE_MEDIUM,
+                'mode': MODE_NORMAL,
+                }
 
         if not nodetach:
             self.drop_tty()
@@ -146,7 +152,32 @@ class Screenkey(gtk.Window):
         self.listenkbd.stop()
         gtk.main_quit()
 
+    def load_state(self):
+        """Load stored options"""
+        options = None
+        try:
+            f = open(self.STATE_FILE, 'r')
+            try:
+                options = pickle.load(f)
+            except:
+                f.close()
+        except IOError:
+            self.logger.error("file %s does not exists." % STATE_FILE)
+        return options
+
+    def store_state(self, options):
+        """Store options"""
+        try:
+            f = open(self.STATE_FILE, 'w')
+            try:
+                pickle.dump(options, f)
+            except:
+                f.close()
+        except IOError:
+            self.logger.error("Cannot open %s." % STATE_FILE)
+
     def set_window_size(self, setting):
+        """Set window and label size."""
         window_width = self.screen_width
         window_height = -1
 
@@ -167,6 +198,7 @@ class Screenkey(gtk.Window):
         self.resize(window_width, window_height)
 
     def set_xy_position(self, setting):
+        """Set window position."""
         window_width, window_height = self.get_size()
         if setting == POS_TOP:
             self.move(0, window_height * 2)
@@ -184,7 +216,6 @@ class Screenkey(gtk.Window):
     def on_label_change(self, widget, data=None):
         if not self.get_property('visible'):
             gtk.gdk.threads_enter()
-            self.set_window_size(self.options['size'])
             self.set_xy_position(self.options['position'])
             self.stick()
             self.show()
@@ -202,7 +233,6 @@ class Screenkey(gtk.Window):
     def on_show_keys(self, widget, data=None):
         if widget.get_active():
             pass
-            #self.listenkbd.stopEvent.clear()
             self.listenkbd = ListenKbd(self.label, logger=self.logger)
             self.listenkbd.start()
         else:
@@ -216,6 +246,12 @@ class Screenkey(gtk.Window):
         def on_sb_time_changed(widget, data=None):
             self.options['timeout'] = widget.get_value()
 
+        def on_cbox_sizes_changed(widget, data=None):
+            index = widget.get_active()
+            if index >= 0:
+                self.options['size'] = index
+                self.set_window_size(self.options['size'])
+
         def on_cbox_changed(widget, data=None):
             index = widget.get_active()
             name = widget.get_name()
@@ -227,6 +263,7 @@ class Screenkey(gtk.Window):
         vbox_main = gtk.VBox()
 
         frm_time = gtk.Frame("<b>Time</b>")
+        frm_time.set_border_width(4)
         frm_time.get_label_widget().set_use_markup(True)
         frm_time.set_shadow_type(gtk.SHADOW_NONE)
         hbox_time = gtk.HBox()
@@ -239,16 +276,17 @@ class Screenkey(gtk.Window):
         sb_time.set_update_policy(gtk.UPDATE_IF_VALID)
         sb_time.set_value(self.options['timeout'])
         sb_time.connect("value-changed", on_sb_time_changed)
-        hbox_time.pack_start(lbl_time1, expand=False, fill=False, padding=4)
+        hbox_time.pack_start(lbl_time1, expand=False, fill=False, padding=10)
         hbox_time.pack_start(sb_time, expand=False, fill=False, padding=4)
         hbox_time.pack_start(lbl_time2, expand=False, fill=False, padding=4)
         frm_time.add(hbox_time)
         frm_time.show_all()
 
         frm_aspect = gtk.Frame("<b>Aspect</b>")
+        frm_aspect.set_border_width(4)
         frm_aspect.get_label_widget().set_use_markup(True)
         frm_aspect.set_shadow_type(gtk.SHADOW_NONE)
-        vbox_aspect = gtk.VBox(spacing=4)
+        vbox_aspect = gtk.VBox(spacing=6)
 
         hbox1_aspect = gtk.HBox()
 
@@ -260,7 +298,7 @@ class Screenkey(gtk.Window):
         cbox_positions.set_active(self.options['position'])
         cbox_positions.connect("changed", on_cbox_changed)
 
-        hbox1_aspect.pack_start(lbl_positions, expand=False, fill=False, padding=4)
+        hbox1_aspect.pack_start(lbl_positions, expand=False, fill=False, padding=10)
         hbox1_aspect.pack_start(cbox_positions, expand=False, fill=False, padding=4)
 
         hbox2_aspect = gtk.HBox()
@@ -271,9 +309,9 @@ class Screenkey(gtk.Window):
         for key, value in self.SIZES.items():
             cbox_sizes.insert_text(key, value)
         cbox_sizes.set_active(self.options['size'])
-        cbox_sizes.connect("changed", on_cbox_changed)
+        cbox_sizes.connect("changed", on_cbox_sizes_changed)
 
-        hbox2_aspect.pack_start(lbl_sizes, expand=False, fill=False, padding=4)
+        hbox2_aspect.pack_start(lbl_sizes, expand=False, fill=False, padding=10)
         hbox2_aspect.pack_start(cbox_sizes, expand=False, fill=False, padding=4)
 
         vbox_aspect.pack_start(hbox1_aspect)
@@ -281,6 +319,7 @@ class Screenkey(gtk.Window):
         frm_aspect.add(vbox_aspect)
 
         frm_kbd = gtk.Frame("<b>Keys</b>")
+        frm_kbd.set_border_width(4)
         frm_kbd.get_label_widget().set_use_markup(True)
         frm_kbd.set_shadow_type(gtk.SHADOW_NONE)
         hbox_kbd = gtk.HBox()
@@ -291,7 +330,7 @@ class Screenkey(gtk.Window):
             cbox_modes.insert_text(key, value)
         cbox_modes.set_active(self.options['mode'])
         cbox_modes.connect("changed", on_cbox_changed)
-        hbox_kbd.pack_start(lbl_kbd, expand=False, fill=False, padding=4)
+        hbox_kbd.pack_start(lbl_kbd, expand=False, fill=False, padding=10)
         hbox_kbd.pack_start(cbox_modes, expand=False, fill=False, padding=4)
         frm_kbd.add(hbox_kbd)
 
@@ -308,6 +347,8 @@ class Screenkey(gtk.Window):
         prefs.vbox.show_all()
         gtk.gdk.threads_enter()
         response = prefs.run()
+        if response:
+            self.store_state(self.options)
         gtk.gdk.threads_leave()
         prefs.destroy()
 
