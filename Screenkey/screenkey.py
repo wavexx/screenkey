@@ -162,7 +162,7 @@ class Screenkey(gtk.Window):
             except:
                 f.close()
         except IOError:
-            self.logger.error("file %s does not exists." % STATE_FILE)
+            self.logger.error("file %s does not exists." % self.STATE_FILE)
         return options
 
     def store_state(self, options):
@@ -174,7 +174,7 @@ class Screenkey(gtk.Window):
             except:
                 f.close()
         except IOError:
-            self.logger.error("Cannot open %s." % STATE_FILE)
+            self.logger.error("Cannot open %s." % self.STATE_FILE)
 
     def set_window_size(self, setting):
         """Set window and label size."""
