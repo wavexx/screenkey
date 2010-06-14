@@ -268,7 +268,7 @@ class Screenkey(gtk.Window):
                 self.options[name] = index
 
         frm_main = gtk.Frame("Preferences")
-        frm_main.set_border_width(4)
+        frm_main.set_border_width(6)
         vbox_main = gtk.VBox()
 
         frm_time = gtk.Frame("<b>Time</b>")
@@ -285,7 +285,7 @@ class Screenkey(gtk.Window):
         sb_time.set_update_policy(gtk.UPDATE_IF_VALID)
         sb_time.set_value(self.options['timeout'])
         sb_time.connect("value-changed", on_sb_time_changed)
-        hbox_time.pack_start(lbl_time1, expand=False, fill=False, padding=10)
+        hbox_time.pack_start(lbl_time1, expand=False, fill=False, padding=6)
         hbox_time.pack_start(sb_time, expand=False, fill=False, padding=4)
         hbox_time.pack_start(lbl_time2, expand=False, fill=False, padding=4)
         frm_time.add(hbox_time)
@@ -307,7 +307,7 @@ class Screenkey(gtk.Window):
         cbox_positions.set_active(self.options['position'])
         cbox_positions.connect("changed", on_cbox_changed)
 
-        hbox1_aspect.pack_start(lbl_positions, expand=False, fill=False, padding=10)
+        hbox1_aspect.pack_start(lbl_positions, expand=False, fill=False, padding=6)
         hbox1_aspect.pack_start(cbox_positions, expand=False, fill=False, padding=4)
 
         hbox2_aspect = gtk.HBox()
@@ -320,7 +320,7 @@ class Screenkey(gtk.Window):
         cbox_sizes.set_active(self.options['size'])
         cbox_sizes.connect("changed", on_cbox_sizes_changed)
 
-        hbox2_aspect.pack_start(lbl_sizes, expand=False, fill=False, padding=10)
+        hbox2_aspect.pack_start(lbl_sizes, expand=False, fill=False, padding=6)
         hbox2_aspect.pack_start(cbox_sizes, expand=False, fill=False, padding=4)
 
         vbox_aspect.pack_start(hbox1_aspect)
@@ -339,7 +339,7 @@ class Screenkey(gtk.Window):
             cbox_modes.insert_text(key, value)
         cbox_modes.set_active(self.options['mode'])
         cbox_modes.connect("changed", on_cbox_modes_changed)
-        hbox_kbd.pack_start(lbl_kbd, expand=False, fill=False, padding=10)
+        hbox_kbd.pack_start(lbl_kbd, expand=False, fill=False, padding=6)
         hbox_kbd.pack_start(cbox_modes, expand=False, fill=False, padding=4)
         frm_kbd.add(hbox_kbd)
 
