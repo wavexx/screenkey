@@ -100,7 +100,7 @@ class Screenkey(gtk.Window):
         self.set_gravity(gtk.gdk.GRAVITY_CENTER)
         self.set_xy_position(self.options['position'])
 
-        self.listenkbd = ListenKbd(self.label, logger=self.logger)
+        self.listenkbd = ListenKbd(self.label, logger=self.logger, mode=self.options['mode'])
         self.listenkbd.start()
 
 
@@ -230,13 +230,16 @@ class Screenkey(gtk.Window):
         self.hide()
         self.label.set_text("")
 
+    def on_change_mode(self, mode):
+        self.listenkbd.stop()
+        self.listenkbd = ListenKbd(self.label, logger=self.logger, mode=mode)
+        self.listenkbd.start()
+
     def on_show_keys(self, widget, data=None):
         if widget.get_active():
-            pass
-            self.listenkbd = ListenKbd(self.label, logger=self.logger)
+            self.listenkbd = ListenKbd(self.label, logger=self.logger, mode=self.options['mode'])
             self.listenkbd.start()
         else:
-            pass
             self.listenkbd.stop()
 
     def on_preferences_dialog(self, widget, data=None):
@@ -251,6 +254,12 @@ class Screenkey(gtk.Window):
             if index >= 0:
                 self.options['size'] = index
                 self.set_window_size(self.options['size'])
+
+        def on_cbox_modes_changed(widget, data=None):
+            index = widget.get_active()
+            if index >= 0:
+                self.options['mode'] = index
+                self.on_change_mode(self.options['mode'])
 
         def on_cbox_changed(widget, data=None):
             index = widget.get_active()
@@ -329,7 +338,7 @@ class Screenkey(gtk.Window):
         for key, value in self.MODES.items():
             cbox_modes.insert_text(key, value)
         cbox_modes.set_active(self.options['mode'])
-        cbox_modes.connect("changed", on_cbox_changed)
+        cbox_modes.connect("changed", on_cbox_modes_changed)
         hbox_kbd.pack_start(lbl_kbd, expand=False, fill=False, padding=10)
         hbox_kbd.pack_start(cbox_modes, expand=False, fill=False, padding=4)
         frm_kbd.add(hbox_kbd)

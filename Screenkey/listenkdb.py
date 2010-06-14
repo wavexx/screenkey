@@ -21,6 +21,8 @@ from Xlib import X, XK, display
 from Xlib.ext import record
 from Xlib.protocol import rq
 
+MODE_RAW = 0
+MODE_NORMAL = 1
 
 REPLACE_KEYS = {
     'XK_Escape':u'Esc ',
@@ -54,8 +56,9 @@ REPLACE_KEYS = {
 
 class ListenKbd(threading.Thread):
 
-    def __init__(self, label, logger):
+    def __init__(self, label, logger, mode):
         threading.Thread.__init__(self)
+        self.mode = mode
         self.logger = logger
         self.label = label
         self.text = ""
@@ -102,10 +105,15 @@ class ListenKbd(threading.Thread):
         for name in dir(XK):
             if name[:3] == "XK_" and getattr(XK, name) == keysym:
                 self.logger.debug(name)
-                if name in REPLACE_KEYS:
-                    return REPLACE_KEYS[name]
                 return name[3:]
         return ""
+
+    def replace_key(self, key, keysym):
+        for name in dir(XK):
+            if name[:3] == "XK_" and getattr(XK, name) == keysym:
+                self.logger.debug(name)
+                if name in REPLACE_KEYS:
+                    return REPLACE_KEYS[name]
 
     def update_text(self, string=None):
         if not string is None:
@@ -125,102 +133,123 @@ class ListenKbd(threading.Thread):
             # not an event
             return
         data = reply.data
-        key = ''
-        mod = ''
+        key = None
         while len(data):
             event, data = rq.EventField(None).parse_binary_value(data, self.record_dpy.display, None, None)
             if event.type in [X.KeyPress, X.KeyRelease]:
-                keysym = self.local_dpy.keycode_to_keysym(event.detail, 0)
-
-                if event.detail in self.keymap:
-                    key_normal, key_shift, key_dead, key_deadshift = self.keymap[event.detail]
-                    self.logger.debug("keycode %s keys %s" % (event.detail, self.keymap[event.detail]))
-                else:
-                    self.logger.info('No mapping for scan_code %d' % event.detail)
+                if self.mode == MODE_NORMAL:
+                    key = self.key_normal_mode(event)
+                if self.mode == MODE_RAW:
+                    key = self.key_raw_mode(event)
+                if not key:
                     return
-
-
-                # Alt key
-                if event.detail in self.modifiers['mod1']:
-                    if event.type == X.KeyPress:
-                        self.cmd_keys['alt'] = True
-                    else:
-                        self.cmd_keys['alt'] = False
-                    return
-                # Meta key 
-                # Fixme: it must use self.modifiers['mod5']
-                #        but doesn't work
-                if event.detail == 108:
-                    if event.type == X.KeyPress:
-                        self.cmd_keys['meta'] = True
-                    else:
-                        self.cmd_keys['meta'] = False
-                    return
-                # Super key 
-                if event.detail in self.modifiers['mod4']:
-                    if event.type == X.KeyPress:
-                        self.cmd_keys['super'] = True
-                    else:
-                        self.cmd_keys['super'] = False
-                    return
-                # Ctrl keys
-                elif event.detail in self.modifiers['control']:
-                    if event.type == X.KeyPress:
-                        self.cmd_keys['ctrl'] = True
-                    else:
-                        self.cmd_keys['ctrl'] = False
-                    return
-                # Shift keys
-                elif event.detail in self.modifiers['shift']:
-                    if event.type == X.KeyPress:
-                        self.cmd_keys['shift'] = True
-                    else:
-                        self.cmd_keys['shift'] = False
-                    return
-                # Capslock key
-                elif event.detail in self.modifiers['lock']:
-                    if event.type == X.KeyPress:
-                        if self.cmd_keys['capslock']:
-                            self.cmd_keys['capslock'] = False
-                        else:
-                            self.cmd_keys['capslock'] = True
-                    return
-                # Backspace key
-                elif event.detail == 22 and event.type == X.KeyPress:
-                    if len(self.label.get_text()) > 0:
-                        self.label.set_text(unicode(self.label.get_text(), 'utf-8')[:-1])
-                        key = ""
-                    else:
-                        return
-                else:
-                    if event.type == X.KeyPress:
-                        key = key_normal
-                        if self.cmd_keys['ctrl']:
-                            mod = mod + "Ctrl+"
-                        if self.cmd_keys['alt']:
-                            mod = mod + "Alt+"
-                        if self.cmd_keys['super']:
-                            mod = mod + "Super+"
-        
-                        if self.cmd_keys['shift']:
-                            key = key_shift
-                        if self.cmd_keys['capslock'] and ord(key_normal) in range(97,123):
-                            key = key_shift
-                        if self.cmd_keys['meta']:
-                            key = key_dead
-                        if self.cmd_keys['shift'] and self.cmd_keys['meta']:
-                            key = key_deadshift
-        
-                        key = self.lookup_keysym(keysym)
-
-                        if mod != '':
-                            key = "%s%s " % (mod, key)
-                        else:
-                            key = "%s%s" % (mod, key)
-                    else:
-                        return
-
         self.update_text(key)
+
+    def key_normal_mode(self, event):
+        key = ''
+        mod = ''
+        keysym = self.local_dpy.keycode_to_keysym(event.detail, 0)
+
+        if event.detail in self.keymap:
+            key_normal, key_shift, key_dead, key_deadshift = self.keymap[event.detail]
+            self.logger.debug("keycode %s keys %s" % (event.detail, self.keymap[event.detail]))
+        else:
+            self.logger.info('No mapping for scan_code %d' % event.detail)
+            return
+
+
+        # Alt key
+        if event.detail in self.modifiers['mod1']:
+            if event.type == X.KeyPress:
+                self.cmd_keys['alt'] = True
+            else:
+                self.cmd_keys['alt'] = False
+            return
+        # Meta key 
+        # Fixme: it must use self.modifiers['mod5']
+        #        but doesn't work
+        if event.detail == 108:
+            if event.type == X.KeyPress:
+                self.cmd_keys['meta'] = True
+            else:
+                self.cmd_keys['meta'] = False
+            return
+        # Super key 
+        if event.detail in self.modifiers['mod4']:
+            if event.type == X.KeyPress:
+                self.cmd_keys['super'] = True
+            else:
+                self.cmd_keys['super'] = False
+            return
+        # Ctrl keys
+        elif event.detail in self.modifiers['control']:
+            if event.type == X.KeyPress:
+                self.cmd_keys['ctrl'] = True
+            else:
+                self.cmd_keys['ctrl'] = False
+            return
+        # Shift keys
+        elif event.detail in self.modifiers['shift']:
+            if event.type == X.KeyPress:
+                self.cmd_keys['shift'] = True
+            else:
+                self.cmd_keys['shift'] = False
+            return
+        # Capslock key
+        elif event.detail in self.modifiers['lock']:
+            if event.type == X.KeyPress:
+                if self.cmd_keys['capslock']:
+                    self.cmd_keys['capslock'] = False
+                else:
+                    self.cmd_keys['capslock'] = True
+            return
+        # Backspace key
+        elif event.detail == 22 and event.type == X.KeyPress:
+            if len(self.label.get_text()) > 0:
+                self.label.set_text(unicode(self.label.get_text(), 'utf-8')[:-1])
+                key = ""
+            else:
+                return
+        else:
+            if event.type == X.KeyPress:
+                key = key_normal
+                if self.cmd_keys['ctrl']:
+                    mod = mod + "Ctrl+"
+                if self.cmd_keys['alt']:
+                    mod = mod + "Alt+"
+                if self.cmd_keys['super']:
+                    mod = mod + "Super+"
+
+                if self.cmd_keys['shift']:
+                    key = key_shift
+                if self.cmd_keys['capslock'] and ord(key_normal) in range(97,123):
+                    key = key_shift
+                if self.cmd_keys['meta']:
+                    key = key_dead
+                if self.cmd_keys['shift'] and self.cmd_keys['meta']:
+                    key = key_deadshift
+
+                string = self.replace_key(key, keysym)
+                if string:
+                    key = string
+
+                if mod != '':
+                    key = "%s%s " % (mod, key)
+                else:
+                    key = "%s%s" % (mod, key)
+            else:
+                return
+
+        return key
+
+    def key_raw_mode(self, event):
+        key = ''
+        if event.type == X.KeyPress:
+            keysym = self.local_dpy.keycode_to_keysym(event.detail, 0)
+            key = self.lookup_keysym(keysym)
+        else:
+            return
+        return key
 
     def stop(self):
         self.local_dpy.record_disable_context(self.ctx)
