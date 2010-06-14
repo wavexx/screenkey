@@ -18,10 +18,12 @@ import re
 import subprocess
 
 def cmd_keymap_table():
-    return subprocess.Popen(['xmodmap','-pk'], stdout=subprocess.PIPE).communicate()[0]
+    return subprocess.Popen(
+           ['xmodmap','-pk'], stdout=subprocess.PIPE).communicate()[0]
 
 def cmd_modifier_map():
-    return subprocess.Popen(['xmodmap','-pm'], stdout=subprocess.PIPE).communicate()[0]
+    return subprocess.Popen(
+            ['xmodmap','-pm'], stdout=subprocess.PIPE).communicate()[0]
 
 def get_keymap_table():
     keymap = {}
@@ -66,7 +68,7 @@ def get_keymap_table():
                     unicode_char = ''
                 new_keysyms.append(unicode_char)
 
-                # When you press a key plus meta plus Shift key (dead keys)
+                # When you press a key plus meta plus Shift key
                 unicode_char = ''
                 try:
                     unicode_char = unichr(int(keysyms[5], 16))

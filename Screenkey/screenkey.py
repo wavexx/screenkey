@@ -53,7 +53,8 @@ class Screenkey(gtk.Window):
         MODE_NORMAL:'Normal',
     }
 
-    STATE_FILE = os.path.join(glib.get_user_cache_dir(), 'screenkey.dat')
+    STATE_FILE = os.path.join(glib.get_user_cache_dir(), 
+                              'screenkey.dat')
 
     def __init__(self, logger, nodetach):
         gtk.Window.__init__(self)
@@ -71,6 +72,7 @@ class Screenkey(gtk.Window):
                 }
 
         if not nodetach:
+            self.logger.debug("Detach from the parent.")
             self.drop_tty()
 
         self.set_skip_taskbar_hint(True)
@@ -85,7 +87,8 @@ class Screenkey(gtk.Window):
         self.modify_bg(gtk.STATE_NORMAL, bgcolor)
         self.set_opacity(0.7)
 
-        gobject.signal_new("text-changed", gtk.Label, gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ())
+        gobject.signal_new("text-changed", gtk.Label, 
+                        gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ())
         self.label = gtk.Label()
         self.label.set_justify(gtk.JUSTIFY_RIGHT)
         self.label.set_ellipsize(pango.ELLIPSIZE_START)
@@ -100,7 +103,8 @@ class Screenkey(gtk.Window):
         self.set_gravity(gtk.gdk.GRAVITY_CENTER)
         self.set_xy_position(self.options['position'])
 
-        self.listenkbd = ListenKbd(self.label, logger=self.logger, mode=self.options['mode'])
+        self.listenkbd = ListenKbd(self.label, logger=self.logger, 
+                                   mode=self.options['mode'])
         self.listenkbd.start()
 
 
@@ -135,15 +139,22 @@ class Screenkey(gtk.Window):
 
         try:
             import appindicator
-            self.systray = appindicator.Indicator(APP_NAME, 'indicator-messages', appindicator.CATEGORY_APPLICATION_STATUS)
+            self.systray = appindicator.Indicator(APP_NAME, 
+                           'indicator-messages', 
+                            appindicator.CATEGORY_APPLICATION_STATUS)
             self.systray.set_status (appindicator.STATUS_ACTIVE)
             self.systray.set_attention_icon ("indicator-messages-new")
-            self.systray.set_icon("preferences-desktop-keyboard-shortcuts")
+            self.systray.set_icon(
+                    "preferences-desktop-keyboard-shortcuts")
             self.systray.set_menu(menu)
+            self.logger.debug("Using AppIndicator.")
         except(ImportError):
             self.systray = gtk.StatusIcon()
-            self.systray.set_from_icon_name("preferences-desktop-keyboard-shortcuts")
-            self.systray.connect("popup-menu", self.on_statusicon_popup, menu)
+            self.systray.set_from_icon_name(
+                    "preferences-desktop-keyboard-shortcuts")
+            self.systray.connect("popup-menu", 
+                    self.on_statusicon_popup, menu)
+            self.logger.debug("Using StatusIcon.")
 
 
         self.connect("delete-event", self.quit)
@@ -159,10 +170,12 @@ class Screenkey(gtk.Window):
             f = open(self.STATE_FILE, 'r')
             try:
                 options = pickle.load(f)
+                self.logger.debug("Options loaded.")
             except:
                 f.close()
         except IOError:
-            self.logger.error("file %s does not exists." % self.STATE_FILE)
+            self.logger.debug("file %s does not exists." % 
+                              self.STATE_FILE)
         return options
 
     def store_state(self, options):
@@ -171,10 +184,11 @@ class Screenkey(gtk.Window):
             f = open(self.STATE_FILE, 'w')
             try:
                 pickle.dump(options, f)
+                self.logger.debug("Options saved.")
             except:
                 f.close()
         except IOError:
-            self.logger.error("Cannot open %s." % self.STATE_FILE)
+            self.logger.debug("Cannot open %s." % self.STATE_FILE)
 
     def set_window_size(self, setting):
         """Set window and label size."""
@@ -189,7 +203,8 @@ class Screenkey(gtk.Window):
             window_height = 8 * self.screen_height / 100
 
         attr = pango.AttrList()
-        attr.change(pango.AttrSize((50 * window_height / 100) * 1000, 0, -1))
+        attr.change(pango.AttrSize((
+                    50 * window_height / 100) * 1000, 0, -1))
         attr.change(pango.AttrFamily("Sans", 0, -1))
         attr.change(pango.AttrWeight(pango.WEIGHT_BOLD, 0, -1))
         attr.change(pango.AttrForeground(65535, 65535, 65535, 0, -1))
@@ -211,7 +226,8 @@ class Screenkey(gtk.Window):
         if button == 3:
             if data:
                 data.show()
-                data.popup(None, None, gtk.status_icon_position_menu, 3, timestamp, widget)
+                data.popup(None, None, gtk.status_icon_position_menu, 
+                           3, timestamp, widget)
 
     def on_label_change(self, widget, data=None):
         if not self.get_property('visible'):
@@ -232,40 +248,49 @@ class Screenkey(gtk.Window):
 
     def on_change_mode(self, mode):
         self.listenkbd.stop()
-        self.listenkbd = ListenKbd(self.label, logger=self.logger, mode=mode)
+        self.listenkbd = ListenKbd(self.label, logger=self.logger, 
+                                   mode=mode)
         self.listenkbd.start()
 
     def on_show_keys(self, widget, data=None):
         if widget.get_active():
-            self.listenkbd = ListenKbd(self.label, logger=self.logger, mode=self.options['mode'])
+            self.logger.debug("Screenkey enabled.")
+            self.listenkbd = ListenKbd(self.label, logger=self.logger, 
+                                       mode=self.options['mode'])
             self.listenkbd.start()
         else:
+            self.logger.debug("Screenkey disabled.")
             self.listenkbd.stop()
 
     def on_preferences_dialog(self, widget, data=None):
-        prefs = gtk.Dialog(APP_NAME, self, gtk.DIALOG_DESTROY_WITH_PARENT, 
-            (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
+        prefs = gtk.Dialog(APP_NAME, None, 
+                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, 
+                    (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
 
         def on_sb_time_changed(widget, data=None):
             self.options['timeout'] = widget.get_value()
+            self.logger.debug("Timeout value changed.")
 
         def on_cbox_sizes_changed(widget, data=None):
             index = widget.get_active()
             if index >= 0:
                 self.options['size'] = index
                 self.set_window_size(self.options['size'])
+                self.logger.debug("Window size changed.")
 
         def on_cbox_modes_changed(widget, data=None):
             index = widget.get_active()
             if index >= 0:
                 self.options['mode'] = index
                 self.on_change_mode(self.options['mode'])
+                self.logger.debug("Key mode changed.")
 
         def on_cbox_changed(widget, data=None):
             index = widget.get_active()
             name = widget.get_name()
             if index >= 0:
                 self.options[name] = index
+                self.logger.debug("Window position changed.")
 
         frm_main = gtk.Frame("Preferences")
         frm_main.set_border_width(6)
@@ -285,9 +310,12 @@ class Screenkey(gtk.Window):
         sb_time.set_update_policy(gtk.UPDATE_IF_VALID)
         sb_time.set_value(self.options['timeout'])
         sb_time.connect("value-changed", on_sb_time_changed)
-        hbox_time.pack_start(lbl_time1, expand=False, fill=False, padding=6)
-        hbox_time.pack_start(sb_time, expand=False, fill=False, padding=4)
-        hbox_time.pack_start(lbl_time2, expand=False, fill=False, padding=4)
+        hbox_time.pack_start(lbl_time1, expand=False, 
+                             fill=False, padding=6)
+        hbox_time.pack_start(sb_time, expand=False, 
+                             fill=False, padding=4)
+        hbox_time.pack_start(lbl_time2, expand=False, 
+                             fill=False, padding=4)
         frm_time.add(hbox_time)
         frm_time.show_all()
 
@@ -307,8 +335,10 @@ class Screenkey(gtk.Window):
         cbox_positions.set_active(self.options['position'])
         cbox_positions.connect("changed", on_cbox_changed)
 
-        hbox1_aspect.pack_start(lbl_positions, expand=False, fill=False, padding=6)
-        hbox1_aspect.pack_start(cbox_positions, expand=False, fill=False, padding=4)
+        hbox1_aspect.pack_start(lbl_positions, expand=False, 
+                                fill=False, padding=6)
+        hbox1_aspect.pack_start(cbox_positions, expand=False, 
+                                fill=False, padding=4)
 
         hbox2_aspect = gtk.HBox()
 
@@ -320,8 +350,10 @@ class Screenkey(gtk.Window):
         cbox_sizes.set_active(self.options['size'])
         cbox_sizes.connect("changed", on_cbox_sizes_changed)
 
-        hbox2_aspect.pack_start(lbl_sizes, expand=False, fill=False, padding=6)
-        hbox2_aspect.pack_start(cbox_sizes, expand=False, fill=False, padding=4)
+        hbox2_aspect.pack_start(lbl_sizes, expand=False, 
+                                fill=False, padding=6)
+        hbox2_aspect.pack_start(cbox_sizes, expand=False, 
+                                fill=False, padding=4)
 
         vbox_aspect.pack_start(hbox1_aspect)
         vbox_aspect.pack_start(hbox2_aspect)
@@ -339,8 +371,10 @@ class Screenkey(gtk.Window):
             cbox_modes.insert_text(key, value)
         cbox_modes.set_active(self.options['mode'])
         cbox_modes.connect("changed", on_cbox_modes_changed)
-        hbox_kbd.pack_start(lbl_kbd, expand=False, fill=False, padding=6)
-        hbox_kbd.pack_start(cbox_modes, expand=False, fill=False, padding=4)
+        hbox_kbd.pack_start(lbl_kbd, expand=False, 
+                            fill=False, padding=6)
+        hbox_kbd.pack_start(cbox_modes, expand=False, 
+                            fill=False, padding=4)
         frm_kbd.add(hbox_kbd)
 
         vbox_main.pack_start(frm_time, False, False, 6)
@@ -367,10 +401,14 @@ class Screenkey(gtk.Window):
         about.set_version(VERSION)
         about.set_copyright(u"2010 \u00a9 %s" % AUTHOR)
         about.set_comments(APP_DESC)
-        about.set_documenters([u"Jos\xe9 Mar\xeda Quiroga <pepelandia@gmail.com>"])
+        about.set_documenters(
+                [u"Jos\xe9 Mar\xeda Quiroga <pepelandia@gmail.com>"]
+        )
         about.set_website(APP_URL)
         about.set_icon_name('preferences-desktop-keyboard-shortcuts')
-        about.set_logo_icon_name('preferences-desktop-keyboard-shortcuts')
+        about.set_logo_icon_name(
+                'preferences-desktop-keyboard-shortcuts'
+        )
         gtk.gdk.threads_enter()
         about.run()
         gtk.gdk.threads_leave()

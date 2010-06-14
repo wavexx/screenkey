@@ -73,6 +73,7 @@ class ListenKbd(threading.Thread):
             'super':False
             }
 
+        self.logger.debug("Thread created")
         self.keymap = modmap.get_keymap_table()
         self.modifiers = modmap.get_modifier_map()
 
@@ -80,6 +81,7 @@ class ListenKbd(threading.Thread):
         self.record_dpy = display.Display()
 
         if not self.record_dpy.has_extension("RECORD"):
+            self.logger.error("RECORD extension not found.")
             print "RECORD extension not found"
             sys.exit(1)
 
@@ -99,19 +101,18 @@ class ListenKbd(threading.Thread):
                 }])
 
     def run(self):
+        self.logger.debug("Thread started.")
         self.record_dpy.record_enable_context(self.ctx, self.key_press)
 
     def lookup_keysym(self, keysym):
         for name in dir(XK):
             if name[:3] == "XK_" and getattr(XK, name) == keysym:
-                self.logger.debug(name)
                 return name[3:]
         return ""
 
     def replace_key(self, key, keysym):
         for name in dir(XK):
             if name[:3] == "XK_" and getattr(XK, name) == keysym:
-                self.logger.debug(name)
                 if name in REPLACE_KEYS:
                     return REPLACE_KEYS[name]
 
@@ -127,7 +128,9 @@ class ListenKbd(threading.Thread):
         if reply.category != record.FromServer:
             return
         if reply.client_swapped:
-            self.logger.warning("* received swapped protocol data, cowardly ignored")
+            self.logger.warning(
+                "* received swapped protocol data, cowardly ignored"
+            )
             return
         if not len(reply.data) or ord(reply.data[0]) < 2:
             # not an event
@@ -135,7 +138,8 @@ class ListenKbd(threading.Thread):
         data = reply.data
         key = None
         while len(data):
-            event, data = rq.EventField(None).parse_binary_value(data, self.record_dpy.display, None, None)
+            event, data = rq.EventField(None).parse_binary_value(data, 
+                                    self.record_dpy.display, None, None)
             if event.type in [X.KeyPress, X.KeyRelease]:
                 if self.mode == MODE_NORMAL:
                     key = self.key_normal_mode(event)
@@ -151,10 +155,15 @@ class ListenKbd(threading.Thread):
         keysym = self.local_dpy.keycode_to_keysym(event.detail, 0)
 
         if event.detail in self.keymap:
-            key_normal, key_shift, key_dead, key_deadshift = self.keymap[event.detail]
-            self.logger.debug("keycode %s keys %s" % (event.detail, self.keymap[event.detail]))
+            key_normal, key_shift, key_dead, key_deadshift = \
+                                            self.keymap[event.detail]
+            self.logger.debug("Key %s(keycode) %s. Symbols %s" % 
+                (event.detail, 
+                 event.type == X.KeyPress and "pressed" or "released", 
+                 self.keymap[event.detail])
+                )
         else:
-            self.logger.info('No mapping for scan_code %d' % event.detail)
+            self.logger.debug('No mapping for scan_code %d' % event.detail)
             return
 
 
@@ -206,7 +215,9 @@ class ListenKbd(threading.Thread):
         # Backspace key
         elif event.detail == 22 and event.type == X.KeyPress:
             if len(self.label.get_text()) > 0:
-                self.label.set_text(unicode(self.label.get_text(), 'utf-8')[:-1])
+                self.label.set_text(
+                    unicode(self.label.get_text(), 'utf-8')[:-1]
+                )
                 key = ""
             else:
                 return
@@ -222,7 +233,8 @@ class ListenKbd(threading.Thread):
 
                 if self.cmd_keys['shift']:
                     key = key_shift
-                if self.cmd_keys['capslock'] and ord(key_normal) in range(97,123):
+                if self.cmd_keys['capslock'] \
+                    and ord(key_normal) in range(97,123):
                     key = key_shift
                 if self.cmd_keys['meta']:
                     key = key_dead
@@ -255,4 +267,5 @@ class ListenKbd(threading.Thread):
         self.local_dpy.record_disable_context(self.ctx)
         self.local_dpy.flush()
         self.record_dpy.record_free_context(self.ctx)
+        self.logger.debug("Thread stopped.")
 

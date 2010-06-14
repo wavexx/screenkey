@@ -27,10 +27,11 @@ gtk.gdk.threads_init()
 
 def Main():
     parser = OptionParser(description=APP_DESC, version=VERSION)
-    parser.add_option("--no-detach", action="store_true", dest="nodetach",
-        default=False, help="do not detach from the parent")
-    parser.add_option("-d", "--debug", action="store_true", dest="debug",
-        default=False, help="show debug information")
+    parser.add_option("--no-detach", action="store_true", 
+        dest="nodetach", default=False, 
+        help="do not detach from the parent")
+    parser.add_option("-d", "--debug", action="store_true", 
+        dest="debug", default=False, help="show debug information")
     (options, args) = parser.parse_args()
 
     if options.debug:
@@ -38,7 +39,8 @@ def Main():
             # Send debug messages to standard output
             logfile = None
         else:
-            logfile = os.path.join(os.path.expanduser('~'), '.screenkey.log')
+            logfile = os.path.join(os.path.expanduser('~'), 
+                                   '.screenkey.log')
             username = os.environ.get('SUDO_USER')
             if username:
                 homedir = os.path.expanduser('~%s' % username)
