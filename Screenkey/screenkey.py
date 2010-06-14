@@ -23,14 +23,46 @@ from threading import Timer
 from Screenkey import APP_NAME, APP_DESC, APP_URL, VERSION, AUTHOR
 from listenkdb import ListenKbd
 
+POS_TOP = 0
+POS_CENTER = 1
+POS_BOTTOM = 2
+
+SIZE_LARGE = 0
+SIZE_MEDIUM = 1
+SIZE_SMALL = 2
+
+MODE_RAW = 0
+MODE_NORMAL = 1
 
 class Screenkey(gtk.Window):
+
+    POSITIONS = {
+        POS_TOP:'Top',
+        POS_CENTER:'Center',
+        POS_BOTTOM:'Bottom',
+    }
+    SIZES = {
+        SIZE_LARGE: 'Large',
+        SIZE_MEDIUM: 'Medium',
+        SIZE_SMALL: 'Small',
+    }
+    MODES = {
+        MODE_RAW:'Raw',
+        MODE_NORMAL:'Normal',
+    }
 
     def __init__(self, logger, nodetach):
         gtk.Window.__init__(self)
 
         self.timer = None
         self.logger = logger
+
+        self.options = {
+            'timeout': 2.5,
+            'position': POS_BOTTOM,
+            'size': SIZE_MEDIUM,
+            'mode': MODE_NORMAL,
+            }
 
         if not nodetach:
             self.drop_tty()
@@ -47,28 +79,20 @@ class Screenkey(gtk.Window):
         self.modify_bg(gtk.STATE_NORMAL, bgcolor)
         self.set_opacity(0.7)
 
-        self.set_gravity(gtk.gdk.GRAVITY_CENTER)
-
-        self.screen_width = gtk.gdk.screen_width()   
-        self.screen_height = gtk.gdk.screen_height() 
-        window_width = self.screen_width
-        window_height = 12 * self.screen_height / 100
-        self.set_default_size(window_width, window_height)
-        self.move(0, self.screen_height - window_height * 2)
-
         gobject.signal_new("text-changed", gtk.Label, gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ())
-        attr = pango.AttrList()
-        attr.change(pango.AttrSize((50 * window_height / 100) * 1000, 0, -1))
-        attr.change(pango.AttrFamily("Sans", 0, -1))
-        attr.change(pango.AttrWeight(pango.WEIGHT_BOLD, 0, -1))
-        attr.change(pango.AttrForeground(65535, 65535, 65535, 0, -1))
         self.label = gtk.Label()
-        self.label.set_attributes(attr)
         self.label.set_justify(gtk.JUSTIFY_RIGHT)
         self.label.set_ellipsize(pango.ELLIPSIZE_START)
         self.label.connect("text-changed", self.on_label_change)
         self.label.show()
         self.add(self.label)
+
+        self.screen_width = gtk.gdk.screen_width()   
+        self.screen_height = gtk.gdk.screen_height() 
+        self.set_window_size(self.options['size'])
+
+        self.set_gravity(gtk.gdk.GRAVITY_CENTER)
+        self.set_xy_position(self.options['position'])
 
         self.listenkbd = ListenKbd(self.label, logger=self.logger)
         self.listenkbd.start()
@@ -81,6 +105,12 @@ class Screenkey(gtk.Window):
         show_item.connect("toggled", self.on_show_keys)
         show_item.show()
         menu.append(show_item)
+
+        preferences_item = gtk.ImageMenuItem(gtk.STOCK_PREFERENCES)
+        preferences_item.connect("activate", self.on_preferences_dialog)
+        preferences_item.show()
+        menu.append(preferences_item)
+
 
         about_item = gtk.ImageMenuItem(gtk.STOCK_ABOUT)
         about_item.connect("activate", self.on_about_dialog)
@@ -116,6 +146,35 @@ class Screenkey(gtk.Window):
         self.listenkbd.stop()
         gtk.main_quit()
 
+    def set_window_size(self, setting):
+        window_width = self.screen_width
+        window_height = -1
+
+        if setting == SIZE_LARGE:
+            window_height = 24 * self.screen_height / 100
+        if setting == SIZE_MEDIUM:
+            window_height = 12 * self.screen_height / 100
+        if setting == SIZE_SMALL:
+            window_height = 8 * self.screen_height / 100
+
+        attr = pango.AttrList()
+        attr.change(pango.AttrSize((50 * window_height / 100) * 1000, 0, -1))
+        attr.change(pango.AttrFamily("Sans", 0, -1))
+        attr.change(pango.AttrWeight(pango.WEIGHT_BOLD, 0, -1))
+        attr.change(pango.AttrForeground(65535, 65535, 65535, 0, -1))
+
+        self.label.set_attributes(attr)
+        self.resize(window_width, window_height)
+
+    def set_xy_position(self, setting):
+        window_width, window_height = self.get_size()
+        if setting == POS_TOP:
+            self.move(0, window_height * 2)
+        if setting == POS_CENTER:
+            self.move(0, self.screen_height / 2)
+        if setting == POS_BOTTOM:
+            self.move(0, self.screen_height - window_height * 2)
+
     def on_statusicon_popup(self, widget, button, timestamp, data=None):
         if button == 3:
             if data:
@@ -125,15 +184,15 @@ class Screenkey(gtk.Window):
     def on_label_change(self, widget, data=None):
         if not self.get_property('visible'):
             gtk.gdk.threads_enter()
-            window_width, window_height = self.get_size()
-            self.move(0, self.screen_height - window_height * 2)
+            self.set_window_size(self.options['size'])
+            self.set_xy_position(self.options['position'])
             self.stick()
             self.show()
             gtk.gdk.threads_leave()
         if self.timer:
             self.timer.cancel()
 
-        self.timer = Timer(2.5, self.on_timeout)
+        self.timer = Timer(self.options['timeout'], self.on_timeout)
         self.timer.start()
 
     def on_timeout(self):
@@ -149,6 +208,108 @@ class Screenkey(gtk.Window):
         else:
             pass
             self.listenkbd.stop()
+
+    def on_preferences_dialog(self, widget, data=None):
+        prefs = gtk.Dialog(APP_NAME, self, gtk.DIALOG_DESTROY_WITH_PARENT, 
+            (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
+
+        def on_sb_time_changed(widget, data=None):
+            self.options['timeout'] = widget.get_value()
+
+        def on_cbox_changed(widget, data=None):
+            index = widget.get_active()
+            name = widget.get_name()
+            if index >= 0:
+                self.options[name] = index
+
+        frm_main = gtk.Frame("Preferences")
+        frm_main.set_border_width(4)
+        vbox_main = gtk.VBox()
+
+        frm_time = gtk.Frame("<b>Time</b>")
+        frm_time.get_label_widget().set_use_markup(True)
+        frm_time.set_shadow_type(gtk.SHADOW_NONE)
+        hbox_time = gtk.HBox()
+        lbl_time1 = gtk.Label("Display for")
+        lbl_time2 = gtk.Label("seconds")
+        sb_time = gtk.SpinButton(digits=1)
+        sb_time.set_increments(0.5, 1.0)
+        sb_time.set_range(0.5, 10.0)
+        sb_time.set_numeric(True)
+        sb_time.set_update_policy(gtk.UPDATE_IF_VALID)
+        sb_time.set_value(self.options['timeout'])
+        sb_time.connect("value-changed", on_sb_time_changed)
+        hbox_time.pack_start(lbl_time1, expand=False, fill=False, padding=4)
+        hbox_time.pack_start(sb_time, expand=False, fill=False, padding=4)
+        hbox_time.pack_start(lbl_time2, expand=False, fill=False, padding=4)
+        frm_time.add(hbox_time)
+        frm_time.show_all()
+
+        frm_aspect = gtk.Frame("<b>Aspect</b>")
+        frm_aspect.get_label_widget().set_use_markup(True)
+        frm_aspect.set_shadow_type(gtk.SHADOW_NONE)
+        vbox_aspect = gtk.VBox(spacing=4)
+
+        hbox1_aspect = gtk.HBox()
+
+        lbl_positions = gtk.Label("Position")
+        cbox_positions = gtk.combo_box_new_text()
+        cbox_positions.set_name('position')
+        for key, value in self.POSITIONS.items():
+            cbox_positions.insert_text(key, value)
+        cbox_positions.set_active(self.options['position'])
+        cbox_positions.connect("changed", on_cbox_changed)
+
+        hbox1_aspect.pack_start(lbl_positions, expand=False, fill=False, padding=4)
+        hbox1_aspect.pack_start(cbox_positions, expand=False, fill=False, padding=4)
+
+        hbox2_aspect = gtk.HBox()
+
+        lbl_sizes = gtk.Label("Size")
+        cbox_sizes = gtk.combo_box_new_text()
+        cbox_sizes.set_name('size')
+        for key, value in self.SIZES.items():
+            cbox_sizes.insert_text(key, value)
+        cbox_sizes.set_active(self.options['size'])
+        cbox_sizes.connect("changed", on_cbox_changed)
+
+        hbox2_aspect.pack_start(lbl_sizes, expand=False, fill=False, padding=4)
+        hbox2_aspect.pack_start(cbox_sizes, expand=False, fill=False, padding=4)
+
+        vbox_aspect.pack_start(hbox1_aspect)
+        vbox_aspect.pack_start(hbox2_aspect)
+        frm_aspect.add(vbox_aspect)
+
+        frm_kbd = gtk.Frame("<b>Keys</b>")
+        frm_kbd.get_label_widget().set_use_markup(True)
+        frm_kbd.set_shadow_type(gtk.SHADOW_NONE)
+        hbox_kbd = gtk.HBox()
+        lbl_kbd = gtk.Label("Mode")
+        cbox_modes = gtk.combo_box_new_text()
+        cbox_modes.set_name('mode')
+        for key, value in self.MODES.items():
+            cbox_modes.insert_text(key, value)
+        cbox_modes.set_active(self.options['mode'])
+        cbox_modes.connect("changed", on_cbox_changed)
+        hbox_kbd.pack_start(lbl_kbd, expand=False, fill=False, padding=4)
+        hbox_kbd.pack_start(cbox_modes, expand=False, fill=False, padding=4)
+        frm_kbd.add(hbox_kbd)
+
+        vbox_main.pack_start(frm_time, False, False, 6)
+        vbox_main.pack_start(frm_aspect, False, False, 6)
+        vbox_main.pack_start(frm_kbd, False, False, 6)
+        frm_main.add(vbox_main)
+
+        prefs.vbox.pack_start(frm_main)
+        prefs.set_destroy_with_parent(True)
+        prefs.set_resizable(False)
+        prefs.set_has_separator(False)
+        prefs.set_default_response(gtk.RESPONSE_CLOSE)
+        prefs.vbox.show_all()
+        gtk.gdk.threads_enter()
+        response = prefs.run()
+        gtk.gdk.threads_leave()
+        prefs.destroy()
 
     def on_about_dialog(self, widget, data=None):
         about = gtk.AboutDialog()
