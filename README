@@ -1,11 +1,11 @@
-Screenkey v0.1.1
+Screenkey v0.2
 http://launchpad.net/screenkey
 
 About
 =====
 Screencast your keys.
 A screencast tool to display your keys inspired by Screenflick
-and based on the key-mon project code.
+and initially based on the key-mon project code.
 
 Usage
 =====

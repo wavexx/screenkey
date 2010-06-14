@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
     name = 'screenkey',
-    version = '0.1.1',
+    version = '0.2',
     packages = ['Screenkey'],
     package_dir = {'Screenkey': 'Screenkey'},
     data_files = [('/usr/share/applications', ['data/screenkey.desktop'])],
@@ -19,6 +19,6 @@ setup(
     description='A screencast tool to display keys',
     long_description="""
     Screenkey is a useful tool for presentations or screencasts.
-    Inspired by ScreenFlick and based on the key-mon project code.
+    Inspired by ScreenFlick and initially based on the key-mon project code.
     """,
 )
