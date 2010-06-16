@@ -15,6 +15,7 @@
 import threading
 import time
 import sys
+import subprocess
 import modmap
 
 from Xlib import X, XK, display
@@ -125,6 +126,9 @@ class ListenKbd(threading.Thread):
         self.label.emit("text-changed")
  
     def key_press(self, reply):
+        sudo_is_running = subprocess.call(['ps', '-C', 'sudo'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        if not sudo_is_running:
+            return
         if reply.category != record.FromServer:
             return
         if reply.client_swapped:
