@@ -23,7 +23,7 @@ import pickle
 from threading import Timer
 
 from Screenkey import APP_NAME, APP_DESC, APP_URL, VERSION, AUTHOR
-from listenkdb import ListenKbd
+from listenkbd import ListenKbd
 
 POS_TOP = 0
 POS_CENTER = 1
