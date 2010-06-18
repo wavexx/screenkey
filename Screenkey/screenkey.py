@@ -39,18 +39,18 @@ MODE_NORMAL = 1
 class Screenkey(gtk.Window):
 
     POSITIONS = {
-        POS_TOP:'Top',
-        POS_CENTER:'Center',
-        POS_BOTTOM:'Bottom',
+        POS_TOP:_('Top'),
+        POS_CENTER:_('Center'),
+        POS_BOTTOM:_('Bottom'),
     }
     SIZES = {
-        SIZE_LARGE: 'Large',
-        SIZE_MEDIUM: 'Medium',
-        SIZE_SMALL: 'Small',
+        SIZE_LARGE:_('Large'),
+        SIZE_MEDIUM:_('Medium'),
+        SIZE_SMALL:_('Small'),
     }
     MODES = {
-        MODE_RAW:'Raw',
-        MODE_NORMAL:'Normal',
+        MODE_RAW:_('Raw'),
+        MODE_NORMAL:_('Normal'),
     }
 
     STATE_FILE = os.path.join(glib.get_user_cache_dir(), 
@@ -110,7 +110,7 @@ class Screenkey(gtk.Window):
 
         menu = gtk.Menu()
 
-        show_item = gtk.CheckMenuItem("Show keys")
+        show_item = gtk.CheckMenuItem(_("Show keys"))
         show_item.set_active(True)
         show_item.connect("toggled", self.on_show_keys)
         show_item.show()
@@ -142,8 +142,8 @@ class Screenkey(gtk.Window):
             self.systray = appindicator.Indicator(APP_NAME, 
                            'indicator-messages', 
                             appindicator.CATEGORY_APPLICATION_STATUS)
-            self.systray.set_status (appindicator.STATUS_ACTIVE)
-            self.systray.set_attention_icon ("indicator-messages-new")
+            self.systray.set_status(appindicator.STATUS_ACTIVE)
+            self.systray.set_attention_icon("indicator-messages-new")
             self.systray.set_icon(
                     "preferences-desktop-keyboard-shortcuts")
             self.systray.set_menu(menu)
@@ -292,17 +292,17 @@ class Screenkey(gtk.Window):
                 self.options[name] = index
                 self.logger.debug("Window position changed.")
 
-        frm_main = gtk.Frame("Preferences")
+        frm_main = gtk.Frame(_("Preferences"))
         frm_main.set_border_width(6)
         vbox_main = gtk.VBox()
 
-        frm_time = gtk.Frame("<b>Time</b>")
+        frm_time = gtk.Frame(_("<b>Time</b>"))
         frm_time.set_border_width(4)
         frm_time.get_label_widget().set_use_markup(True)
         frm_time.set_shadow_type(gtk.SHADOW_NONE)
         hbox_time = gtk.HBox()
-        lbl_time1 = gtk.Label("Display for")
-        lbl_time2 = gtk.Label("seconds")
+        lbl_time1 = gtk.Label(_("Display for"))
+        lbl_time2 = gtk.Label(_("seconds"))
         sb_time = gtk.SpinButton(digits=1)
         sb_time.set_increments(0.5, 1.0)
         sb_time.set_range(0.5, 10.0)
@@ -319,7 +319,7 @@ class Screenkey(gtk.Window):
         frm_time.add(hbox_time)
         frm_time.show_all()
 
-        frm_aspect = gtk.Frame("<b>Aspect</b>")
+        frm_aspect = gtk.Frame(_("<b>Aspect</b>"))
         frm_aspect.set_border_width(4)
         frm_aspect.get_label_widget().set_use_markup(True)
         frm_aspect.set_shadow_type(gtk.SHADOW_NONE)
@@ -327,7 +327,7 @@ class Screenkey(gtk.Window):
 
         hbox1_aspect = gtk.HBox()
 
-        lbl_positions = gtk.Label("Position")
+        lbl_positions = gtk.Label(_("Position"))
         cbox_positions = gtk.combo_box_new_text()
         cbox_positions.set_name('position')
         for key, value in self.POSITIONS.items():
@@ -342,7 +342,7 @@ class Screenkey(gtk.Window):
 
         hbox2_aspect = gtk.HBox()
 
-        lbl_sizes = gtk.Label("Size")
+        lbl_sizes = gtk.Label(_("Size"))
         cbox_sizes = gtk.combo_box_new_text()
         cbox_sizes.set_name('size')
         for key, value in self.SIZES.items():
@@ -359,12 +359,12 @@ class Screenkey(gtk.Window):
         vbox_aspect.pack_start(hbox2_aspect)
         frm_aspect.add(vbox_aspect)
 
-        frm_kbd = gtk.Frame("<b>Keys</b>")
+        frm_kbd = gtk.Frame(_("<b>Keys</b>"))
         frm_kbd.set_border_width(4)
         frm_kbd.get_label_widget().set_use_markup(True)
         frm_kbd.set_shadow_type(gtk.SHADOW_NONE)
         hbox_kbd = gtk.HBox()
-        lbl_kbd = gtk.Label("Mode")
+        lbl_kbd = gtk.Label(_("Mode"))
         cbox_modes = gtk.combo_box_new_text()
         cbox_modes.set_name('mode')
         for key, value in self.MODES.items():
