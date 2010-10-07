@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-06-18 15:22+0200\n"
+"POT-Creation-Date: 2010-10-07 21:38+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,86 +16,122 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../screenkey:37
-msgid "do not detach from the parent"
+#: Screenkey/listenkbd.py:29
+msgid "Esc "
 msgstr ""
 
-#: ../screenkey:39
-msgid "show debug information"
+#: Screenkey/listenkbd.py:33
+msgid "Caps "
 msgstr ""
 
-#: ../Screenkey/__init__.py:3
+#: Screenkey/listenkbd.py:46
+msgid "Home "
+msgstr ""
+
+#: Screenkey/listenkbd.py:48
+msgid "PgUp "
+msgstr ""
+
+#: Screenkey/listenkbd.py:51
+msgid "End "
+msgstr ""
+
+#: Screenkey/listenkbd.py:53
+msgid "PgDn "
+msgstr ""
+
+#: Screenkey/listenkbd.py:54
+msgid "Ins "
+msgstr ""
+
+#: Screenkey/listenkbd.py:55
+msgid "Del "
+msgstr ""
+
+#: Screenkey/listenkbd.py:245
+msgid "Ctrl+"
+msgstr ""
+
+#: Screenkey/listenkbd.py:247
+msgid "Alt+"
+msgstr ""
+
+#: Screenkey/listenkbd.py:249
+msgid "Super+"
+msgstr ""
+
+#: Screenkey/__init__.py:3
 msgid "Screencast your keys"
 msgstr ""
 
-#: ../Screenkey/screenkey.py:42
+#: Screenkey/screenkey.py:42
 msgid "Top"
 msgstr ""
 
-#: ../Screenkey/screenkey.py:43
+#: Screenkey/screenkey.py:43
 msgid "Center"
 msgstr ""
 
-#: ../Screenkey/screenkey.py:44
+#: Screenkey/screenkey.py:44
 msgid "Bottom"
 msgstr ""
 
-#: ../Screenkey/screenkey.py:47
+#: Screenkey/screenkey.py:47
 msgid "Large"
 msgstr ""
 
-#: ../Screenkey/screenkey.py:48
+#: Screenkey/screenkey.py:48
 msgid "Medium"
 msgstr ""
 
-#: ../Screenkey/screenkey.py:49
+#: Screenkey/screenkey.py:49
 msgid "Small"
 msgstr ""
 
-#: ../Screenkey/screenkey.py:52
+#: Screenkey/screenkey.py:52
 msgid "Raw"
 msgstr ""
 
-#: ../Screenkey/screenkey.py:53
+#: Screenkey/screenkey.py:53
 msgid "Normal"
 msgstr ""
 
-#: ../Screenkey/screenkey.py:113
+#: Screenkey/screenkey.py:114
 msgid "Show keys"
 msgstr ""
 
-#: ../Screenkey/screenkey.py:295
+#: Screenkey/screenkey.py:296
 msgid "Preferences"
 msgstr ""
 
-#: ../Screenkey/screenkey.py:299
+#: Screenkey/screenkey.py:300
 msgid "<b>Time</b>"
 msgstr ""
 
-#: ../Screenkey/screenkey.py:304
+#: Screenkey/screenkey.py:305
 msgid "Display for"
 msgstr ""
 
-#: ../Screenkey/screenkey.py:305
+#: Screenkey/screenkey.py:306
 msgid "seconds"
 msgstr ""
 
-#: ../Screenkey/screenkey.py:322
+#: Screenkey/screenkey.py:323
 msgid "<b>Aspect</b>"
 msgstr ""
 
-#: ../Screenkey/screenkey.py:330
+#: Screenkey/screenkey.py:331
 msgid "Position"
 msgstr ""
 
-#: ../Screenkey/screenkey.py:345
+#: Screenkey/screenkey.py:346
 msgid "Size"
 msgstr ""
 
-#: ../Screenkey/screenkey.py:362
+#: Screenkey/screenkey.py:363
 msgid "<b>Keys</b>"
 msgstr ""
 
-#: ../Screenkey/screenkey.py:367
+#: Screenkey/screenkey.py:368
 msgid "Mode"
 msgstr ""

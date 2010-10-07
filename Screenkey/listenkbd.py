@@ -26,11 +26,11 @@ MODE_RAW = 0
 MODE_NORMAL = 1
 
 REPLACE_KEYS = {
-    'XK_Escape':u'Esc ',
+    'XK_Escape':_('Esc '),
     'XK_Tab':u'\u21B9 ',
     'XK_Return':u'\u23CE ',
     'XK_Space':u' ',
-    'XK_Caps_Lock':u'Caps ',
+    'XK_Caps_Lock':_('Caps '),
     'XK_F1':u'F1 ', 
     'XK_F2':u'F2 ', 
     'XK_F3':u'F3 ', 
@@ -43,16 +43,16 @@ REPLACE_KEYS = {
     'XK_F10':u'F10 ', 
     'XK_F11':u'F11 ', 
     'XK_F12':u'F12 ', 
-    'XK_Home':u'Home ',
+    'XK_Home':_('Home '),
     'XK_Up':u'\u2191',
-    'XK_Page_Up':u'PgUp ',
+    'XK_Page_Up':_('PgUp '),
     'XK_Left':u'\u2190',
     'XK_Right':u'\u2192',
-    'XK_End':u'End ',
+    'XK_End':_('End '),
     'XK_Down':u'\u2193',
-    'XK_Next':u'PgDn ',
-    'XK_Insert':u'Ins ',
-    'XK_Delete':u'Del ',
+    'XK_Next':_('PgDn '),
+    'XK_Insert':_('Ins '),
+    'XK_Delete':_('Del '),
 }
 
 class ListenKbd(threading.Thread):
@@ -235,11 +235,11 @@ class ListenKbd(threading.Thread):
             if event.type == X.KeyPress:
                 key = key_normal
                 if self.cmd_keys['ctrl']:
-                    mod = mod + "Ctrl+"
+                    mod = mod + _("Ctrl+")
                 if self.cmd_keys['alt']:
-                    mod = mod + "Alt+"
+                    mod = mod + _("Alt+")
                 if self.cmd_keys['super']:
-                    mod = mod + "Super+"
+                    mod = mod + _("Super+")
 
                 if self.cmd_keys['shift']:
                     key = key_shift
