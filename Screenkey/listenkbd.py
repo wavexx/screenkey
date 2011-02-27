@@ -53,6 +53,14 @@ REPLACE_KEYS = {
     'XK_Next':_('PgDn '),
     'XK_Insert':_('Ins '),
     'XK_Delete':_('Del '),
+    'XK_KP_Home':u'(7) ',
+    'XK_KP_Up':u'(8)',
+    'XK_KP_Prior':u'(9)',
+    'XK_KP_Left':u'(4)',
+    'XK_KP_Right':u'(6)',
+    'XK_KP_End':u'(1)',
+    'XK_KP_Down':u'(2)',
+    'XK_KP_Page_Down':u'(3)',
 }
 
 class ListenKbd(threading.Thread):
