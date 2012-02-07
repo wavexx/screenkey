@@ -3,12 +3,12 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -31,18 +31,18 @@ REPLACE_KEYS = {
     'XK_Return':u'\u23CE ',
     'XK_Space':u' ',
     'XK_Caps_Lock':_('Caps '),
-    'XK_F1':u'F1 ', 
-    'XK_F2':u'F2 ', 
-    'XK_F3':u'F3 ', 
-    'XK_F4':u'F4 ', 
-    'XK_F5':u'F5 ', 
-    'XK_F6':u'F6 ', 
-    'XK_F7':u'F7 ', 
-    'XK_F8':u'F8 ', 
-    'XK_F9':u'F9 ', 
-    'XK_F10':u'F10 ', 
-    'XK_F11':u'F11 ', 
-    'XK_F12':u'F12 ', 
+    'XK_F1':u'F1 ',
+    'XK_F2':u'F2 ',
+    'XK_F3':u'F3 ',
+    'XK_F4':u'F4 ',
+    'XK_F5':u'F5 ',
+    'XK_F6':u'F6 ',
+    'XK_F7':u'F7 ',
+    'XK_F8':u'F8 ',
+    'XK_F9':u'F9 ',
+    'XK_F10':u'F10 ',
+    'XK_F11':u'F11 ',
+    'XK_F12':u'F12 ',
     'XK_Home':_('Home '),
     'XK_Up':u'\u2191',
     'XK_Page_Up':_('PgUp '),
@@ -53,7 +53,8 @@ REPLACE_KEYS = {
     'XK_Next':_('PgDn '),
     'XK_Insert':_('Ins '),
     'XK_Delete':_('Del '),
-    'XK_KP_Home':u'(7) ',
+    'XK_KP_Begin':u'(5)',
+    'XK_KP_Home':u'(7)',
     'XK_KP_Up':u'(8)',
     'XK_KP_Prior':u'(9)',
     'XK_KP_Left':u'(4)',
@@ -132,13 +133,13 @@ class ListenKbd(threading.Thread):
         else:
             self.label.set_text("")
         self.label.emit("text-changed")
- 
+
     def key_press(self, reply):
 
         # FIXME:
         # This is not the most efficient way to detect the
         # use of sudo/gksudo but it works.
-        sudo_is_running = subprocess.call(['ps', '-C', 'sudo'], 
+        sudo_is_running = subprocess.call(['ps', '-C', 'sudo'],
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         if not sudo_is_running:
             return
@@ -156,7 +157,7 @@ class ListenKbd(threading.Thread):
         data = reply.data
         key = None
         while len(data):
-            event, data = rq.EventField(None).parse_binary_value(data, 
+            event, data = rq.EventField(None).parse_binary_value(data,
                                     self.record_dpy.display, None, None)
             if event.type in [X.KeyPress, X.KeyRelease]:
                 if self.mode == MODE_NORMAL:
@@ -175,9 +176,9 @@ class ListenKbd(threading.Thread):
         if event.detail in self.keymap:
             key_normal, key_shift, key_dead, key_deadshift = \
                                             self.keymap[event.detail]
-            self.logger.debug("Key %s(keycode) %s. Symbols %s" % 
-                (event.detail, 
-                 event.type == X.KeyPress and "pressed" or "released", 
+            self.logger.debug("Key %s(keycode) %s. Symbols %s" %
+                (event.detail,
+                 event.type == X.KeyPress and "pressed" or "released",
                  self.keymap[event.detail])
                 )
         else:
@@ -192,7 +193,7 @@ class ListenKbd(threading.Thread):
             else:
                 self.cmd_keys['alt'] = False
             return
-        # Meta key 
+        # Meta key
         # Fixme: it must use self.modifiers['mod5']
         #        but doesn't work
         if event.detail == 108:
@@ -201,7 +202,7 @@ class ListenKbd(threading.Thread):
             else:
                 self.cmd_keys['meta'] = False
             return
-        # Super key 
+        # Super key
         if event.detail in self.modifiers['mod4']:
             if event.type == X.KeyPress:
                 self.cmd_keys['super'] = True
