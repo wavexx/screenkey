@@ -231,6 +231,7 @@ class Screenkey(gtk.Window):
 
     def on_label_change(self, widget, data=None):
         if not self.get_property('visible'):
+            gtk.gdk.threads_init()
             gtk.gdk.threads_enter()
             self.set_xy_position(self.options['position'])
             self.stick()
@@ -388,6 +389,7 @@ class Screenkey(gtk.Window):
         prefs.set_has_separator(False)
         prefs.set_default_response(gtk.RESPONSE_CLOSE)
         prefs.vbox.show_all()
+        gtk.gdk.threads_init()
         gtk.gdk.threads_enter()
         response = prefs.run()
         if response:
@@ -409,6 +411,7 @@ class Screenkey(gtk.Window):
         about.set_logo_icon_name(
                 'preferences-desktop-keyboard-shortcuts'
         )
+        gtk.gdk.threads_init()
         gtk.gdk.threads_enter()
         about.run()
         gtk.gdk.threads_leave()
