@@ -231,7 +231,6 @@ class Screenkey(gtk.Window):
 
     def on_label_change(self, widget, data=None):
         if not self.get_property('visible'):
-            gtk.gdk.threads_init()
             gtk.gdk.threads_enter()
             self.set_xy_position(self.options['position'])
             self.stick()
@@ -244,8 +243,10 @@ class Screenkey(gtk.Window):
         self.timer.start()
 
     def on_timeout(self):
+        gtk.gdk.threads_enter()
         self.hide()
         self.label.set_text("")
+        gtk.gdk.threads_leave()
 
     def on_change_mode(self, mode):
         self.listenkbd.stop()
@@ -389,12 +390,9 @@ class Screenkey(gtk.Window):
         prefs.set_has_separator(False)
         prefs.set_default_response(gtk.RESPONSE_CLOSE)
         prefs.vbox.show_all()
-        gtk.gdk.threads_init()
-        gtk.gdk.threads_enter()
         response = prefs.run()
         if response:
             self.store_state(self.options)
-        gtk.gdk.threads_leave()
         prefs.destroy()
 
     def on_about_dialog(self, widget, data=None):
@@ -411,10 +409,7 @@ class Screenkey(gtk.Window):
         about.set_logo_icon_name(
                 'preferences-desktop-keyboard-shortcuts'
         )
-        gtk.gdk.threads_init()
-        gtk.gdk.threads_enter()
         about.run()
-        gtk.gdk.threads_leave()
         about.destroy()
 
     def drop_tty(self):

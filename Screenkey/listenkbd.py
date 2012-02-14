@@ -17,6 +17,7 @@ import time
 import sys
 import subprocess
 import modmap
+import gtk
 
 from Xlib import X, XK, display
 from Xlib.ext import record
@@ -135,11 +136,13 @@ class ListenKbd(threading.Thread):
                     return REPLACE_KEYS[name]
 
     def update_text(self, string=None):
+        gtk.gdk.threads_enter()
         if not string is None:
             self.text = "%s%s" % (self.label.get_text(), string)
             self.label.set_text(self.text)
         else:
             self.label.set_text("")
+        gtk.gdk.threads_leave()
         self.label.emit("text-changed")
 
     def key_press(self, reply):
@@ -241,12 +244,15 @@ class ListenKbd(threading.Thread):
             return
         # Backspace key
         elif event.detail == 22 and event.type == X.KeyPress:
+            gtk.gdk.threads_enter()
             if len(self.label.get_text()) > 0:
                 self.label.set_text(
                     unicode(self.label.get_text(), 'utf-8')[:-1]
                 )
                 key = ""
+                gtk.gdk.threads_leave()
             else:
+                gtk.gdk.threads_leave()
                 return
         else:
             if event.type == X.KeyPress:
