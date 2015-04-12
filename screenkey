@@ -15,7 +15,7 @@
 
 import os
 import logging
-from optparse import OptionParser
+from argparse import ArgumentParser
 import pygtk
 pygtk.require('2.0')
 import gtk
@@ -30,31 +30,27 @@ from Screenkey.screenkey import Screenkey
 
 gtk.gdk.threads_init()
 
-def Main():
-    parser = OptionParser(description=APP_DESC, version=VERSION)
-    parser.add_option("--no-detach", action="store_true",
-        dest="nodetach", default=False,
-        help=_("do not detach from the parent"))
-    parser.add_option("-d", "--debug", action="store_true",
-        dest="debug", default=False, help=_("show debug information"))
-    parser.add_option("-t", "--timeout", action="store_true",
-        dest="timeout", default=2.5, help="timeout in seconds (2.5 by default)")
-    parser.add_option("-m", "--mods-only", action="store_true",
-        dest="mods_only", default=None, help="Show ony keys with modifiers pressed")
-    (options, args) = parser.parse_args()
+
+def main():
+    parser = ArgumentParser(description=APP_DESC, version=VERSION)
+    parser.add_argument("--no-detach", action="store_true",
+                        dest="nodetach", default=False,
+                        help=_("do not detach from the parent"))
+    parser.add_argument("-d", "--debug", action="store_true",
+                        dest="debug", default=False, help=_("show debug information"))
+    parser.add_argument("-t", "--timeout", action="store_true",
+                        dest="timeout", default=2.5, help="timeout in seconds (2.5 by default)")
+    parser.add_argument("-m", "--mods-only", action="store_true",
+                        dest="mods_only", default=None,
+                        help="Show ony keys with modifiers pressed")
+    options = parser.parse_args()
 
     if options.debug:
         if options.nodetach:
             # Send debug messages to standard output
             logfile = None
         else:
-            logfile = os.path.join(os.path.expanduser('~'),
-                                   '.screenkey.log')
-            username = os.environ.get('SUDO_USER')
-            if username:
-                homedir = os.path.expanduser('~%s' % username)
-                if homedir != '~%s' % username:
-                    logfile = os.path.join(homedir, '.screenkey.log')
+            logfile = os.path.join(os.path.expanduser('~'), '.screenkey.log')
         logging.basicConfig(filename=logfile, level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.INFO)
@@ -66,4 +62,4 @@ def Main():
 
 
 if __name__ == "__main__":
-    Main()
+    main()
