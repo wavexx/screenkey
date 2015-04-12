@@ -21,7 +21,7 @@ from .listenkbd import ListenKbd
 
 from threading import Timer
 import os
-import pickle
+import json
 
 import pygtk
 pygtk.require('2.0')
@@ -34,55 +34,52 @@ import glib
 import pango
 
 
-POS_TOP = 0
-POS_CENTER = 1
-POS_BOTTOM = 2
+POSITIONS = {
+    'top': _('Top'),
+    'center': _('Center'),
+    'bottom': _('Bottom'),
+}
 
-SIZE_LARGE = 0
-SIZE_MEDIUM = 1
-SIZE_SMALL = 2
+FONT_SIZES = {
+    'large': _('Large'),
+    'medium': _('Medium'),
+    'small': _('Small'),
+}
 
-MODE_RAW = 0
-MODE_NORMAL = 1
+KEY_MODES = {
+    'raw': _('Raw'),
+    'normal': _('Normal'),
+}
+
+
+class Options(dict):
+    def __getattr__(self, k):
+        return self[k]
+
+    def __setattr__(self, k, v):
+        self[k] = v
 
 
 class Screenkey(gtk.Window):
-    POSITIONS = {
-        POS_TOP: _('Top'),
-        POS_CENTER: _('Center'),
-        POS_BOTTOM: _('Bottom'),
-    }
-    SIZES = {
-        SIZE_LARGE: _('Large'),
-        SIZE_MEDIUM: _('Medium'),
-        SIZE_SMALL: _('Small'),
-    }
-    MODES = {
-        MODE_RAW: _('Raw'),
-        MODE_NORMAL: _('Normal'),
-    }
+    STATE_FILE = os.path.join(glib.get_user_config_dir(), 'screenkey.json')
 
-    STATE_FILE = os.path.join(glib.get_user_cache_dir(), 'screenkey.dat')
-
-
-    def __init__(self, logger, timeout, mods_only):
+    def __init__(self, logger, options, show_settings=False):
         gtk.Window.__init__(self)
 
         self.timer = None
         self.logger = logger
 
         self.options = self.load_state()
-        if not self.options:
-            self.options = {'timeout': 2.5,
-                            'position': POS_BOTTOM,
-                            'size': SIZE_MEDIUM,
-                            'mode': MODE_NORMAL,
-                            'mods_only': False}
-
-        if timeout > 0:
-            self.options['timeout'] = timeout
-        if mods_only!= None:
-            self.options['mods_only'] = mods_only
+        if self.options is None:
+            self.options = Options({'timeout': 2.5,
+                                    'position': 'bottom',
+                                    'font_size': 'medium',
+                                    'key_mode': 'normal',
+                                    'mods_only': False})
+        if options is not None:
+            for k, v in options.iteritems():
+                if v is not None:
+                    self.options[k] = v
 
         self.set_skip_taskbar_hint(True)
         self.set_skip_pager_hint(True)
@@ -107,14 +104,14 @@ class Screenkey(gtk.Window):
 
         self.screen_width = gtk.gdk.screen_width()
         self.screen_height = gtk.gdk.screen_height()
-        self.set_window_size(self.options['size'])
+        self.set_font_size(self.options.font_size)
 
         self.set_gravity(gtk.gdk.GRAVITY_CENTER)
-        self.set_xy_position(self.options['position'])
+        self.set_xy_position(self.options.position)
 
         self.listenkbd = ListenKbd(self.label, logger=self.logger,
-                                   mode=self.options['mode'],
-                                   mods_only=self.options['mods_only'])
+                                   key_mode=self.options.key_mode,
+                                   mods_only=self.options.mods_only)
         self.listenkbd.start()
 
         menu = gtk.Menu()
@@ -161,6 +158,8 @@ class Screenkey(gtk.Window):
             self.logger.debug("Using StatusIcon.")
 
         self.connect("delete-event", self.quit)
+        if show_settings:
+            self.on_preferences_dialog()
 
 
     def quit(self, widget, data=None):
@@ -172,40 +171,36 @@ class Screenkey(gtk.Window):
         """Load stored options"""
         options = None
         try:
-            f = open(self.STATE_FILE, 'r')
-            try:
-                options = pickle.load(f)
+            with open(self.STATE_FILE, 'r') as f:
+                options = Options(json.load(f))
                 self.logger.debug("Options loaded.")
-            except:
-                f.close()
         except IOError:
             self.logger.debug("file %s does not exists." % self.STATE_FILE)
+        except ValueError:
+            self.logger.debug("file %s is invalid." % self.STATE_FILE)
         return options
 
 
     def store_state(self, options):
         """Store options"""
         try:
-            f = open(self.STATE_FILE, 'w')
-            try:
-                pickle.dump(options, f)
+            with open(self.STATE_FILE, 'w') as f:
+                json.dump(options, f)
                 self.logger.debug("Options saved.")
-            except:
-                f.close()
         except IOError:
             self.logger.debug("Cannot open %s." % self.STATE_FILE)
 
 
-    def set_window_size(self, setting):
+    def set_font_size(self, setting):
         """Set window and label size."""
         window_width = self.screen_width
         window_height = -1
 
-        if setting == SIZE_LARGE:
+        if setting == 'large':
             window_height = 24 * self.screen_height // 100
-        if setting == SIZE_MEDIUM:
+        elif setting == 'medium':
             window_height = 12 * self.screen_height // 100
-        if setting == SIZE_SMALL:
+        else:
             window_height = 8 * self.screen_height // 100
 
         attr = pango.AttrList()
@@ -221,11 +216,11 @@ class Screenkey(gtk.Window):
     def set_xy_position(self, setting):
         """Set window position."""
         window_width, window_height = self.get_size()
-        if setting == POS_TOP:
+        if setting == 'top':
             self.move(0, window_height * 2)
-        if setting == POS_CENTER:
+        elif setting == 'center':
             self.move(0, self.screen_height // 2)
-        if setting == POS_BOTTOM:
+        else:
             self.move(0, self.screen_height - window_height * 2)
 
 
@@ -239,15 +234,15 @@ class Screenkey(gtk.Window):
     def on_label_change(self, widget, data=None):
         if not self.get_property('visible'):
             gtk.gdk.threads_enter()
-            self.set_xy_position(self.options['position'])
+            self.set_xy_position(self.options.position)
             self.stick()
             self.show()
             gtk.gdk.threads_leave()
         if self.timer:
             self.timer.cancel()
-
-        self.timer = Timer(self.options['timeout'], self.on_timeout)
-        self.timer.start()
+        if self.options.timeout > 0:
+            self.timer = Timer(self.options.timeout, self.on_timeout)
+            self.timer.start()
 
 
     def on_timeout(self):
@@ -257,10 +252,10 @@ class Screenkey(gtk.Window):
         gtk.gdk.threads_leave()
 
 
-    def on_change_mode(self, mode):
+    def on_change_mode(self, key_mode, mods_only):
         self.listenkbd.stop()
         self.listenkbd = ListenKbd(self.label, logger=self.logger,
-                                   mode=mode, mods_only=self.options['mods_only'])
+                                   key_mode=key_mode, mods_only=mods_only)
         self.listenkbd.start()
 
 
@@ -268,43 +263,45 @@ class Screenkey(gtk.Window):
         if widget.get_active():
             self.logger.debug("Screenkey enabled.")
             self.listenkbd = ListenKbd(self.label, logger=self.logger,
-                                       mode=self.options['mode'],
-                                       mods_only=self.options['mods_only'])
+                                       key_mode=self.options.key_mode,
+                                       mods_only=self.options.mods_only)
             self.listenkbd.start()
         else:
             self.logger.debug("Screenkey disabled.")
             self.listenkbd.stop()
 
 
-    def on_preferences_dialog(self, widget, data=None):
+    def on_preferences_dialog(self, widget=None, data=None):
         prefs = gtk.Dialog(APP_NAME, None,
                     gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                     (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
 
         def on_sb_time_changed(widget, data=None):
-            self.options['timeout'] = widget.get_value()
-            self.logger.debug("Timeout value changed.")
+            self.options.timeout = widget.get_value()
+            self.logger.debug("Timeout value changed: %f." % self.options.timeout)
 
         def on_cbox_sizes_changed(widget, data=None):
             index = widget.get_active()
-            if index >= 0:
-                self.options['size'] = index
-                self.set_window_size(self.options['size'])
-                self.logger.debug("Window size changed.")
+            self.options.font_size = FONT_SIZES.keys()[index]
+            self.set_font_size(self.options.font_size)
+            self.logger.debug("Window size changed: %s." % self.options.font_size)
 
         def on_cbox_modes_changed(widget, data=None):
             index = widget.get_active()
-            if index >= 0:
-                self.options['mode'] = index
-                self.on_change_mode(self.options['mode'])
-                self.logger.debug("Key mode changed.")
+            self.options.key_mode = KEY_MODES.keys()[index]
+            self.on_change_mode(self.options.key_mode, self.options.mods_only)
+            self.logger.debug("Key mode changed: %s." % self.options.key_mode)
 
-        def on_cbox_changed(widget, data=None):
+        def on_cbox_modsonly_changed(widget, data=None):
+            self.options.mods_only = widget.get_active()
+            self.on_change_mode(self.options.key_mode, self.options.mods_only)
+            self.logger.debug("Modifiers only changed: %s." % self.options.mods_only)
+
+        def on_cbox_position_changed(widget, data=None):
             index = widget.get_active()
-            name = widget.get_name()
-            if index >= 0:
-                self.options[name] = index
-                self.logger.debug("Window position changed.")
+            self.options.position = POSITIONS.keys()[index]
+            self.set_xy_position(self.options.position)
+            self.logger.debug("Window position changed: %s." % self.options.position)
 
         frm_main = gtk.Frame(_("Preferences"))
         frm_main.set_border_width(6)
@@ -322,14 +319,11 @@ class Screenkey(gtk.Window):
         sb_time.set_range(0.5, 10.0)
         sb_time.set_numeric(True)
         sb_time.set_update_policy(gtk.UPDATE_IF_VALID)
-        sb_time.set_value(self.options['timeout'])
+        sb_time.set_value(self.options.timeout)
         sb_time.connect("value-changed", on_sb_time_changed)
-        hbox_time.pack_start(lbl_time1, expand=False,
-                             fill=False, padding=6)
-        hbox_time.pack_start(sb_time, expand=False,
-                             fill=False, padding=4)
-        hbox_time.pack_start(lbl_time2, expand=False,
-                             fill=False, padding=4)
+        hbox_time.pack_start(lbl_time1, expand=False, fill=False, padding=6)
+        hbox_time.pack_start(sb_time, expand=False, fill=False, padding=4)
+        hbox_time.pack_start(lbl_time2, expand=False, fill=False, padding=4)
         frm_time.add(hbox_time)
         frm_time.show_all()
 
@@ -344,10 +338,10 @@ class Screenkey(gtk.Window):
         lbl_positions = gtk.Label(_("Position"))
         cbox_positions = gtk.combo_box_new_text()
         cbox_positions.set_name('position')
-        for key, value in self.POSITIONS.items():
+        for key, value in enumerate(POSITIONS):
             cbox_positions.insert_text(key, value)
-        cbox_positions.set_active(self.options['position'])
-        cbox_positions.connect("changed", on_cbox_changed)
+        cbox_positions.set_active(POSITIONS.keys().index(self.options.position))
+        cbox_positions.connect("changed", on_cbox_position_changed)
 
         hbox1_aspect.pack_start(lbl_positions, expand=False, fill=False, padding=6)
         hbox1_aspect.pack_start(cbox_positions, expand=False, fill=False, padding=4)
@@ -357,9 +351,9 @@ class Screenkey(gtk.Window):
         lbl_sizes = gtk.Label(_("Size"))
         cbox_sizes = gtk.combo_box_new_text()
         cbox_sizes.set_name('size')
-        for key, value in self.SIZES.items():
+        for key, value in enumerate(FONT_SIZES):
             cbox_sizes.insert_text(key, value)
-        cbox_sizes.set_active(self.options['size'])
+        cbox_sizes.set_active(FONT_SIZES.keys().index(self.options.font_size))
         cbox_sizes.connect("changed", on_cbox_sizes_changed)
 
         hbox2_aspect.pack_start(lbl_sizes, expand=False, fill=False, padding=6)
@@ -369,21 +363,30 @@ class Screenkey(gtk.Window):
         vbox_aspect.pack_start(hbox2_aspect)
         frm_aspect.add(vbox_aspect)
 
+
         frm_kbd = gtk.Frame(_("<b>Keys</b>"))
         frm_kbd.set_border_width(4)
         frm_kbd.get_label_widget().set_use_markup(True)
         frm_kbd.set_shadow_type(gtk.SHADOW_NONE)
+        vbox_kbd = gtk.VBox(spacing=6)
+
         hbox_kbd = gtk.HBox()
         lbl_kbd = gtk.Label(_("Mode"))
         cbox_modes = gtk.combo_box_new_text()
         cbox_modes.set_name('mode')
-        for key, value in self.MODES.items():
+        for key, value in enumerate(KEY_MODES):
             cbox_modes.insert_text(key, value)
-        cbox_modes.set_active(self.options['mode'])
+        cbox_modes.set_active(KEY_MODES.keys().index(self.options.key_mode))
         cbox_modes.connect("changed", on_cbox_modes_changed)
         hbox_kbd.pack_start(lbl_kbd, expand=False, fill=False, padding=6)
         hbox_kbd.pack_start(cbox_modes, expand=False, fill=False, padding=4)
-        frm_kbd.add(hbox_kbd)
+        vbox_kbd.pack_start(hbox_kbd)
+
+        chk_kbd = gtk.CheckButton(_("Modifiers only"))
+        chk_kbd.connect("toggled", on_cbox_modsonly_changed)
+        vbox_kbd.pack_start(chk_kbd)
+
+        frm_kbd.add(vbox_kbd)
 
         vbox_main.pack_start(frm_time, False, False, 6)
         vbox_main.pack_start(frm_aspect, False, False, 6)

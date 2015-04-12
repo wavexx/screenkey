@@ -37,29 +37,48 @@ def detach():
 
 def main():
     ap = ArgumentParser(description=APP_DESC, version=VERSION)
-    ap.add_argument("--no-detach", action="store_true",
-                    dest="nodetach", default=False,
+    ap.add_argument("--no-detach", action="store_true", default=False,
                     help=_("do not detach from the parent"))
     ap.add_argument("-d", "--debug", action="store_true",
-                    dest="debug", default=False, help=_("enable debugging (implies --no-detach)"))
-    ap.add_argument("-t", "--timeout", action="store_true",
-                    dest="timeout", help=_("timeout in seconds"))
+                    default=False, help=_("enable debugging (implies --no-detach)"))
+    ap.add_argument("-t", "--timeout", type=float, help=_("timeout in seconds"))
+    ap.add_argument("-p", "--position", choices=sc.POSITIONS,
+                    help=_("set vertical position"))
+    ap.add_argument("-s", "--font-size", choices=sc.FONT_SIZES,
+                    help=_("set font size"))
+    ap.add_argument("--key-mode", choices=sc.KEY_MODES,
+                    help=_("set key processing mode"))
     ap.add_argument("-m", "--mods-only", action="store_true",
-                    dest="mods_only", help=_("Show only keys with modifiers pressed"))
+                    help=_("show only keys with modifiers pressed"))
+    ap.add_argument("--show-settings", action="store_true",
+                    help=_("show settings dialog on start"))
     args = ap.parse_args()
+
+    # Set options
+    options = sc.Options()
+    if args.timeout is not None:
+        options.timeout = args.timeout
+    if args.position is not None:
+        options.position = args.position
+    if args.font_size is not None:
+        options.font_size = args.font_size
+    if args.key_mode is not None:
+        options.key_mode = args.key_mode
+    if args.mods_only is not None:
+        options.mods_only = args.mods_only
 
     # Initialize logger
     if args.debug:
-        args.nodetach = True
+        args.no_detach = True
         logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(APP_NAME)
 
-    if args.nodetach == False:
+    if args.no_detach == False:
         detach()
 
-    sc.Screenkey(logger=logger, timeout=args.timeout, mods_only=args.mods_only)
+    sc.Screenkey(logger=logger, options=options, show_settings=args.show_settings)
     try:
         sc.gtk.main()
     except KeyboardInterrupt:

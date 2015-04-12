@@ -32,9 +32,6 @@ from Xlib import X, XK, display
 from Xlib.ext import record
 from Xlib.protocol import rq
 
-MODE_RAW = 0
-MODE_NORMAL = 1
-
 REPLACE_KEYS = {
     'XK_Escape': _('Esc '),
     'XK_Tab':'↹ ',
@@ -84,9 +81,9 @@ REPLACE_KEYS = {
 
 
 class ListenKbd(threading.Thread):
-    def __init__(self, label, logger, mode, mods_only):
+    def __init__(self, label, logger, key_mode, mods_only):
         threading.Thread.__init__(self)
-        self.mode = mode
+        self.key_mode = key_mode
         self.logger = logger
         self.label = label
         self.text = ""
@@ -179,9 +176,9 @@ class ListenKbd(threading.Thread):
             event, data = rq.EventField(None).parse_binary_value(data,
                                     self.record_dpy.display, None, None)
             if event.type in [X.KeyPress, X.KeyRelease]:
-                if self.mode == MODE_NORMAL:
+                if self.key_mode == 'normal':
                     key.append(self.key_normal_mode(event))
-                if self.mode == MODE_RAW:
+                else:
                     key.append(self.key_raw_mode(event))
         if any(key):
             self.update_text(''.join(k for k in key if k))
