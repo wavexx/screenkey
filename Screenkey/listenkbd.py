@@ -166,18 +166,17 @@ class ListenKbd(threading.Thread):
             # not an event
             return
         data = reply.data
-        key = None
+        key = []
         while len(data):
             event, data = rq.EventField(None).parse_binary_value(data,
                                     self.record_dpy.display, None, None)
             if event.type in [X.KeyPress, X.KeyRelease]:
                 if self.mode == MODE_NORMAL:
-                    key = self.key_normal_mode(event)
+                    key.append(self.key_normal_mode(event))
                 if self.mode == MODE_RAW:
-                    key = self.key_raw_mode(event)
-                if not key:
-                    return
-        self.update_text(key)
+                    key.append(self.key_raw_mode(event))
+        if any(key):
+            self.update_text(''.join(k for k in key if k))
 
     def key_normal_mode(self, event):
         key = ''
@@ -301,4 +300,3 @@ class ListenKbd(threading.Thread):
         self.local_dpy.flush()
         self.record_dpy.record_free_context(self.ctx)
         self.logger.debug("Thread stopped.")
-
