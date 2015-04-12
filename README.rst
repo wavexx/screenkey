@@ -1,51 +1,57 @@
-Screenkey fork
-==============
-
+=====================
 Screencast your keys.
-A screencast tool to display your keys inspired by Screenflick
-and initially based on the key-mon project code.
+=====================
+------------------
+Screenkey 0.2 fork
+------------------
+
+A screencast tool to display your keys; forked from screenkey_ 0.2, inspired by
+Screenflick_ and initially based on key-mon_.
 
 
 Main changes from screenkey 0.2
 -------------------------------
 
-TODO
+- Multi-monitor support
+- All settings available through command-line flags
+- Usable without system tray (for tiling window managers)
+- Can show modifiers only.
+- Bug fixes.
 
 
 Usage
 -----
 
-Download the latest version from https://launchpad.net/screenkey/+download
-and you need install python-xlib.
+Execute without installation::
 
-To run without installing (change x.x by current version number)::
-
-  tar xvfz screenkey-x.x.tar.gz
-  cd screenkey-x.x/
-  sudo ./screenkey
+  ./screenkey
 
 To install::
 
-  tar xvfz screenkey-x.x.tar.gz
-  cd screenkey-x.x/
   sudo ./setup.py install
 
-Or you can use dpkg (Debian and Ubuntu)::
 
-  sudo dpkg -i screenkey_x.x-y_all.deb
+Authors and Copyright
+---------------------
 
+"screenkey" can be found at https://github.com/wavexx/screenkey
 
-Author
-------
-
-| "screencast" is distributed under GNU GPLv3+, WITHOUT ANY WARRANTY.
+| "screenkey" is distributed under GNU GPLv3+, WITHOUT ANY WARRANTY.
 | Copyright(c) 2010-2012 Pablo Seminario <pabluk@gmail.com>
+| Copyright(c) 2015 by wave++ "Yuri D'Elia" <wavexx@thregr.org>.
 
 
-Thanks to
----------
+Additional Thanks
+-----------------
 
+* Doug Patti
 * Ivan Makfinsky
 * Jacob Gardner
 * Muneeb Shaikh
-* farrer
+* farrer (launchpad)
+* zhum (launchpad)
+
+
+.. _screenkey: https://launchpad.net/screenkey
+.. _Screenflick: http://www.araelium.com/screenflick/
+.. _key-mon: https://code.google.com/p/key-mon/

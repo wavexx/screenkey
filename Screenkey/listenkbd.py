@@ -36,7 +36,8 @@ REPLACE_KEYS = {
     'XK_Escape': _('Esc '),
     'XK_Tab':'↹ ',
     'XK_Return':'⏎ ',
-    'XK_Space':' ',
+    'XK_space':'␣',
+    'XK_BackSpace':'⇐',
     'XK_Caps_Lock': _('Caps '),
     'XK_F1': 'F1 ',
     'XK_F2': 'F2 ',
@@ -142,7 +143,7 @@ class ListenKbd(threading.Thread):
 
     def update_text(self, string=None):
         gtk.gdk.threads_enter()
-        if not string is None:
+        if string is not None:
             self.text = "%s%s" % (self.label.get_text(), string)
             self.label.set_text(self.text)
         else:
@@ -209,9 +210,7 @@ class ListenKbd(threading.Thread):
                 self.cmd_keys['alt'] = False
             return
         # Meta key
-        # Fixme: it must use self.modifiers['mod5']
-        #        but doesn't work
-        if event.detail == 108:
+        if event.detail in self.modifiers['mod5']:
             if event.type == X.KeyPress:
                 self.cmd_keys['meta'] = True
             else:
