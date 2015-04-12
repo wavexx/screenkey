@@ -13,7 +13,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import threading
-import time
 import sys
 import subprocess
 import modmap
@@ -75,7 +74,7 @@ REPLACE_KEYS = {
 
 class ListenKbd(threading.Thread):
 
-    def __init__(self, label, logger, mode):
+    def __init__(self, label, logger, mode, mods_only):
         threading.Thread.__init__(self)
         self.mode = mode
         self.logger = logger
@@ -83,13 +82,14 @@ class ListenKbd(threading.Thread):
         self.text = ""
         self.command = None
         self.shift = None
+        self.mods_only = mods_only
         self.cmd_keys = {
             'shift': False,
             'ctrl': False,
             'alt': False,
             'capslock': False,
             'meta': False,
-            'super':False
+            'super': False,
             }
 
         self.logger.debug("Thread created")
@@ -280,7 +280,10 @@ class ListenKbd(threading.Thread):
                 if mod != '':
                     key = "%s%s " % (mod, key)
                 else:
-                    key = "%s%s" % (mod, key)
+                    if self.mods_only:
+                        return
+                    else:
+                        key = "%s%s" % (mod, key)
             else:
                 return
 
