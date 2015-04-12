@@ -113,7 +113,6 @@ class Screenkey(gtk.Window):
                                    mods_only=self.options['mods_only'])
         self.listenkbd.start()
 
-
         menu = gtk.Menu()
 
         show_item = gtk.CheckMenuItem(_("Show keys"))
@@ -126,7 +125,6 @@ class Screenkey(gtk.Window):
         preferences_item.connect("activate", self.on_preferences_dialog)
         preferences_item.show()
         menu.append(preferences_item)
-
 
         about_item = gtk.ImageMenuItem(gtk.STOCK_ABOUT)
         about_item.connect("activate", self.on_about_dialog)
@@ -161,7 +159,6 @@ class Screenkey(gtk.Window):
             self.systray.connect("popup-menu",
                     self.on_statusicon_popup, menu)
             self.logger.debug("Using StatusIcon.")
-
 
         self.connect("delete-event", self.quit)
 

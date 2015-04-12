@@ -4,12 +4,12 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -78,10 +78,11 @@ def get_keymap_table():
                     unicode_char = ''
                 new_keysyms.append(unicode_char)
 
-    		#keymap[keycode-8] = new_keysyms
-    		keymap[keycode] = new_keysyms
+                #keymap[keycode-8] = new_keysyms
+                keymap[keycode] = new_keysyms
 
     return keymap
+
 
 def get_modifier_map():
     modifiers = {}
@@ -98,8 +99,7 @@ def get_modifier_map():
                 # Convert key codes from hex to dec for use them
                 # with the keymap table
                 keycodes =[ int(kc, 16) for kc in keycodes]
-                
+
                 modifiers[mod_name] = keycodes
 
     return modifiers
-
