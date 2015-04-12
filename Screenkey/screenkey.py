@@ -16,18 +16,21 @@
 
 from __future__ import print_function, unicode_literals, division
 
+from . import APP_NAME, APP_DESC, APP_URL, VERSION, AUTHOR
+from .listenkbd import ListenKbd
+
+from threading import Timer
 import os
+import pickle
+
 import pygtk
 pygtk.require('2.0')
+
 import gtk
 import gobject
 import glib
 import pango
-import pickle
-from threading import Timer
 
-from Screenkey import APP_NAME, APP_DESC, APP_URL, VERSION, AUTHOR
-from listenkbd import ListenKbd
 
 POS_TOP = 0
 POS_CENTER = 1
@@ -40,8 +43,8 @@ SIZE_SMALL = 2
 MODE_RAW = 0
 MODE_NORMAL = 1
 
-class Screenkey(gtk.Window):
 
+class Screenkey(gtk.Window):
     POSITIONS = {
         POS_TOP: _('Top'),
         POS_CENTER: _('Center'),
@@ -57,8 +60,8 @@ class Screenkey(gtk.Window):
         MODE_NORMAL: _('Normal'),
     }
 
-    STATE_FILE = os.path.join(glib.get_user_cache_dir(),
-                              'screenkey.dat')
+    STATE_FILE = os.path.join(glib.get_user_cache_dir(), 'screenkey.dat')
+
 
     def __init__(self, logger, nodetach, timeout, mods_only):
         gtk.Window.__init__(self)
@@ -68,13 +71,11 @@ class Screenkey(gtk.Window):
 
         self.options = self.load_state()
         if not self.options:
-            self.options = {
-                'timeout': 2.5,
-                'position': POS_BOTTOM,
-                'size': SIZE_MEDIUM,
-                'mode': MODE_NORMAL,
-                'mods_only': False
-                }
+            self.options = {'timeout': 2.5,
+                            'position': POS_BOTTOM,
+                            'size': SIZE_MEDIUM,
+                            'mode': MODE_NORMAL,
+                            'mods_only': False}
 
         if timeout > 0:
             self.options['timeout'] = timeout
@@ -147,28 +148,26 @@ class Screenkey(gtk.Window):
 
         try:
             import appindicator
-            self.systray = appindicator.Indicator(APP_NAME,
-                           'indicator-messages',
-                            appindicator.CATEGORY_APPLICATION_STATUS)
+            self.systray = appindicator.Indicator(
+                APP_NAME, 'indicator-messages', appindicator.CATEGORY_APPLICATION_STATUS)
             self.systray.set_status(appindicator.STATUS_ACTIVE)
             self.systray.set_attention_icon("indicator-messages-new")
-            self.systray.set_icon(
-                    "preferences-desktop-keyboard-shortcuts")
+            self.systray.set_icon("preferences-desktop-keyboard-shortcuts")
             self.systray.set_menu(menu)
             self.logger.debug("Using AppIndicator.")
-        except(ImportError):
+        except ImportError:
             self.systray = gtk.StatusIcon()
-            self.systray.set_from_icon_name(
-                    "preferences-desktop-keyboard-shortcuts")
-            self.systray.connect("popup-menu",
-                    self.on_statusicon_popup, menu)
+            self.systray.set_from_icon_name("preferences-desktop-keyboard-shortcuts")
+            self.systray.connect("popup-menu", self.on_statusicon_popup, menu)
             self.logger.debug("Using StatusIcon.")
 
         self.connect("delete-event", self.quit)
 
+
     def quit(self, widget, data=None):
         self.listenkbd.stop()
         gtk.main_quit()
+
 
     def load_state(self):
         """Load stored options"""
@@ -181,9 +180,9 @@ class Screenkey(gtk.Window):
             except:
                 f.close()
         except IOError:
-            self.logger.debug("file %s does not exists." %
-                              self.STATE_FILE)
+            self.logger.debug("file %s does not exists." % self.STATE_FILE)
         return options
+
 
     def store_state(self, options):
         """Store options"""
@@ -196,6 +195,7 @@ class Screenkey(gtk.Window):
                 f.close()
         except IOError:
             self.logger.debug("Cannot open %s." % self.STATE_FILE)
+
 
     def set_window_size(self, setting):
         """Set window and label size."""
@@ -210,14 +210,14 @@ class Screenkey(gtk.Window):
             window_height = 8 * self.screen_height // 100
 
         attr = pango.AttrList()
-        attr.change(pango.AttrSize((
-                    50 * window_height // 100) * 1000, 0, -1))
+        attr.change(pango.AttrSize((50 * window_height // 100) * 1000, 0, -1))
         attr.change(pango.AttrFamily("Sans", 0, -1))
         attr.change(pango.AttrWeight(pango.WEIGHT_BOLD, 0, -1))
         attr.change(pango.AttrForeground(65535, 65535, 65535, 0, -1))
 
         self.label.set_attributes(attr)
         self.resize(window_width, window_height)
+
 
     def set_xy_position(self, setting):
         """Set window position."""
@@ -229,12 +229,13 @@ class Screenkey(gtk.Window):
         if setting == POS_BOTTOM:
             self.move(0, self.screen_height - window_height * 2)
 
+
     def on_statusicon_popup(self, widget, button, timestamp, data=None):
-        if button == 3:
-            if data:
-                data.show()
-                data.popup(None, None, gtk.status_icon_position_menu,
-                           3, timestamp, widget)
+        if button == 3 and data:
+            data.show()
+            data.popup(None, None, gtk.status_icon_position_menu,
+                       3, timestamp, widget)
+
 
     def on_label_change(self, widget, data=None):
         if not self.get_property('visible'):
@@ -249,17 +250,20 @@ class Screenkey(gtk.Window):
         self.timer = Timer(self.options['timeout'], self.on_timeout)
         self.timer.start()
 
+
     def on_timeout(self):
         gtk.gdk.threads_enter()
         self.hide()
         self.label.set_text("")
         gtk.gdk.threads_leave()
 
+
     def on_change_mode(self, mode):
         self.listenkbd.stop()
         self.listenkbd = ListenKbd(self.label, logger=self.logger,
                                    mode=mode, mods_only=self.options['mods_only'])
         self.listenkbd.start()
+
 
     def on_show_keys(self, widget, data=None):
         if widget.get_active():
@@ -271,6 +275,7 @@ class Screenkey(gtk.Window):
         else:
             self.logger.debug("Screenkey disabled.")
             self.listenkbd.stop()
+
 
     def on_preferences_dialog(self, widget, data=None):
         prefs = gtk.Dialog(APP_NAME, None,
@@ -345,10 +350,8 @@ class Screenkey(gtk.Window):
         cbox_positions.set_active(self.options['position'])
         cbox_positions.connect("changed", on_cbox_changed)
 
-        hbox1_aspect.pack_start(lbl_positions, expand=False,
-                                fill=False, padding=6)
-        hbox1_aspect.pack_start(cbox_positions, expand=False,
-                                fill=False, padding=4)
+        hbox1_aspect.pack_start(lbl_positions, expand=False, fill=False, padding=6)
+        hbox1_aspect.pack_start(cbox_positions, expand=False, fill=False, padding=4)
 
         hbox2_aspect = gtk.HBox()
 
@@ -360,10 +363,8 @@ class Screenkey(gtk.Window):
         cbox_sizes.set_active(self.options['size'])
         cbox_sizes.connect("changed", on_cbox_sizes_changed)
 
-        hbox2_aspect.pack_start(lbl_sizes, expand=False,
-                                fill=False, padding=6)
-        hbox2_aspect.pack_start(cbox_sizes, expand=False,
-                                fill=False, padding=4)
+        hbox2_aspect.pack_start(lbl_sizes, expand=False, fill=False, padding=6)
+        hbox2_aspect.pack_start(cbox_sizes, expand=False, fill=False, padding=4)
 
         vbox_aspect.pack_start(hbox1_aspect)
         vbox_aspect.pack_start(hbox2_aspect)
@@ -381,10 +382,8 @@ class Screenkey(gtk.Window):
             cbox_modes.insert_text(key, value)
         cbox_modes.set_active(self.options['mode'])
         cbox_modes.connect("changed", on_cbox_modes_changed)
-        hbox_kbd.pack_start(lbl_kbd, expand=False,
-                            fill=False, padding=6)
-        hbox_kbd.pack_start(cbox_modes, expand=False,
-                            fill=False, padding=4)
+        hbox_kbd.pack_start(lbl_kbd, expand=False, fill=False, padding=6)
+        hbox_kbd.pack_start(cbox_modes, expand=False, fill=False, padding=4)
         frm_kbd.add(hbox_kbd)
 
         vbox_main.pack_start(frm_time, False, False, 6)
@@ -403,6 +402,7 @@ class Screenkey(gtk.Window):
             self.store_state(self.options)
         prefs.destroy()
 
+
     def on_about_dialog(self, widget, data=None):
         about = gtk.AboutDialog()
         about.set_program_name(APP_NAME)
@@ -414,11 +414,10 @@ class Screenkey(gtk.Window):
         )
         about.set_website(APP_URL)
         about.set_icon_name('preferences-desktop-keyboard-shortcuts')
-        about.set_logo_icon_name(
-                'preferences-desktop-keyboard-shortcuts'
-        )
+        about.set_logo_icon_name('preferences-desktop-keyboard-shortcuts')
         about.run()
         about.destroy()
+
 
     def drop_tty(self):
         # We fork and setsid so that we drop the controlling

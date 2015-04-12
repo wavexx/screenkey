@@ -29,7 +29,6 @@ def cmd_modifier_map():
 
 def get_keymap_table():
     keymap = {}
-
     keymap_table = cmd_keymap_table()
 
     re_line = re.compile(r'0x\w+')
@@ -40,6 +39,7 @@ def get_keymap_table():
                 new_keysyms = []
                 keycode = int(keycode.group(1))
                 keysyms = re_line.findall(line)
+
                 # When you press only one key
                 unicode_char = ''
                 try:
@@ -80,7 +80,6 @@ def get_keymap_table():
                     unicode_char = ''
                 new_keysyms.append(unicode_char)
 
-                #keymap[keycode-8] = new_keysyms
                 keymap[keycode] = new_keysyms
 
     return keymap
@@ -88,19 +87,19 @@ def get_keymap_table():
 
 def get_modifier_map():
     modifiers = {}
-
     modifier_map = cmd_modifier_map()
-
     re_line = re.compile(r'(0x\w+)')
+
     for line in modifier_map.split('\n')[1:]:
         if len(line) > 0:
             mod_name = re.match(r'(\w+).*', line)
             if mod_name:
                 mod_name = mod_name.group(1)
                 keycodes = re_line.findall(line)
+
                 # Convert key codes from hex to dec for use them
                 # with the keymap table
-                keycodes =[ int(kc, 16) for kc in keycodes]
+                keycodes = [int(kc, 16) for kc in keycodes]
 
                 modifiers[mod_name] = keycodes
 

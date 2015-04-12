@@ -16,11 +16,12 @@
 
 from __future__ import print_function, unicode_literals, division
 
-import threading
-import sys
-import subprocess
-import modmap
+from . import modmap
+
 import gtk
+import subprocess
+import sys
+import threading
 
 from Xlib import X, XK, display
 from Xlib.ext import record
@@ -76,8 +77,8 @@ REPLACE_KEYS = {
     'XK_KP_Enter': '⏎ ',
 }
 
-class ListenKbd(threading.Thread):
 
+class ListenKbd(threading.Thread):
     def __init__(self, label, logger, mode, mods_only):
         threading.Thread.__init__(self)
         self.mode = mode
@@ -87,14 +88,12 @@ class ListenKbd(threading.Thread):
         self.command = None
         self.shift = None
         self.mods_only = mods_only
-        self.cmd_keys = {
-            'shift': False,
-            'ctrl': False,
-            'alt': False,
-            'capslock': False,
-            'meta': False,
-            'super': False,
-            }
+        self.cmd_keys = {'shift': False,
+                         'ctrl': False,
+                         'alt': False,
+                         'capslock': False,
+                         'meta': False,
+                         'super': False}
 
         self.logger.debug("Thread created")
         self.keymap = modmap.get_keymap_table()
@@ -105,27 +104,25 @@ class ListenKbd(threading.Thread):
 
         if not self.record_dpy.has_extension("RECORD"):
             self.logger.error("RECORD extension not found.")
-            print("RECORD extension not found")
             sys.exit(1)
 
         self.ctx = self.record_dpy.record_create_context(
-                0,
-                [record.AllClients],
-                [{
-                        'core_requests': (0, 0),
-                        'core_replies': (0, 0),
-                        'ext_requests': (0, 0, 0, 0),
-                        'ext_replies': (0, 0, 0, 0),
-                        'delivered_events': (0, 0),
-                        'device_events': (X.KeyPress, X.KeyRelease),
-                        'errors': (0, 0),
-                        'client_started': False,
-                        'client_died': False,
-                }])
+            0, [record.AllClients],
+            [{'core_requests': (0, 0),
+              'core_replies': (0, 0),
+              'ext_requests': (0, 0, 0, 0),
+              'ext_replies': (0, 0, 0, 0),
+              'delivered_events': (0, 0),
+              'device_events': (X.KeyPress, X.KeyRelease),
+              'errors': (0, 0),
+              'client_started': False,
+              'client_died': False}])
+
 
     def run(self):
         self.logger.debug("Thread started.")
         self.record_dpy.record_enable_context(self.ctx, self.key_press)
+
 
     def lookup_keysym(self, keysym):
         for name in dir(XK):
@@ -133,11 +130,13 @@ class ListenKbd(threading.Thread):
                 return name[3:]
         return ""
 
+
     def replace_key(self, key, keysym):
         for name in dir(XK):
             if name[:3] == "XK_" and getattr(XK, name) == keysym:
                 if name in REPLACE_KEYS:
                     return REPLACE_KEYS[name]
+
 
     def update_text(self, string=None):
         gtk.gdk.threads_enter()
@@ -149,8 +148,8 @@ class ListenKbd(threading.Thread):
         gtk.gdk.threads_leave()
         self.label.emit("text-changed")
 
-    def key_press(self, reply):
 
+    def key_press(self, reply):
         # FIXME:
         # This is not the most efficient way to detect the
         # use of sudo/gksudo but it works.
@@ -182,6 +181,7 @@ class ListenKbd(threading.Thread):
         if any(key):
             self.update_text(''.join(k for k in key if k))
 
+
     def key_normal_mode(self, event):
         key = ''
         mod = ''
@@ -198,7 +198,6 @@ class ListenKbd(threading.Thread):
         else:
             self.logger.debug('No mapping for scan_code %d' % event.detail)
             return
-
 
         # Alt key
         if event.detail in self.modifiers['mod1']:
@@ -293,6 +292,7 @@ class ListenKbd(threading.Thread):
 
         return key
 
+
     def key_raw_mode(self, event):
         key = ''
         if event.type == X.KeyPress:
@@ -301,6 +301,7 @@ class ListenKbd(threading.Thread):
         else:
             return
         return key
+
 
     def stop(self):
         self.local_dpy.record_disable_context(self.ctx)
