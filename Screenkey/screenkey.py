@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+#
 # Copyright (c) 2010 Pablo Seminario <pabluk@gmail.com>
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -11,6 +13,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+from __future__ import print_function, unicode_literals, division
 
 import os
 import pygtk
@@ -39,18 +43,18 @@ MODE_NORMAL = 1
 class Screenkey(gtk.Window):
 
     POSITIONS = {
-        POS_TOP:_('Top'),
-        POS_CENTER:_('Center'),
-        POS_BOTTOM:_('Bottom'),
+        POS_TOP: _('Top'),
+        POS_CENTER: _('Center'),
+        POS_BOTTOM: _('Bottom'),
     }
     SIZES = {
-        SIZE_LARGE:_('Large'),
-        SIZE_MEDIUM:_('Medium'),
-        SIZE_SMALL:_('Small'),
+        SIZE_LARGE: _('Large'),
+        SIZE_MEDIUM: _('Medium'),
+        SIZE_SMALL: _('Small'),
     }
     MODES = {
-        MODE_RAW:_('Raw'),
-        MODE_NORMAL:_('Normal'),
+        MODE_RAW: _('Raw'),
+        MODE_NORMAL: _('Normal'),
     }
 
     STATE_FILE = os.path.join(glib.get_user_cache_dir(),
@@ -199,15 +203,15 @@ class Screenkey(gtk.Window):
         window_height = -1
 
         if setting == SIZE_LARGE:
-            window_height = 24 * self.screen_height / 100
+            window_height = 24 * self.screen_height // 100
         if setting == SIZE_MEDIUM:
-            window_height = 12 * self.screen_height / 100
+            window_height = 12 * self.screen_height // 100
         if setting == SIZE_SMALL:
-            window_height = 8 * self.screen_height / 100
+            window_height = 8 * self.screen_height // 100
 
         attr = pango.AttrList()
         attr.change(pango.AttrSize((
-                    50 * window_height / 100) * 1000, 0, -1))
+                    50 * window_height // 100) * 1000, 0, -1))
         attr.change(pango.AttrFamily("Sans", 0, -1))
         attr.change(pango.AttrWeight(pango.WEIGHT_BOLD, 0, -1))
         attr.change(pango.AttrForeground(65535, 65535, 65535, 0, -1))
@@ -221,7 +225,7 @@ class Screenkey(gtk.Window):
         if setting == POS_TOP:
             self.move(0, window_height * 2)
         if setting == POS_CENTER:
-            self.move(0, self.screen_height / 2)
+            self.move(0, self.screen_height // 2)
         if setting == POS_BOTTOM:
             self.move(0, self.screen_height - window_height * 2)
 
@@ -403,10 +407,10 @@ class Screenkey(gtk.Window):
         about = gtk.AboutDialog()
         about.set_program_name(APP_NAME)
         about.set_version(VERSION)
-        about.set_copyright(u"2010 \u00a9 %s" % AUTHOR)
+        about.set_copyright("2010 © %s" % AUTHOR)
         about.set_comments(APP_DESC)
         about.set_documenters(
-                [u"Jos\xe9 Mar\xeda Quiroga <pepelandia@gmail.com>"]
+                ["José María Quiroga <pepelandia@gmail.com>"]
         )
         about.set_website(APP_URL)
         about.set_icon_name('preferences-desktop-keyboard-shortcuts')

@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
 # Copyright (c) 2010 Pablo Seminario <pabluk@gmail.com>
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function, unicode_literals, division
 
 import re
 import subprocess
@@ -44,7 +46,7 @@ def get_keymap_table():
                     unicode_char = unichr(int(keysyms[0], 16))
                 except:
                     unicode_char = ''
-                if unicode_char == u'\x00':
+                if unicode_char == '\x00':
                     unicode_char = ''
                 new_keysyms.append(unicode_char)
 
@@ -54,7 +56,7 @@ def get_keymap_table():
                     unicode_char = unichr(int(keysyms[1], 16))
                 except:
                     unicode_char = ''
-                if unicode_char == u'\x00':
+                if unicode_char == '\x00':
                     unicode_char = ''
                 new_keysyms.append(unicode_char)
 
@@ -64,7 +66,7 @@ def get_keymap_table():
                     unicode_char = unichr(int(keysyms[4], 16))
                 except:
                     unicode_char = ''
-                if unicode_char == u'\x00':
+                if unicode_char == '\x00':
                     unicode_char = ''
                 new_keysyms.append(unicode_char)
 
@@ -74,7 +76,7 @@ def get_keymap_table():
                     unicode_char = unichr(int(keysyms[5], 16))
                 except:
                     unicode_char = ''
-                if unicode_char == u'\x00':
+                if unicode_char == '\x00':
                     unicode_char = ''
                 new_keysyms.append(unicode_char)
 
