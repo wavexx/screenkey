@@ -69,14 +69,22 @@ class Screenkey(gtk.Window):
         self.timer = None
         self.logger = logger
 
+        defaults = Options({'timeout': 2.5,
+                            'position': 'bottom',
+                            'font_size': 'medium',
+                            'key_mode': 'normal',
+                            'mods_only': False,
+                            'screen': 0})
         self.options = self.load_state()
         if self.options is None:
-            self.options = Options({'timeout': 2.5,
-                                    'position': 'bottom',
-                                    'font_size': 'medium',
-                                    'key_mode': 'normal',
-                                    'mods_only': False})
+            self.options = defaults
+        else:
+            # copy missing defaults
+            for k, v in defaults.iteritems():
+                if k not in self.options:
+                    self.options[k] = v
         if options is not None:
+            # override with values from constructor
             for k, v in options.iteritems():
                 if v is not None:
                     self.options[k] = v
@@ -102,12 +110,8 @@ class Screenkey(gtk.Window):
         self.label.show()
         self.add(self.label)
 
-        self.screen_width = gtk.gdk.screen_width()
-        self.screen_height = gtk.gdk.screen_height()
-        self.set_font_size(self.options.font_size)
-
         self.set_gravity(gtk.gdk.GRAVITY_CENTER)
-        self.set_xy_position(self.options.position)
+        self.set_active_screen(self.options.screen)
 
         self.listenkbd = ListenKbd(self.label, logger=self.logger,
                                    key_mode=self.options.key_mode,
@@ -191,17 +195,26 @@ class Screenkey(gtk.Window):
             self.logger.debug("Cannot open %s." % self.STATE_FILE)
 
 
+    def set_active_screen(self, setting):
+        scr = gtk.gdk.screen_get_default()
+        if setting >= scr.get_n_monitors():
+            setting = 0
+        self.monitor = setting
+        self.screen = scr.get_monitor_geometry(setting)
+        self.set_font_size(self.options.font_size)
+
+
     def set_font_size(self, setting):
         """Set window and label size."""
-        window_width = self.screen_width
+        window_width = self.screen.width
         window_height = -1
 
         if setting == 'large':
-            window_height = 24 * self.screen_height // 100
+            window_height = 24 * self.screen.height // 100
         elif setting == 'medium':
-            window_height = 12 * self.screen_height // 100
+            window_height = 12 * self.screen.height // 100
         else:
-            window_height = 8 * self.screen_height // 100
+            window_height = 8 * self.screen.height // 100
 
         attr = pango.AttrList()
         attr.change(pango.AttrSize((50 * window_height // 100) * 1000, 0, -1))
@@ -211,17 +224,18 @@ class Screenkey(gtk.Window):
 
         self.label.set_attributes(attr)
         self.resize(window_width, window_height)
+        self.set_xy_position(self.options.position)
 
 
     def set_xy_position(self, setting):
         """Set window position."""
         window_width, window_height = self.get_size()
         if setting == 'top':
-            self.move(0, window_height * 2)
+            self.move(self.screen.x, self.screen.y + window_height * 2)
         elif setting == 'center':
-            self.move(0, self.screen_height // 2)
+            self.move(self.screen.x, self.screen.y + self.screen.height // 2)
         else:
-            self.move(0, self.screen_height - window_height * 2)
+            self.move(self.screen.x, self.screen.y + self.screen.height - window_height * 2)
 
 
     def on_statusicon_popup(self, widget, button, timestamp, data=None):
@@ -303,6 +317,11 @@ class Screenkey(gtk.Window):
             self.set_xy_position(self.options.position)
             self.logger.debug("Window position changed: %s." % self.options.position)
 
+        def on_cbox_screen_changed(widget, data=None):
+            self.options.screen = widget.get_active()
+            self.set_active_screen(self.options.screen)
+            self.logger.debug("Screen changed: %d." % self.options.screen)
+
         frm_main = gtk.Frame(_("Preferences"))
         frm_main.set_border_width(6)
         vbox_main = gtk.VBox()
@@ -333,6 +352,18 @@ class Screenkey(gtk.Window):
         frm_aspect.set_shadow_type(gtk.SHADOW_NONE)
         vbox_aspect = gtk.VBox(spacing=6)
 
+        hbox0_aspect = gtk.HBox()
+
+        lbl_screen = gtk.Label(_("Screen"))
+        cbox_screen = gtk.combo_box_new_text()
+        for n in range(gtk.gdk.screen_get_default().get_n_monitors()):
+            cbox_screen.insert_text(n, str(n))
+        cbox_screen.set_active(self.monitor)
+        cbox_screen.connect("changed", on_cbox_screen_changed)
+
+        hbox0_aspect.pack_start(lbl_screen, expand=False, fill=False, padding=6)
+        hbox0_aspect.pack_start(cbox_screen, expand=False, fill=False, padding=4)
+
         hbox1_aspect = gtk.HBox()
 
         lbl_positions = gtk.Label(_("Position"))
@@ -359,6 +390,7 @@ class Screenkey(gtk.Window):
         hbox2_aspect.pack_start(lbl_sizes, expand=False, fill=False, padding=6)
         hbox2_aspect.pack_start(cbox_sizes, expand=False, fill=False, padding=4)
 
+        vbox_aspect.pack_start(hbox0_aspect)
         vbox_aspect.pack_start(hbox1_aspect)
         vbox_aspect.pack_start(hbox2_aspect)
         frm_aspect.add(vbox_aspect)
