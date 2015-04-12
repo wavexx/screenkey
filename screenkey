@@ -24,9 +24,6 @@ import os
 import logging
 from argparse import ArgumentParser
 
-import gtk
-gtk.gdk.threads_init()
-
 
 def main():
     parser = ArgumentParser(description=APP_DESC, version=VERSION)

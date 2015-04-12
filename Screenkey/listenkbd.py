@@ -18,7 +18,12 @@ from __future__ import print_function, unicode_literals, division
 
 from . import modmap
 
+import pygtk
+pygtk.require('2.0')
+
 import gtk
+gtk.gdk.threads_init()
+
 import subprocess
 import sys
 import threading
