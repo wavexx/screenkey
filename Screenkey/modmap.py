@@ -16,16 +16,26 @@
 
 from __future__ import print_function, unicode_literals, division
 
+import os
 import re
 import subprocess
 
+
 def cmd_keymap_table():
-    return subprocess.Popen(
-           ['xmodmap','-pk'], stdout=subprocess.PIPE).communicate()[0]
+    proc = subprocess.Popen(['xmodmap', '-pk'],
+                            stdout=subprocess.PIPE,
+                            env={'DISPLAY': os.environ.get('DISPLAY'),
+                                 'LANG': 'C'})
+    return proc.communicate()[0]
+
 
 def cmd_modifier_map():
-    return subprocess.Popen(
-            ['xmodmap','-pm'], stdout=subprocess.PIPE).communicate()[0]
+    proc = subprocess.Popen(['xmodmap', '-pm'],
+                            stdout=subprocess.PIPE,
+                            env={'DISPLAY': os.environ.get('DISPLAY'),
+                                 'LANG': 'C'})
+    return proc.communicate()[0]
+
 
 def get_keymap_table():
     keymap = {}

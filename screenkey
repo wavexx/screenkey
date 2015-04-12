@@ -17,21 +17,14 @@
 
 from __future__ import print_function, unicode_literals
 
+from Screenkey import APP_NAME, APP_DESC, VERSION
+import Screenkey.screenkey as sc
+
 import os
 import logging
 from argparse import ArgumentParser
-import pygtk
-pygtk.require('2.0')
+
 import gtk
-import gettext
-import locale
-
-locale.setlocale(locale.LC_ALL, '')
-gettext.install('screenkey', unicode=True)
-
-from Screenkey import APP_NAME, APP_DESC, VERSION
-from Screenkey.screenkey import Screenkey
-
 gtk.gdk.threads_init()
 
 
