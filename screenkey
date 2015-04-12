@@ -25,34 +25,48 @@ import logging
 from argparse import ArgumentParser
 
 
-def main():
-    parser = ArgumentParser(description=APP_DESC, version=VERSION)
-    parser.add_argument("--no-detach", action="store_true",
-                        dest="nodetach", default=False,
-                        help=_("do not detach from the parent"))
-    parser.add_argument("-d", "--debug", action="store_true",
-                        dest="debug", default=False, help=_("show debug information"))
-    parser.add_argument("-t", "--timeout", action="store_true",
-                        dest="timeout", default=2.5, help="timeout in seconds (2.5 by default)")
-    parser.add_argument("-m", "--mods-only", action="store_true",
-                        dest="mods_only", default=None,
-                        help="Show ony keys with modifiers pressed")
-    options = parser.parse_args()
+def detach():
+    if os.fork() != 0:
+        os._exit(0)
+    os.setsid()
+    if os.fork() != 0:
+        os._exit(0)
+    for i in range(3):
+        os.close(i)
 
-    if options.debug:
-        if options.nodetach:
-            # Send debug messages to standard output
-            logfile = None
-        else:
-            logfile = os.path.join(os.path.expanduser('~'), '.screenkey.log')
-        logging.basicConfig(filename=logfile, level=logging.DEBUG)
+
+def main():
+    ap = ArgumentParser(description=APP_DESC, version=VERSION)
+    ap.add_argument("--no-detach", action="store_true",
+                    dest="nodetach", default=False,
+                    help=_("do not detach from the parent"))
+    ap.add_argument("-d", "--debug", action="store_true",
+                    dest="debug", default=False, help=_("enable debugging (implies --no-detach)"))
+    ap.add_argument("-t", "--timeout", action="store_true",
+                    dest="timeout", help=_("timeout in seconds"))
+    ap.add_argument("-m", "--mods-only", action="store_true",
+                    dest="mods_only", help=_("Show only keys with modifiers pressed"))
+    args = ap.parse_args()
+
+    # Initialize logger
+    if args.debug:
+        args.nodetach = True
+        logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(APP_NAME)
 
-    s = Screenkey(logger=logger, nodetach=options.nodetach,
-                  timeout=options.timeout, mods_only=options.mods_only)
-    gtk.main()
+    if args.nodetach == False:
+        detach()
+
+    sc.Screenkey(logger=logger, timeout=args.timeout, mods_only=args.mods_only)
+    try:
+        sc.gtk.main()
+    except KeyboardInterrupt:
+        os._exit(0)
+    except:
+        logger.exception("uncaught exception")
+        os.abort()
 
 
 if __name__ == "__main__":

@@ -65,7 +65,7 @@ class Screenkey(gtk.Window):
     STATE_FILE = os.path.join(glib.get_user_cache_dir(), 'screenkey.dat')
 
 
-    def __init__(self, logger, nodetach, timeout, mods_only):
+    def __init__(self, logger, timeout, mods_only):
         gtk.Window.__init__(self)
 
         self.timer = None
@@ -83,9 +83,6 @@ class Screenkey(gtk.Window):
             self.options['timeout'] = timeout
         if mods_only!= None:
             self.options['mods_only'] = mods_only
-        if not nodetach:
-            self.logger.debug("Detach from the parent.")
-            self.drop_tty()
 
         self.set_skip_taskbar_hint(True)
         self.set_skip_pager_hint(True)
@@ -419,12 +416,3 @@ class Screenkey(gtk.Window):
         about.set_logo_icon_name('preferences-desktop-keyboard-shortcuts')
         about.run()
         about.destroy()
-
-
-    def drop_tty(self):
-        # We fork and setsid so that we drop the controlling
-        # tty.
-        if os.fork() != 0:
-            os._exit(0)
-
-        os.setsid()
