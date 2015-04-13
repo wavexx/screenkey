@@ -85,12 +85,25 @@ REPLACE_KEYS = {
     'XK_KP_Enter':      KeyRepl(True,  '⏎'),
 }
 
+MODS_MAP = {
+    'normal': 0,
+    'emacs': 1,
+}
+
+REPLACE_MODS = {
+    'shift': (_('Shift+'),   'S-'),
+    'ctrl':  (_('Control+'), 'C-'),
+    'alt':   (_('Alt+'),     'M-'),
+    'super': (_('Super+'),   's-'),
+}
+
 
 class ListenKbd(threading.Thread):
-    def __init__(self, label, logger, key_mode, bak_mode, mods_only):
+    def __init__(self, label, logger, key_mode, bak_mode, mods_mode, mods_only):
         threading.Thread.__init__(self)
         self.key_mode = key_mode
         self.bak_mode = bak_mode
+        self.mods_index = MODS_MAP[mods_mode]
         self.logger = logger
         self.label = label
         self.data = []
@@ -273,14 +286,14 @@ class ListenKbd(threading.Thread):
         else:
             if event.type == X.KeyPress:
                 key = key_normal
-                mod = ''
-                if self.cmd_keys['ctrl']:
-                    mod = mod + _("Ctrl+")
-                if self.cmd_keys['alt']:
-                    mod = mod + _("Alt+")
-                if self.cmd_keys['super']:
-                    mod = mod + _("Super+")
 
+                # visible modifiers
+                mod = ''
+                for cap in ['ctrl', 'alt', 'super']:
+                    if self.cmd_keys[cap]:
+                        mod = mod + REPLACE_MODS[cap][self.mods_index]
+
+                # silent modifiers
                 if self.cmd_keys['shift']:
                     key = key_shift
                 if self.cmd_keys['capslock'] \
@@ -294,6 +307,9 @@ class ListenKbd(threading.Thread):
                 key_repl = self.key_repl(key, keysym)
                 if key_repl is None:
                     key_repl = KeyRepl(False, key)
+                elif self.cmd_keys['shift']:
+                    # add back shift for translated keys
+                    mod = mod + REPLACE_MODS['shift'][self.mods_index]
 
                 if mod == '':
                     if not self.mods_only:

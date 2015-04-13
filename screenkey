@@ -49,6 +49,8 @@ def main():
                     help=_("set key processing mode"))
     ap.add_argument("--bak-mode", choices=sc.BAK_MODES,
                     help=_("backspace processing mode"))
+    ap.add_argument("--mods-mode", choices=sc.MODS_MODES,
+                    help=_("modifiers visualization mode"))
     ap.add_argument("-m", "--mods-only", action="store_true",
                     help=_("show only keys with modifiers pressed"))
     ap.add_argument("--show-settings", action="store_true",
@@ -69,6 +71,8 @@ def main():
         options.key_mode = args.key_mode
     if args.bak_mode is not None:
         options.bak_mode = args.bak_mode
+    if args.mods_mode is not None:
+        options.mods_mode = args.mods_mode
     if args.mods_only is not None:
         options.mods_only = args.mods_only
     if args.scr is not None:

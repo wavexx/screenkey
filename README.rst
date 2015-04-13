@@ -17,6 +17,7 @@ Main changes from screenkey 0.2
 - Usable without system tray (for tiling window managers)
 - Can show modifiers only.
 - Improved backspace processing.
+- Optional Emacs mode.
 - Bug fixes.
 
 
