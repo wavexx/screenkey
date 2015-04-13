@@ -15,10 +15,10 @@ Main changes from screenkey 0.2
 - Multi-monitor support
 - All settings available through command-line flags
 - Usable without system tray (for tiling window managers)
-- Can show modifiers only.
-- Improved backspace processing.
-- Optional Emacs mode.
-- Bug fixes.
+- Can show modifiers only
+- Improved backspace processing
+- Optional Emacs mode
+- Several bug fixes
 
 
 Usage
@@ -31,6 +31,16 @@ Execute without installation::
 To install::
 
   sudo ./setup.py install
+
+Dependencies:
+
+- PyGTK
+- setuptools (build only)
+- DistUtils-Extra (build only)
+
+Install dependencies (on Debian/Ubuntu)::
+
+  sudo apt-get install python-gtk2 python-setuptools python-distutils-extra
 
 
 Authors and Copyright
