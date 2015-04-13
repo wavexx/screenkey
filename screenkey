@@ -31,8 +31,7 @@ def detach():
     os.setsid()
     if os.fork() != 0:
         os._exit(0)
-    for i in range(3):
-        os.close(i)
+    os.close(0)
 
 
 def main():
