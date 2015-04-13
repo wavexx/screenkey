@@ -1,1 +1,5 @@
 *.py[co]
+/*.egg-info
+/po/*.pot
+/dist
+/build
