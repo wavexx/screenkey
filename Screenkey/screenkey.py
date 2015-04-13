@@ -51,6 +51,12 @@ KEY_MODES = {
     'normal': _('Normal'),
 }
 
+BAK_MODES = {
+    'normal': _('Normal'),
+    'baked': _('Baked'),
+    'full': _('Full'),
+}
+
 
 class Options(dict):
     def __getattr__(self, k):
@@ -73,6 +79,7 @@ class Screenkey(gtk.Window):
                             'position': 'bottom',
                             'font_size': 'medium',
                             'key_mode': 'normal',
+                            'bak_mode': 'baked',
                             'mods_only': False,
                             'screen': 0})
         self.options = self.load_state()
@@ -115,6 +122,7 @@ class Screenkey(gtk.Window):
 
         self.listenkbd = ListenKbd(self.label, logger=self.logger,
                                    key_mode=self.options.key_mode,
+                                   bak_mode=self.options.bak_mode,
                                    mods_only=self.options.mods_only)
         self.listenkbd.start()
 
@@ -262,14 +270,14 @@ class Screenkey(gtk.Window):
     def on_timeout(self):
         gtk.gdk.threads_enter()
         self.hide()
-        self.label.set_text("")
+        self.listenkbd.clear()
         gtk.gdk.threads_leave()
 
 
-    def on_change_mode(self, key_mode, mods_only):
+    def on_change_mode(self, key_mode, bak_mode, mods_only):
         self.listenkbd.stop()
-        self.listenkbd = ListenKbd(self.label, logger=self.logger,
-                                   key_mode=key_mode, mods_only=mods_only)
+        self.listenkbd = ListenKbd(self.label, logger=self.logger, key_mode=key_mode,
+                                   bak_mode=bak_mode, mods_only=mods_only)
         self.listenkbd.start()
 
 
@@ -278,6 +286,7 @@ class Screenkey(gtk.Window):
             self.logger.debug("Screenkey enabled.")
             self.listenkbd = ListenKbd(self.label, logger=self.logger,
                                        key_mode=self.options.key_mode,
+                                       bak_mode=self.options.bak_mode,
                                        mods_only=self.options.mods_only)
             self.listenkbd.start()
         else:
@@ -303,12 +312,24 @@ class Screenkey(gtk.Window):
         def on_cbox_modes_changed(widget, data=None):
             index = widget.get_active()
             self.options.key_mode = KEY_MODES.keys()[index]
-            self.on_change_mode(self.options.key_mode, self.options.mods_only)
+            self.on_change_mode(self.options.key_mode,
+                                self.options.bak_mode,
+                                self.options.mods_only)
             self.logger.debug("Key mode changed: %s." % self.options.key_mode)
+
+        def on_cbox_bak_changed(widget, data=None):
+            index = widget.get_active()
+            self.options.bak_mode = BAK_MODES.keys()[index]
+            self.on_change_mode(self.options.key_mode,
+                                self.options.bak_mode,
+                                self.options.mods_only)
+            self.logger.debug("Bak mode changed: %s." % self.options.bak_mode)
 
         def on_cbox_modsonly_changed(widget, data=None):
             self.options.mods_only = widget.get_active()
-            self.on_change_mode(self.options.key_mode, self.options.mods_only)
+            self.on_change_mode(self.options.key_mode,
+                                self.options.bak_mode,
+                                self.options.mods_only)
             self.logger.debug("Modifiers only changed: %s." % self.options.mods_only)
 
         def on_cbox_position_changed(widget, data=None):
@@ -403,13 +424,24 @@ class Screenkey(gtk.Window):
         vbox_kbd = gtk.VBox(spacing=6)
 
         hbox_kbd = gtk.HBox()
-        lbl_kbd = gtk.Label(_("Mode"))
+        lbl_kbd = gtk.Label(_("Insert mode"))
         cbox_modes = gtk.combo_box_new_text()
         cbox_modes.set_name('mode')
         for key, value in enumerate(KEY_MODES):
             cbox_modes.insert_text(key, value)
         cbox_modes.set_active(KEY_MODES.keys().index(self.options.key_mode))
         cbox_modes.connect("changed", on_cbox_modes_changed)
+        hbox_kbd.pack_start(lbl_kbd, expand=False, fill=False, padding=6)
+        hbox_kbd.pack_start(cbox_modes, expand=False, fill=False, padding=4)
+        vbox_kbd.pack_start(hbox_kbd)
+
+        hbox_kbd = gtk.HBox()
+        lbl_kbd = gtk.Label(_("Backspace mode"))
+        cbox_modes = gtk.combo_box_new_text()
+        for key, value in enumerate(BAK_MODES):
+            cbox_modes.insert_text(key, value)
+        cbox_modes.set_active(BAK_MODES.keys().index(self.options.bak_mode))
+        cbox_modes.connect("changed", on_cbox_bak_changed)
         hbox_kbd.pack_start(lbl_kbd, expand=False, fill=False, padding=6)
         hbox_kbd.pack_start(cbox_modes, expand=False, fill=False, padding=4)
         vbox_kbd.pack_start(hbox_kbd)

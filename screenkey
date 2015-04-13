@@ -47,6 +47,8 @@ def main():
                     help=_("set font size"))
     ap.add_argument("--key-mode", choices=sc.KEY_MODES,
                     help=_("set key processing mode"))
+    ap.add_argument("--bak-mode", choices=sc.BAK_MODES,
+                    help=_("backspace processing mode"))
     ap.add_argument("-m", "--mods-only", action="store_true",
                     help=_("show only keys with modifiers pressed"))
     ap.add_argument("--show-settings", action="store_true",
@@ -65,6 +67,8 @@ def main():
         options.font_size = args.font_size
     if args.key_mode is not None:
         options.key_mode = args.key_mode
+    if args.bak_mode is not None:
+        options.bak_mode = args.bak_mode
     if args.mods_only is not None:
         options.mods_only = args.mods_only
     if args.scr is not None:

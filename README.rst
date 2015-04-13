@@ -16,6 +16,7 @@ Main changes from screenkey 0.2
 - All settings available through command-line flags
 - Usable without system tray (for tiling window managers)
 - Can show modifiers only.
+- Improved backspace processing.
 - Bug fixes.
 
 
