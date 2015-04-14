@@ -16,7 +16,7 @@
 
 from __future__ import print_function, unicode_literals, division
 
-from . import APP_NAME, APP_DESC, APP_URL, VERSION, AUTHOR
+from . import APP_NAME, APP_DESC, APP_URL, VERSION
 from .listenkbd import ListenKbd
 
 from threading import Timer
@@ -489,7 +489,11 @@ class Screenkey(gtk.Window):
         about = gtk.AboutDialog()
         about.set_program_name(APP_NAME)
         about.set_version(VERSION)
-        about.set_copyright("2010 © %s" % AUTHOR)
+        about.set_copyright("""
+        Copyright(c) 2010-2012 Pablo Seminario <pabluk@gmail.com>
+        Copyright(c) 2015 by wave++ "Yuri D'Elia" <wavexx@thregr.org>
+        """)
+
         about.set_comments(APP_DESC)
         about.set_documenters(
                 ["José María Quiroga <pepelandia@gmail.com>"]
