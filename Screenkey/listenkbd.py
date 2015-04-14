@@ -95,14 +95,15 @@ MODS_EVENT_MASK = {
 MODS_MAP = {
     'normal': 0,
     'emacs': 1,
+    'mac': 2,
 }
 
 REPLACE_MODS = {
-    'shift': (_('Shift+'),   'S-'),
-    'ctrl':  (_('Control+'), 'C-'),
-    'alt':   (_('Alt+'),     'M-'),
-    'super': (_('Super+'),   's-'),
-    'hyper': (_('Hyper+'),   'H-'),
+    'shift': (_('Shift+'),   'S-', '⇧+'),
+    'ctrl':  (_('Control+'), 'C-', '⌘+'),
+    'alt':   (_('Alt+'),     'M-', '⌥+'),
+    'super': (_('Super+'),   's-', _('Super+')),
+    'hyper': (_('Hyper+'),   'H-', _('Hyper+')),
 }
 
 

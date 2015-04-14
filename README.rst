@@ -17,7 +17,7 @@ Main changes from screenkey 0.2
 - Usable without system tray (for tiling window managers)
 - Can show modifier sequences only
 - Improved backspace processing (3 different modes)
-- Optional Emacs caps mode
+- Normal/Emacs/Mac caps mode
 - Enable/disable dynamically by pressing both control keys
 - Several bug fixes
 
