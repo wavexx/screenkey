@@ -173,7 +173,7 @@ class ListenKbd(threading.Thread):
                 last = self.data[i - 1]
                 if len(key.repl) > 1 or len(last.repl) > 1:
                     string += ' '
-            string += key.repl
+            string += '\u200c' + key.repl
         self.label.set_text(string)
         gtk.gdk.threads_leave()
         self.label.emit("text-changed")
