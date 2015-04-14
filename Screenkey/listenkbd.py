@@ -93,7 +93,7 @@ MODS_EVENT_MASK = {
     'mod2': gtk.gdk.MOD2_MASK,
     'mod3': gtk.gdk.MOD3_MASK,
     'super': gtk.gdk.MOD4_MASK,
-    'meta': gtk.gdk.MOD5_MASK,
+    'hyper': gtk.gdk.MOD5_MASK,
 }
 
 MODS_MAP = {
@@ -106,6 +106,7 @@ REPLACE_MODS = {
     'ctrl':  (_('Control+'), 'C-'),
     'alt':   (_('Alt+'),     'M-'),
     'super': (_('Super+'),   's-'),
+    'hyper': (_('Hyper+'),   'H-'),
 }
 
 
@@ -260,7 +261,7 @@ class ListenKbd(threading.Thread):
 
             # visible modifiers
             mod = ''
-            for cap in ['ctrl', 'alt', 'super']:
+            for cap in ['ctrl', 'alt', 'super', 'hyper']:
                 if self.cmd_keys[cap]:
                     mod = mod + REPLACE_MODS[cap][self.mods_index]
 
@@ -269,9 +270,9 @@ class ListenKbd(threading.Thread):
                 key = key_shift
             if self.cmd_keys['lock'] and ord(key_normal) in range(97, 123):
                 key = key_shift
-            if self.cmd_keys['meta']:
+            if self.cmd_keys['hyper']:
                 key = key_dead
-            if self.cmd_keys['shift'] and self.cmd_keys['meta']:
+            if self.cmd_keys['shift'] and self.cmd_keys['hyper']:
                 key = key_deadshift
 
             key_repl = self.key_repl(key, keysym)
