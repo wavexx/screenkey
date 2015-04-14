@@ -85,6 +85,17 @@ REPLACE_KEYS = {
     'XK_KP_Enter':      KeyRepl(True,  '⏎'),
 }
 
+MODS_EVENT_MASK = {
+    'shift': gtk.gdk.SHIFT_MASK,
+    'lock': gtk.gdk.LOCK_MASK,
+    'ctrl': gtk.gdk.CONTROL_MASK,
+    'alt': gtk.gdk.MOD1_MASK,
+    'mod2': gtk.gdk.MOD2_MASK,
+    'mod3': gtk.gdk.MOD3_MASK,
+    'super': gtk.gdk.MOD4_MASK,
+    'meta': gtk.gdk.MOD5_MASK,
+}
+
 MODS_MAP = {
     'normal': 0,
     'emacs': 1,
@@ -110,13 +121,7 @@ class ListenKbd(threading.Thread):
         self.command = None
         self.shift = None
         self.mods_only = mods_only
-        self.cmd_keys = {'shift': False,
-                         'ctrl': False,
-                         'alt': False,
-                         'capslock': False,
-                         'meta': False,
-                         'super': False}
-
+        self.cmd_keys = {mod: False for mod in MODS_EVENT_MASK.keys()}
         self.logger.debug("Thread created")
         self.keymap = modmap.get_keymap_table()
         self.modifiers = modmap.get_modifier_map()
@@ -205,6 +210,7 @@ class ListenKbd(threading.Thread):
             event, data = rq.EventField(None).parse_binary_value(data,
                                     self.record_dpy.display, None, None)
             if event.type in [X.KeyPress, X.KeyRelease]:
+                self.process_modifiers(event)
                 if self.key_mode == 'normal':
                     update |= self.key_normal_mode(event) or False
                 else:
@@ -213,65 +219,31 @@ class ListenKbd(threading.Thread):
             self.update_text()
 
 
+    def process_modifiers(self, event):
+        for mod, mask in MODS_EVENT_MASK.iteritems():
+            self.cmd_keys[mod] = event.state & mask
+
+
     def key_normal_mode(self, event):
         keysym = self.local_dpy.keycode_to_keysym(event.detail, 0)
         if event.detail in self.keymap:
             key_normal, key_shift, key_dead, key_deadshift = \
                                             self.keymap[event.detail]
-            self.logger.debug("Key %s(keycode) %s. Symbols %s" %
-                (event.detail,
-                 event.type == X.KeyPress and "pressed" or "released",
-                 self.keymap[event.detail])
-                )
+            self.logger.debug(
+                "Key %s(keycode) %s. Symbols %s" %
+                (event.detail, event.type == X.KeyPress and "pressed" or "released",
+                 self.keymap[event.detail]))
         else:
             self.logger.debug('No mapping for scan_code %d' % event.detail)
             return
 
-        # Alt key
-        if event.detail in self.modifiers['mod1']:
-            if event.type == X.KeyPress:
-                self.cmd_keys['alt'] = True
-            else:
-                self.cmd_keys['alt'] = False
-            return
-        # Meta key
-        elif event.detail in self.modifiers['mod5']:
-            if event.type == X.KeyPress:
-                self.cmd_keys['meta'] = True
-            else:
-                self.cmd_keys['meta'] = False
-            return
-        # Super key
-        elif event.detail in self.modifiers['mod4']:
-            if event.type == X.KeyPress:
-                self.cmd_keys['super'] = True
-            else:
-                self.cmd_keys['super'] = False
-            return
-        # Ctrl keys
-        elif event.detail in self.modifiers['control']:
-            if event.type == X.KeyPress:
-                self.cmd_keys['ctrl'] = True
-            else:
-                self.cmd_keys['ctrl'] = False
-            return
-        # Shift keys
-        elif event.detail in self.modifiers['shift']:
-            if event.type == X.KeyPress:
-                self.cmd_keys['shift'] = True
-            else:
-                self.cmd_keys['shift'] = False
-            return
-        # Capslock key
-        elif event.detail in self.modifiers['lock']:
-            if event.type == X.KeyPress:
-                if self.cmd_keys['capslock']:
-                    self.cmd_keys['capslock'] = False
-                else:
-                    self.cmd_keys['capslock'] = True
-            return
+        # Ignore direct modifier keypresses
+        for kcs in self.modifiers.values():
+            if event.detail in kcs:
+                return
+
         # Backspace key
-        elif event.detail == 22 and event.type == X.KeyPress and \
+        if event.detail == 22 and event.type == X.KeyPress and \
           not any(self.cmd_keys.values()) and not self.mods_only:
             key_repl = self.key_repl(key_normal, keysym)
             if self.bak_mode == 'normal':
@@ -284,42 +256,46 @@ class ListenKbd(threading.Thread):
                 else:
                     self.data.append(KeyData(False, *key_repl))
                 return True
-        else:
-            if event.type == X.KeyPress:
-                key = key_normal
 
-                # visible modifiers
-                mod = ''
-                for cap in ['ctrl', 'alt', 'super']:
-                    if self.cmd_keys[cap]:
-                        mod = mod + REPLACE_MODS[cap][self.mods_index]
+        # Regular keys
+        if event.type == X.KeyPress:
+            key = key_normal
 
-                # silent modifiers
-                if self.cmd_keys['shift']:
-                    key = key_shift
-                if self.cmd_keys['capslock'] \
-                    and ord(key_normal) in range(97,123):
-                    key = key_shift
-                if self.cmd_keys['meta']:
-                    key = key_dead
-                if self.cmd_keys['shift'] and self.cmd_keys['meta']:
-                    key = key_deadshift
+            # visible modifiers
+            mod = ''
+            for cap in ['ctrl', 'alt', 'super']:
+                if self.cmd_keys[cap]:
+                    mod = mod + REPLACE_MODS[cap][self.mods_index]
 
-                key_repl = self.key_repl(key, keysym)
-                if key_repl is None:
-                    key_repl = KeyRepl(False, key)
-                elif self.cmd_keys['shift']:
-                    # add back shift for translated keys
-                    mod = mod + REPLACE_MODS['shift'][self.mods_index]
+            # silent modifiers
+            if self.cmd_keys['shift']:
+                key = key_shift
+            if self.cmd_keys['lock'] \
+                and ord(key_normal) in range(97,123):
+                key = key_shift
+            if self.cmd_keys['meta']:
+                key = key_dead
+            if self.cmd_keys['shift'] and self.cmd_keys['meta']:
+                key = key_deadshift
 
-                if mod == '':
-                    if not self.mods_only:
-                        self.data.append(KeyData(False, *key_repl))
-                        return True
-                else:
-                    repl = "%s%s" % (mod, key_repl.repl)
-                    self.data.append(KeyData(True, key_repl.bk_stop, repl))
+            key_repl = self.key_repl(key, keysym)
+            if key_repl is None:
+                key_repl = KeyRepl(False, key)
+            elif self.cmd_keys['shift']:
+                # add back shift for translated keys
+                mod = mod + REPLACE_MODS['shift'][self.mods_index]
+
+            if mod == '':
+                if not self.mods_only:
+                    self.data.append(KeyData(False, *key_repl))
                     return True
+            else:
+                repl = "%s%s" % (mod, key_repl.repl)
+                self.data.append(KeyData(True, key_repl.bk_stop, repl))
+                return True
+
+        # Ignore anything else
+        return False
 
 
     def key_raw_mode(self, event):
