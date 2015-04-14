@@ -24,7 +24,6 @@ pygtk.require('2.0')
 import gtk
 gtk.gdk.threads_init()
 
-import subprocess
 import sys
 import threading
 from collections import namedtuple
@@ -119,8 +118,7 @@ class ListenKbd(threading.Thread):
         self.logger = logger
         self.label = label
         self.data = []
-        self.command = None
-        self.shift = None
+        self.enabled = True
         self.mods_only = mods_only
         self.cmd_keys = {mod: False for mod in MODS_EVENT_MASK.keys()}
         self.logger.debug("Thread created")
@@ -187,22 +185,15 @@ class ListenKbd(threading.Thread):
 
 
     def key_press(self, reply):
-        # FIXME:
-        # This is not the most efficient way to detect the
-        # use of sudo/gksudo but it works.
-        sudo_is_running = subprocess.call(['ps', '-C', 'sudo'],
-                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        if not sudo_is_running:
-            return
-
         if reply.category != record.FromServer:
             return
         if reply.client_swapped:
-            self.logger.warning("* received swapped protocol data, cowardly ignored")
+            self.logger.warning("received swapped protocol data, cowardly ignored")
             return
         if not len(reply.data) or ord(reply.data[0]) < 2:
             # not an event
             return
+
         data = reply.data
         update = False
         while len(data):
@@ -210,12 +201,23 @@ class ListenKbd(threading.Thread):
                                     self.record_dpy.display, None, None)
             if event.type in [X.KeyPress, X.KeyRelease]:
                 self.process_modifiers(event)
+                if not self.process_enabled(event):
+                    continue
                 if self.key_mode == 'normal':
                     update |= self.key_normal_mode(event) or False
                 else:
                     update |= self.key_raw_mode(event) or False
         if update:
             self.update_text()
+
+
+    def process_enabled(self, event):
+        if event.type == X.KeyPress:
+            if event.detail in self.modifiers['control'] and self.cmd_keys['ctrl']:
+                self.enabled = not self.enabled
+                self.logger.info("Ctrl+Ctrl detected: screenkey %s." %
+                                 'enabled' if self.enabled else 'disabled')
+        return self.enabled
 
 
     def process_modifiers(self, event):
