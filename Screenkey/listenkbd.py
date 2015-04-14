@@ -197,9 +197,7 @@ class ListenKbd(threading.Thread):
         if reply.category != record.FromServer:
             return
         if reply.client_swapped:
-            self.logger.warning(
-                "* received swapped protocol data, cowardly ignored"
-            )
+            self.logger.warning("* received swapped protocol data, cowardly ignored")
             return
         if not len(reply.data) or ord(reply.data[0]) < 2:
             # not an event
@@ -227,8 +225,7 @@ class ListenKbd(threading.Thread):
     def key_normal_mode(self, event):
         keysym = self.local_dpy.keycode_to_keysym(event.detail, 0)
         if event.detail in self.keymap:
-            key_normal, key_shift, key_dead, key_deadshift = \
-                                            self.keymap[event.detail]
+            key_normal, key_shift, key_dead, key_deadshift = self.keymap[event.detail]
             self.logger.debug(
                 "Key %s(keycode) %s. Symbols %s" %
                 (event.detail, event.type == X.KeyPress and "pressed" or "released",
@@ -270,8 +267,7 @@ class ListenKbd(threading.Thread):
             # silent modifiers
             if self.cmd_keys['shift']:
                 key = key_shift
-            if self.cmd_keys['lock'] \
-                and ord(key_normal) in range(97,123):
+            if self.cmd_keys['lock'] and ord(key_normal) in range(97, 123):
                 key = key_shift
             if self.cmd_keys['meta']:
                 key = key_dead
@@ -290,7 +286,7 @@ class ListenKbd(threading.Thread):
                     self.data.append(KeyData(False, *key_repl))
                     return True
             else:
-                repl = "%s%s" % (mod, key_repl.repl)
+                repl = mod + key_repl.repl
                 self.data.append(KeyData(True, key_repl.bk_stop, repl))
                 return True
 
