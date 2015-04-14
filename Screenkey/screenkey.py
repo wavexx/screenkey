@@ -397,8 +397,9 @@ class Screenkey(gtk.Window):
 
         lbl_screen = gtk.Label(_("Screen"))
         cbox_screen = gtk.combo_box_new_text()
-        for n in range(gtk.gdk.screen_get_default().get_n_monitors()):
-            cbox_screen.insert_text(n, str(n))
+        scr = gtk.gdk.screen_get_default()
+        for n in range(scr.get_n_monitors()):
+            cbox_screen.insert_text(n, '%d: %s' % (n, scr.get_monitor_plug_name(n)))
         cbox_screen.set_active(self.monitor)
         cbox_screen.connect("changed", on_cbox_screen_changed)
 
