@@ -56,7 +56,7 @@ def main():
     ap.add_argument("--show-settings", action="store_true",
                     help=_("show settings dialog on start"))
     ap.add_argument("--scr", type=int,
-                    help=_("show on the specified screen"))
+                    help=_("show on the specified screen number"))
     args = ap.parse_args()
 
     # Set options
