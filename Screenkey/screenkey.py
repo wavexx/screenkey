@@ -254,7 +254,13 @@ class Screenkey(gtk.Window):
 
 
     def on_label_change(self, string):
-        gtk.gdk.threads_enter()
+        try:
+            gtk.gdk.threads_enter()
+            self._on_label_change(string)
+        finally:
+            gtk.gdk.threads_leave()
+
+    def _on_label_change(self, string):
         self.label.set_text(string)
         if not self.get_property('visible'):
             self.set_xy_position(self.options.position)
@@ -265,7 +271,6 @@ class Screenkey(gtk.Window):
         if self.options.timeout > 0:
             self.timer = Timer(self.options.timeout, self.on_timeout)
             self.timer.start()
-        gtk.gdk.threads_leave()
 
 
     def on_timeout(self):

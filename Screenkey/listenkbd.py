@@ -117,6 +117,7 @@ class ListenKbd(threading.Thread):
         self.listener = listener
         self.data = []
         self.enabled = True
+        self.mutex = threading.Lock()
         self.mods_only = mods_only
         self.cmd_keys = {mod: False for mod in MODS_EVENT_MASK.keys()}
         self.logger.debug("Thread created")
@@ -146,10 +147,13 @@ class ListenKbd(threading.Thread):
     def run(self):
         self.logger.debug("Thread started.")
         self.record_dpy.record_enable_context(self.ctx, self.key_press)
+        self.record_dpy.record_free_context(self.ctx)
+        self.logger.debug("Thread stopped.")
 
 
     def clear(self):
-        self.data = []
+        with self.mutex:
+            self.data = []
 
 
     def lookup_keysym(self, keysym):
@@ -179,6 +183,10 @@ class ListenKbd(threading.Thread):
 
 
     def key_press(self, reply):
+        with self.mutex:
+            self._key_press(reply)
+
+    def _key_press(self, reply):
         if reply.category != record.FromServer:
             return
         if reply.client_swapped:
@@ -302,5 +310,3 @@ class ListenKbd(threading.Thread):
     def stop(self):
         self.local_dpy.record_disable_context(self.ctx)
         self.local_dpy.flush()
-        self.record_dpy.record_free_context(self.ctx)
-        self.logger.debug("Thread stopped.")
