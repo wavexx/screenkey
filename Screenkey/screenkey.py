@@ -29,7 +29,6 @@ pygtk.require('2.0')
 import gtk
 gtk.gdk.threads_init()
 
-import gobject
 import glib
 import pango
 
@@ -114,24 +113,17 @@ class Screenkey(gtk.Window):
         self.modify_bg(gtk.STATE_NORMAL, bgcolor)
         self.set_opacity(0.7)
 
-        gobject.signal_new("text-changed", gtk.Label,
-                        gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ())
         self.label = gtk.Label()
         self.label.set_justify(gtk.JUSTIFY_RIGHT)
         self.label.set_ellipsize(pango.ELLIPSIZE_START)
-        self.label.connect("text-changed", self.on_label_change)
         self.label.show()
         self.add(self.label)
 
         self.set_gravity(gtk.gdk.GRAVITY_CENTER)
         self.set_active_screen(self.options.screen)
 
-        self.listenkbd = ListenKbd(self.label, logger=self.logger,
-                                   key_mode=self.options.key_mode,
-                                   bak_mode=self.options.bak_mode,
-                                   mods_mode=self.options.mods_mode,
-                                   mods_only=self.options.mods_only)
-        self.listenkbd.start()
+        self.listenkbd = None
+        self.on_change_mode()
 
         menu = gtk.Menu()
 
@@ -260,31 +252,35 @@ class Screenkey(gtk.Window):
                        3, timestamp, widget)
 
 
-    def on_label_change(self, widget, data=None):
+    def on_label_change(self, string):
+        gtk.gdk.threads_enter()
+        self.label.set_text(string)
         if not self.get_property('visible'):
-            gtk.gdk.threads_enter()
             self.set_xy_position(self.options.position)
             self.stick()
             self.show()
-            gtk.gdk.threads_leave()
         if self.timer:
             self.timer.cancel()
         if self.options.timeout > 0:
             self.timer = Timer(self.options.timeout, self.on_timeout)
             self.timer.start()
-
-
-    def on_timeout(self):
-        gtk.gdk.threads_enter()
-        self.hide()
-        self.listenkbd.clear()
         gtk.gdk.threads_leave()
 
 
-    def on_change_mode(self, key_mode, bak_mode, mods_mode, mods_only):
-        self.listenkbd.stop()
-        self.listenkbd = ListenKbd(self.label, logger=self.logger, key_mode=key_mode,
-                                   bak_mode=bak_mode, mods_mode=mods_mode, mods_only=mods_only)
+    def on_timeout(self):
+        self.hide()
+        self.label.set_text('')
+        self.listenkbd.clear()
+
+
+    def on_change_mode(self):
+        if self.listenkbd:
+            self.listenkbd.stop()
+        self.listenkbd = ListenKbd(self.on_label_change, logger=self.logger,
+                                   key_mode=self.options.key_mode,
+                                   bak_mode=self.options.bak_mode,
+                                   mods_mode=self.options.mods_mode,
+                                   mods_only=self.options.mods_only)
         self.listenkbd.start()
 
 
@@ -320,36 +316,24 @@ class Screenkey(gtk.Window):
         def on_cbox_modes_changed(widget, data=None):
             index = widget.get_active()
             self.options.key_mode = KEY_MODES.keys()[index]
-            self.on_change_mode(self.options.key_mode,
-                                self.options.bak_mode,
-                                self.options.mods_mode,
-                                self.options.mods_only)
+            self.on_change_mode()
             self.logger.debug("Key mode changed: %s." % self.options.key_mode)
 
         def on_cbox_bak_changed(widget, data=None):
             index = widget.get_active()
             self.options.bak_mode = BAK_MODES.keys()[index]
-            self.on_change_mode(self.options.key_mode,
-                                self.options.bak_mode,
-                                self.options.mods_mode,
-                                self.options.mods_only)
+            self.on_change_mode()
             self.logger.debug("Bak mode changed: %s." % self.options.bak_mode)
 
         def on_cbox_mods_changed(widget, data=None):
             index = widget.get_active()
             self.options.mods_mode = MODS_MODES.keys()[index]
-            self.on_change_mode(self.options.key_mode,
-                                self.options.bak_mode,
-                                self.options.mods_mode,
-                                self.options.mods_only)
+            self.on_change_mode()
             self.logger.debug("Mods mode changed: %s." % self.options.mods_mode)
 
         def on_cbox_modsonly_changed(widget, data=None):
             self.options.mods_only = widget.get_active()
-            self.on_change_mode(self.options.key_mode,
-                                self.options.bak_mode,
-                                self.options.mods_mode,
-                                self.options.mods_only)
+            self.on_change_mode()
             self.logger.debug("Modifiers only changed: %s." % self.options.mods_only)
 
         def on_cbox_position_changed(widget, data=None):

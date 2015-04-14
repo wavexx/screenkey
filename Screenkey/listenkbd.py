@@ -18,11 +18,8 @@ from __future__ import print_function, unicode_literals, division
 
 from . import modmap
 
-import pygtk
+import pygtk, gtk
 pygtk.require('2.0')
-
-import gtk
-gtk.gdk.threads_init()
 
 import sys
 import threading
@@ -110,13 +107,13 @@ REPLACE_MODS = {
 
 
 class ListenKbd(threading.Thread):
-    def __init__(self, label, logger, key_mode, bak_mode, mods_mode, mods_only):
+    def __init__(self, listener, logger, key_mode, bak_mode, mods_mode, mods_only):
         threading.Thread.__init__(self)
         self.key_mode = key_mode
         self.bak_mode = bak_mode
         self.mods_index = MODS_MAP[mods_mode]
         self.logger = logger
-        self.label = label
+        self.listener = listener
         self.data = []
         self.enabled = True
         self.mods_only = mods_only
@@ -152,7 +149,6 @@ class ListenKbd(threading.Thread):
 
     def clear(self):
         self.data = []
-        self.label.set_text('')
 
 
     def lookup_keysym(self, keysym):
@@ -170,7 +166,6 @@ class ListenKbd(threading.Thread):
 
 
     def update_text(self):
-        gtk.gdk.threads_enter()
         string = ""
         for i, key in enumerate(self.data):
             if i != 0:
@@ -178,10 +173,8 @@ class ListenKbd(threading.Thread):
                 if len(key.repl) > 1 or len(last.repl) > 1:
                     string += ' '
             string += '\u200c' + key.repl
-        self.label.set_text(string)
-        gtk.gdk.threads_leave()
-        self.label.emit("text-changed")
         self.logger.debug("Label updated: %s." % string)
+        self.listener(string)
 
 
     def key_press(self, reply):
