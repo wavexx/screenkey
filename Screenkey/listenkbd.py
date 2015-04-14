@@ -271,7 +271,8 @@ class ListenKbd(threading.Thread):
                     self.cmd_keys['capslock'] = True
             return
         # Backspace key
-        elif event.detail == 22 and event.type == X.KeyPress and not any(self.cmd_keys.values()):
+        elif event.detail == 22 and event.type == X.KeyPress and \
+          not any(self.cmd_keys.values()) and not self.mods_only:
             key_repl = self.key_repl(key_normal, keysym)
             if self.bak_mode == 'normal':
                 self.data.append(KeyData(False, *key_repl))
