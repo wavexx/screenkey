@@ -1,9 +1,6 @@
 =====================
 Screencast your keys.
 =====================
-------------------
-Screenkey 0.2 fork
-------------------
 
 A screencast tool to display your keys; forked from screenkey_ 0.2, inspired by
 Screenflick_ and initially based on key-mon_.
@@ -45,6 +42,32 @@ Install dependencies (on Debian/Ubuntu)::
   sudo apt-get install python-gtk2 python-setuptools python-distutils-extra
 
 
+Advanced usage
+--------------
+
+Overlay on top of an existing window, interactive selection using slop_:
+
+  ./screenkey -g $(slop -n -f '%g')
+
+Set actual text rectangle interactively (drag during selection):
+
+  ./screenkey -p fixed -g $(slop -n -f '%g')
+
+Record an Emacs screencast:
+
+  ./screenkey --mods-mode emacs -s small -g $(slop -n -f '%g')
+
+Persistent window:
+
+  ./screenkey --persist
+
+Press both control keys during a recording to disable screenkey (for example,
+during password prompts). Press both again to resume screenkey.
+
+To get transparency you need a compositor to be running (for example, "compton"
+or "unagi").
+
+
 Authors and Copyright
 ---------------------
 
@@ -69,3 +92,4 @@ Additional Thanks
 .. _screenkey: https://launchpad.net/screenkey
 .. _Screenflick: http://www.araelium.com/screenflick/
 .. _key-mon: https://code.google.com/p/key-mon/
+.. _slop: https://github.com/naelstrof/slop
