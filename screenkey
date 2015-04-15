@@ -57,6 +57,8 @@ def main():
     ap.add_argument("-t", "--timeout", type=float, help=_("timeout in seconds"))
     ap.add_argument("-p", "--position", choices=sc.POSITIONS,
                     help=_("set vertical position"))
+    ap.add_argument("--persist", action='store_true',
+                    help=_("make window persistent"))
     ap.add_argument("-s", "--font-size", choices=sc.FONT_SIZES,
                     help=_("set font size"))
     ap.add_argument("-g", "--geometry", type=geometry,
@@ -81,6 +83,8 @@ def main():
         options.timeout = args.timeout
     if args.position is not None:
         options.position = args.position
+    if args.persist is not None:
+        options.persist = args.persist
     if args.font_size is not None:
         options.font_size = args.font_size
     if args.geometry is not None:

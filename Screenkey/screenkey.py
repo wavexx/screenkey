@@ -83,6 +83,7 @@ class Screenkey(gtk.Window):
 
         defaults = Options({'timeout': 2.5,
                             'position': 'bottom',
+                            'persist': False,
                             'font_size': 'medium',
                             'key_mode': 'normal',
                             'bak_mode': 'baked',
@@ -177,6 +178,8 @@ class Screenkey(gtk.Window):
         self.connect("delete-event", self.quit)
         if show_settings:
             self.on_preferences_dialog()
+        if self.options.persist:
+            self.show()
 
 
     def quit(self, widget, data=None):
@@ -275,11 +278,16 @@ class Screenkey(gtk.Window):
         finally:
             gtk.gdk.threads_leave()
 
+
+    def show(self):
+        self.update_geometry()
+        self.stick()
+        super(Screenkey, self).show()
+
+
     def _on_label_change(self, string):
         self.label.set_text(string)
         if not self.get_property('visible'):
-            self.update_geometry()
-            self.stick()
             self.show()
         if self.timer:
             self.timer.cancel()
@@ -289,7 +297,8 @@ class Screenkey(gtk.Window):
 
 
     def on_timeout(self):
-        self.hide()
+        if not self.options.persist:
+            self.hide()
         self.label.set_text('')
         self.listenkbd.clear()
 
@@ -368,6 +377,14 @@ class Screenkey(gtk.Window):
             self.set_active_monitor(self.options.screen)
             self.logger.debug("Screen changed: %d." % self.options.screen)
 
+        def on_cbox_persist_changed(widget, data=None):
+            self.options.persist = widget.get_active()
+            if not self.get_property('visible'):
+                self.show()
+            else:
+                self._on_label_change(self.label.get_text())
+            self.logger.debug("Screen changed: %d." % self.options.screen)
+
         frm_main = gtk.Frame(_("Preferences"))
         frm_main.set_border_width(6)
         vbox_main = gtk.VBox()
@@ -376,6 +393,7 @@ class Screenkey(gtk.Window):
         frm_time.set_border_width(4)
         frm_time.get_label_widget().set_use_markup(True)
         frm_time.set_shadow_type(gtk.SHADOW_NONE)
+        vbox_time = gtk.VBox(spacing=6)
         hbox_time = gtk.HBox()
         lbl_time1 = gtk.Label(_("Display for"))
         lbl_time2 = gtk.Label(_("seconds"))
@@ -389,7 +407,13 @@ class Screenkey(gtk.Window):
         hbox_time.pack_start(lbl_time1, expand=False, fill=False, padding=6)
         hbox_time.pack_start(sb_time, expand=False, fill=False, padding=4)
         hbox_time.pack_start(lbl_time2, expand=False, fill=False, padding=4)
-        frm_time.add(hbox_time)
+        vbox_time.pack_start(hbox_time)
+
+        chk_persist = gtk.CheckButton(_("Persistent window"))
+        chk_persist.connect("toggled", on_cbox_persist_changed)
+        vbox_time.pack_start(chk_persist)
+
+        frm_time.add(vbox_time)
         frm_time.show_all()
 
         frm_aspect = gtk.Frame(_("<b>Aspect</b>"))
@@ -441,7 +465,6 @@ class Screenkey(gtk.Window):
         vbox_aspect.pack_start(hbox1_aspect)
         vbox_aspect.pack_start(hbox2_aspect)
         frm_aspect.add(vbox_aspect)
-
 
         frm_kbd = gtk.Frame(_("<b>Keys</b>"))
         frm_kbd.set_border_width(4)
