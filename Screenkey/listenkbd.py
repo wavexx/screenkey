@@ -30,55 +30,55 @@ from Xlib.ext import record
 from Xlib.protocol import rq
 
 
-KeyRepl = namedtuple('KeyRepl', ['bk_stop', 'repl'])
-KeyData = namedtuple('KeyData', ['is_ctrl', 'bk_stop', 'repl'])
+KeyRepl = namedtuple('KeyRepl', ['bk_stop', 'silent', 'repl'])
+KeyData = namedtuple('KeyData', ['is_ctrl', 'bk_stop', 'silent', 'repl'])
 
 REPLACE_KEYS = {
-    'XK_Escape':        KeyRepl(True,  _('Esc')),
-    'XK_Tab':           KeyRepl(True,  '↹'),
-    'XK_Return':        KeyRepl(True,  '⏎'),
-    'XK_space':         KeyRepl(False, '␣'),
-    'XK_BackSpace':     KeyRepl(True,  '⌫'),
-    'XK_Caps_Lock':     KeyRepl(False, _('Caps')),
-    'XK_F1':            KeyRepl(True,  'F1'),
-    'XK_F2':            KeyRepl(True,  'F2'),
-    'XK_F3':            KeyRepl(True,  'F3'),
-    'XK_F4':            KeyRepl(True,  'F4'),
-    'XK_F5':            KeyRepl(True,  'F5'),
-    'XK_F6':            KeyRepl(True,  'F6'),
-    'XK_F7':            KeyRepl(True,  'F7'),
-    'XK_F8':            KeyRepl(True,  'F8'),
-    'XK_F9':            KeyRepl(True,  'F9'),
-    'XK_F10':           KeyRepl(True,  'F10'),
-    'XK_F11':           KeyRepl(True,  'F11'),
-    'XK_F12':           KeyRepl(True,  'F12'),
-    'XK_Home':          KeyRepl(True,  _('Home')),
-    'XK_Up':            KeyRepl(True,  '↑'),
-    'XK_Page_Up':       KeyRepl(True,  _('PgUp')),
-    'XK_Left':          KeyRepl(True,  '←'),
-    'XK_Right':         KeyRepl(True,  '→'),
-    'XK_End':           KeyRepl(True,  _('End')),
-    'XK_Down':          KeyRepl(True,  '↓'),
-    'XK_Next':          KeyRepl(True,  _('PgDn')),
-    'XK_Insert':        KeyRepl(False, _('Ins')),
-    'XK_Delete':        KeyRepl(True,  _('Del')),
-    'XK_KP_Home':       KeyRepl(False, '(7)'),
-    'XK_KP_Up':         KeyRepl(False, '(8)'),
-    'XK_KP_Prior':      KeyRepl(False, '(9)'),
-    'XK_KP_Left':       KeyRepl(False, '(4)'),
-    'XK_KP_Right':      KeyRepl(False, '(6)'),
-    'XK_KP_End':        KeyRepl(False, '(1)'),
-    'XK_KP_Down':       KeyRepl(False, '(2)'),
-    'XK_KP_Page_Down':  KeyRepl(False, '(3)'),
-    'XK_KP_Begin':      KeyRepl(False, '(5)'),
-    'XK_KP_Insert':     KeyRepl(False, '(0)'),
-    'XK_KP_Delete':     KeyRepl(False, '(.)'),
-    'XK_KP_Add':        KeyRepl(False, '(+)'),
-    'XK_KP_Subtract':   KeyRepl(False, '(-)'),
-    'XK_KP_Multiply':   KeyRepl(False, '(*)'),
-    'XK_KP_Divide':     KeyRepl(False, '(/)'),
-    'XK_Num_Lock':      KeyRepl(False, 'NumLock'),
-    'XK_KP_Enter':      KeyRepl(True,  '⏎'),
+    'XK_Escape':        KeyRepl(True,  True,  _('Esc')),
+    'XK_Tab':           KeyRepl(True,  False, '↹'),
+    'XK_Return':        KeyRepl(True,  False, '⏎'),
+    'XK_space':         KeyRepl(False, False, '␣'),
+    'XK_BackSpace':     KeyRepl(True,  True,  '⌫'),
+    'XK_Caps_Lock':     KeyRepl(False, True,  _('Caps')),
+    'XK_F1':            KeyRepl(True,  True,  'F1'),
+    'XK_F2':            KeyRepl(True,  True,  'F2'),
+    'XK_F3':            KeyRepl(True,  True,  'F3'),
+    'XK_F4':            KeyRepl(True,  True,  'F4'),
+    'XK_F5':            KeyRepl(True,  True,  'F5'),
+    'XK_F6':            KeyRepl(True,  True,  'F6'),
+    'XK_F7':            KeyRepl(True,  True,  'F7'),
+    'XK_F8':            KeyRepl(True,  True,  'F8'),
+    'XK_F9':            KeyRepl(True,  True,  'F9'),
+    'XK_F10':           KeyRepl(True,  True,  'F10'),
+    'XK_F11':           KeyRepl(True,  True,  'F11'),
+    'XK_F12':           KeyRepl(True,  True,  'F12'),
+    'XK_Home':          KeyRepl(True,  True,  _('Home')),
+    'XK_Up':            KeyRepl(True,  True,  '↑'),
+    'XK_Page_Up':       KeyRepl(True,  True,  _('PgUp')),
+    'XK_Left':          KeyRepl(True,  True,  '←'),
+    'XK_Right':         KeyRepl(True,  True,  '→'),
+    'XK_End':           KeyRepl(True,  True,  _('End')),
+    'XK_Down':          KeyRepl(True,  True,  '↓'),
+    'XK_Next':          KeyRepl(True,  True,  _('PgDn')),
+    'XK_Insert':        KeyRepl(False, True,  _('Ins')),
+    'XK_Delete':        KeyRepl(True,  False,  _('Del')),
+    'XK_KP_Home':       KeyRepl(False, False, '(7)'),
+    'XK_KP_Up':         KeyRepl(False, False, '(8)'),
+    'XK_KP_Prior':      KeyRepl(False, False, '(9)'),
+    'XK_KP_Left':       KeyRepl(False, False, '(4)'),
+    'XK_KP_Right':      KeyRepl(False, False, '(6)'),
+    'XK_KP_End':        KeyRepl(False, False, '(1)'),
+    'XK_KP_Down':       KeyRepl(False, False, '(2)'),
+    'XK_KP_Page_Down':  KeyRepl(False, False, '(3)'),
+    'XK_KP_Begin':      KeyRepl(False, False, '(5)'),
+    'XK_KP_Insert':     KeyRepl(False, False, '(0)'),
+    'XK_KP_Delete':     KeyRepl(False, False, '(.)'),
+    'XK_KP_Add':        KeyRepl(False, False, '(+)'),
+    'XK_KP_Subtract':   KeyRepl(False, False, '(-)'),
+    'XK_KP_Multiply':   KeyRepl(False, False, '(*)'),
+    'XK_KP_Divide':     KeyRepl(False, False, '(/)'),
+    'XK_Num_Lock':      KeyRepl(False, True,  'NumLock'),
+    'XK_KP_Enter':      KeyRepl(True,  False, '⏎'),
 }
 
 MODS_EVENT_MASK = {
@@ -252,8 +252,17 @@ class ListenKbd(threading.Thread):
                 self.data.append(KeyData(False, *key_repl))
                 return True
             else:
-                if len(self.data) and self.data[-1].repl != key_repl.repl and \
-                   not self.data[-1].is_ctrl and (self.bak_mode == 'full' or not self.data[-1].bk_stop):
+                if not len(self.data):
+                    pop = False
+                else:
+                    last = self.data[-1]
+                    if last.is_ctrl:
+                        pop = False
+                    elif self.bak_mode == 'baked':
+                        pop = not last.bk_stop
+                    else:
+                        pop = not last.silent
+                if pop:
                     self.data.pop()
                 else:
                     self.data.append(KeyData(False, *key_repl))
@@ -281,7 +290,7 @@ class ListenKbd(threading.Thread):
 
             key_repl = self.key_repl(key, keysym)
             if key_repl is None:
-                key_repl = KeyRepl(False, key)
+                key_repl = KeyRepl(False, False, key)
             elif self.cmd_keys['shift']:
                 # add back shift for translated keys
                 mod = mod + REPLACE_MODS['shift'][self.mods_index]
@@ -292,7 +301,8 @@ class ListenKbd(threading.Thread):
                     return True
             else:
                 repl = mod + key_repl.repl
-                self.data.append(KeyData(True, key_repl.bk_stop, repl))
+                self.data.append(KeyData(True, key_repl.bk_stop,
+                                         key_repl.silent, repl))
                 return True
 
         # Ignore anything else
@@ -303,7 +313,7 @@ class ListenKbd(threading.Thread):
         if event.type == X.KeyPress:
             keysym = self.local_dpy.keycode_to_keysym(event.detail, 0)
             key = self.lookup_keysym(keysym)
-            self.data.append(KeyRepl(True, key))
+            self.data.append(KeyRepl(True, True, key))
             return True
 
 
