@@ -13,12 +13,13 @@ Main changes from screenkey 0.2
 -------------------------------
 
 - Multi-monitor support
-- All settings available through command-line flags
-- Usable without system tray (for tiling window managers)
+- Configurable size/position
 - Can show modifier sequences only
 - Improved backspace processing (3 different modes)
-- Normal/Emacs/Mac caps mode
+- Normal/Emacs/Mac caps modes
 - Enable/disable dynamically by pressing both control keys
+- All settings available through command-line flags
+- Usable without system tray (for tiling window managers)
 - Several bug fixes
 
 
