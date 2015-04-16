@@ -62,10 +62,23 @@ Persistent window:
   ./screenkey --persist
 
 Press both control keys during a recording to disable screenkey (for example,
-during password prompts). Press both again to resume screenkey.
+during password prompts). Press both again to resume it.
 
-To get transparency you need a compositor to be running (for example, "compton"
-or "unagi").
+
+Interaction with tiling window managers
+---------------------------------------
+
+Configuration for "i3"::
+
+  for_window[instance="screenkey"] floating enable border none
+
+Configuration for "spectrwm"::
+
+  # MINIMALBORDER and NOFOCUSCYCLE are only available in recent versions
+  quirk[Screenkey] = FLOAT + ANYWHERE + NOFOCUSCYCLE + MINIMALBORDER
+
+To get transparency you need a compositor to be running (for example,
+"compton" or "unagi" are popular for their low impact on performance).
 
 
 Authors and Copyright
