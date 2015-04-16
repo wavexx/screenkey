@@ -127,7 +127,7 @@ class Screenkey(gtk.Window):
         self.connect("configure-event", self.on_configure)
         scr = self.get_screen()
         scr.connect("size-changed", self.on_configure)
-        scr.connect("monitors-changed", self.on_configure)
+        scr.connect("monitors-changed", self.on_monitors_changed)
         self.set_active_monitor(self.options.screen)
 
         self.listenkbd = None
@@ -219,6 +219,10 @@ class Screenkey(gtk.Window):
         else:
             self.monitor = monitor
         self.update_geometry()
+
+
+    def on_monitors_changed(self, *_):
+        self.set_active_monitor(self.monitor)
 
 
     def on_configure(self, *_):
