@@ -105,6 +105,7 @@ class Screenkey(gtk.Window):
                 if v is not None:
                     self.options[k] = v
 
+        self.set_type_hint(gtk.gdk.WINDOW_TYPE_HINT_UTILITY)
         self.set_skip_taskbar_hint(True)
         self.set_skip_pager_hint(True)
         self.set_keep_above(True)
