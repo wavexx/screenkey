@@ -25,7 +25,8 @@ def cmd_keymap_table():
     proc = subprocess.Popen(['xmodmap', '-pk'],
                             stdout=subprocess.PIPE,
                             env={'DISPLAY': os.environ.get('DISPLAY'),
-                                 'LANG': 'C'})
+                                 'XAUTHORITY': os.environ.get('XAUTHORITY'),
+                                 'LC_ALL': 'C'})
     return proc.communicate()[0]
 
 
@@ -33,7 +34,8 @@ def cmd_modifier_map():
     proc = subprocess.Popen(['xmodmap', '-pm'],
                             stdout=subprocess.PIPE,
                             env={'DISPLAY': os.environ.get('DISPLAY'),
-                                 'LANG': 'C'})
+                                 'XAUTHORITY': os.environ.get('XAUTHORITY'),
+                                 'LC_ALL': 'C'})
     return proc.communicate()[0]
 
 
