@@ -68,14 +68,10 @@ during password prompts). Press both again to resume it.
 Interaction with tiling window managers
 ---------------------------------------
 
-Configuration for "i3"::
+"screenkey" should work correctly by default with tiling window managers.
 
-  for_window[instance="screenkey"] floating enable border none
-
-Configuration for "spectrwm"::
-
-  # MINIMALBORDER and NOFOCUSCYCLE are only available in recent versions
-  quirk[Screenkey] = FLOAT + ANYWHERE + NOFOCUSCYCLE + MINIMALBORDER
+If you don't have a system tray, you can either configure it through command
+line flags or use ``--show-settings`` to test the configuration interactively.
 
 To get transparency you need a compositor to be running (for example,
 "compton" or "unagi" are popular for their low impact on performance).
