@@ -390,6 +390,11 @@ class Screenkey(gtk.Window):
                 self._on_label_change(self.label.get_text())
             self.logger.debug("Screen changed: %d." % self.options.screen)
 
+        def on_btn_forget(widget, data=None):
+            self.options.geometry = None
+            self.update_geometry()
+            widget.hide()
+
         frm_main = gtk.Frame(_("Preferences"))
         frm_main.set_border_width(6)
         vbox_main = gtk.VBox()
@@ -469,6 +474,12 @@ class Screenkey(gtk.Window):
         vbox_aspect.pack_start(hbox0_aspect)
         vbox_aspect.pack_start(hbox1_aspect)
         vbox_aspect.pack_start(hbox2_aspect)
+
+        if self.options.geometry:
+            btn_forget = gtk.Button(_("Forget stored geometry"))
+            btn_forget.connect("clicked", on_btn_forget)
+            vbox_aspect.pack_start(btn_forget)
+
         frm_aspect.add(vbox_aspect)
 
         frm_kbd = gtk.Frame(_("<b>Keys</b>"))
