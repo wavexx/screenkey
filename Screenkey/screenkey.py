@@ -388,7 +388,7 @@ class Screenkey(gtk.Window):
         frm_main.set_border_width(6)
         vbox_main = gtk.VBox()
 
-        frm_time = gtk.Frame(_("<b>Time</b>"))
+        frm_time = gtk.Frame("<b>%s</b>" % _("Time"))
         frm_time.set_border_width(4)
         frm_time.get_label_widget().set_use_markup(True)
         frm_time.set_shadow_type(gtk.SHADOW_NONE)
@@ -415,7 +415,7 @@ class Screenkey(gtk.Window):
         frm_time.add(vbox_time)
         frm_time.show_all()
 
-        frm_aspect = gtk.Frame(_("<b>Aspect</b>"))
+        frm_aspect = gtk.Frame("<b>%s</b>" % _("Aspect"))
         frm_aspect.set_border_width(4)
         frm_aspect.get_label_widget().set_use_markup(True)
         frm_aspect.set_shadow_type(gtk.SHADOW_NONE)
@@ -471,7 +471,7 @@ class Screenkey(gtk.Window):
 
         frm_aspect.add(vbox_aspect)
 
-        frm_kbd = gtk.Frame(_("<b>Keys</b>"))
+        frm_kbd = gtk.Frame("<b>%s</b>" % _("Keys"))
         frm_kbd.set_border_width(4)
         frm_kbd.get_label_widget().set_use_markup(True)
         frm_kbd.set_shadow_type(gtk.SHADOW_NONE)
