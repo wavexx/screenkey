@@ -73,32 +73,16 @@ def main():
                     help=_("show only keys with modifiers pressed"))
     ap.add_argument("--show-settings", action="store_true",
                     help=_("show settings dialog on start"))
-    ap.add_argument("--scr", type=int,
+    ap.add_argument("--scr", dest='screen', type=int,
                     help=_("show on the specified screen number"))
     args = ap.parse_args()
 
     # Set options
     options = sc.Options()
-    if args.timeout is not None:
-        options.timeout = args.timeout
-    if args.position is not None:
-        options.position = args.position
-    if args.persist is not None:
-        options.persist = args.persist
-    if args.font_size is not None:
-        options.font_size = args.font_size
-    if args.geometry is not None:
-        options.geometry = args.geometry
-    if args.key_mode is not None:
-        options.key_mode = args.key_mode
-    if args.bak_mode is not None:
-        options.bak_mode = args.bak_mode
-    if args.mods_mode is not None:
-        options.mods_mode = args.mods_mode
-    if args.mods_only is not None:
-        options.mods_only = args.mods_only
-    if args.scr is not None:
-        options.screen = args.scr
+    for arg in ['timeout', 'position', 'persist', 'font_size', 'geometry',
+                'key_mode', 'bak_mode', 'mods_mode', 'mods_only', 'screen']:
+        if getattr(args, arg) is not None:
+            options[arg] = getattr(args, arg)
 
     # Initialize logger
     if args.debug:
