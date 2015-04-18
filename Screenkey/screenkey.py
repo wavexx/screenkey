@@ -107,7 +107,6 @@ class Screenkey(gtk.Window):
         self.set_opacity(0.7)
 
         self.label = gtk.Label()
-        self.label.set_justify(gtk.JUSTIFY_RIGHT)
         self.label.set_ellipsize(pango.ELLIPSIZE_START)
         self.label.show()
         self.add(self.label)
@@ -220,6 +219,9 @@ class Screenkey(gtk.Window):
         if self.options.position == 'fixed':
             # update internal geometry in order to handle user resizes
             self.options.geometry = [window_x, window_y, window_width, window_height]
+
+        # set some proportional inner padding
+        self.label.set_padding(window_width // 100, 0)
 
         attr = pango.AttrList()
         attr.change(pango.AttrSize((50 * window_height // 100) * 1000, 0, -1))
