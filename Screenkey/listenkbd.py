@@ -312,7 +312,7 @@ class ListenKbd(threading.Thread):
         if event.type == X.KeyPress:
             keysym = self.local_dpy.keycode_to_keysym(event.detail, 0)
             key = self.lookup_keysym(keysym)
-            self.data.append(KeyRepl(True, True, key))
+            self.data.append(KeyData(datetime.now(), True, True, None, key))
             return True
 
 
