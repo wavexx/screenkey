@@ -64,12 +64,15 @@ def main():
                     help=_("show settings dialog on start"))
     ap.add_argument("--scr", dest='screen', type=int,
                     help=_("show on the specified screen number"))
+    ap.add_argument("-f", "--font", dest='font_desc',
+                    help=_("set font family/weight"))
     args = ap.parse_args()
 
     # Set options
     options = sc.Options()
-    for arg in ['timeout', 'position', 'persist', 'font_size', 'geometry',
-                'key_mode', 'bak_mode', 'mods_mode', 'mods_only', 'screen']:
+    for arg in ['timeout', 'position', 'persist', 'font_desc',
+                'font_size', 'geometry', 'key_mode', 'bak_mode', 'mods_mode',
+                'mods_only', 'screen']:
         if getattr(args, arg) is not None:
             options[arg] = getattr(args, arg)
 

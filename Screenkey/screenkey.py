@@ -73,6 +73,7 @@ class Screenkey(gtk.Window):
         defaults = Options({'timeout': 2.5,
                             'position': 'bottom',
                             'persist': False,
+                            'font_desc': 'Sans Bold',
                             'font_size': 'medium',
                             'key_mode': 'normal',
                             'bak_mode': 'baked',
@@ -213,6 +214,18 @@ class Screenkey(gtk.Window):
         self.set_active_monitor(self.monitor)
 
 
+    def update_label(self):
+        window_width, window_height = self.get_size()
+        font = pango.FontDescription(self.options.font_desc)
+
+        attr = pango.AttrList()
+        attr.change(pango.AttrSize((50 * window_height // 100) * 1000, 0, -1))
+        attr.change(pango.AttrFamily(font.get_family(), 0, -1))
+        attr.change(pango.AttrWeight(font.get_weight(), 0, -1))
+        attr.change(pango.AttrForeground(65535, 65535, 65535, 0, -1))
+        self.label.set_attributes(attr)
+
+
     def on_configure(self, *_):
         window_x, window_y = self.get_position()
         window_width, window_height = self.get_size()
@@ -223,12 +236,7 @@ class Screenkey(gtk.Window):
         # set some proportional inner padding
         self.label.set_padding(window_width // 100, 0)
 
-        attr = pango.AttrList()
-        attr.change(pango.AttrSize((50 * window_height // 100) * 1000, 0, -1))
-        attr.change(pango.AttrFamily("Sans", 0, -1))
-        attr.change(pango.AttrWeight(pango.WEIGHT_BOLD, 0, -1))
-        attr.change(pango.AttrForeground(65535, 65535, 65535, 0, -1))
-        self.label.set_attributes(attr)
+        self.update_label()
 
 
     def update_geometry(self, configure=False):
@@ -386,6 +394,10 @@ class Screenkey(gtk.Window):
             self.update_geometry()
             widget.hide()
 
+        def on_btn_font(widget, data=None):
+            self.options.font_desc = widget.get_font_name()
+            self.update_label()
+
         frm_main = gtk.Frame(_("Preferences"))
         frm_main.set_border_width(6)
         vbox_main = gtk.VBox()
@@ -422,6 +434,15 @@ class Screenkey(gtk.Window):
         frm_aspect.get_label_widget().set_use_markup(True)
         frm_aspect.set_shadow_type(gtk.SHADOW_NONE)
         vbox_aspect = gtk.VBox(spacing=6)
+
+        hbox0_font = gtk.HBox()
+        lbl_font = gtk.Label(_("Font"))
+        btn_font = gtk.FontButton(self.options.font_desc)
+        btn_font.set_use_size(False)
+        btn_font.set_show_size(False)
+        btn_font.connect("font-set", on_btn_font)
+        hbox0_font.pack_start(lbl_font, expand=False, fill=False, padding=6)
+        hbox0_font.pack_start(btn_font, expand=False, fill=False, padding=4)
 
         hbox0_aspect = gtk.HBox()
 
@@ -462,6 +483,7 @@ class Screenkey(gtk.Window):
         hbox2_aspect.pack_start(lbl_sizes, expand=False, fill=False, padding=6)
         hbox2_aspect.pack_start(cbox_sizes, expand=False, fill=False, padding=4)
 
+        vbox_aspect.pack_start(hbox0_font)
         vbox_aspect.pack_start(hbox0_aspect)
         vbox_aspect.pack_start(hbox1_aspect)
         vbox_aspect.pack_start(hbox2_aspect)
