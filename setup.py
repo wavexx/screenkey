@@ -31,5 +31,6 @@ setup(name='screenkey', version='0.3',
 
       scripts=['screenkey'],
       packages=['Screenkey'],
-      data_files=[('share/applications', ['data/screenkey.desktop'])],
+      data_files=[('share/applications', ['data/screenkey.desktop']),
+                  ('share/doc/screenkey', ['README.rst'])],
 )
