@@ -290,7 +290,7 @@ class Screenkey(gtk.Window):
 
 
     def _on_label_change(self, string):
-        self.label.set_text(string)
+        self.label.set_markup(string)
         if not self.get_property('visible'):
             self.show()
         if self.timer:

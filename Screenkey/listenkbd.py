@@ -7,7 +7,7 @@ from __future__ import print_function, unicode_literals, division
 
 from . import modmap
 
-import pygtk, gtk
+import pygtk, gtk, glib
 pygtk.require('2.0')
 
 import sys
@@ -166,7 +166,9 @@ class ListenKbd(threading.Thread):
                 last = self.data[i - 1]
                 if len(key.repl) > 1 or len(last.repl) > 1:
                     string += ' '
-            string += '\u200c' + key.repl
+                elif key.bk_stop or last.bk_stop:
+                    string += '<span font_family="sans">\u2009</span>'
+            string += '\u200c' + glib.markup_escape_text(key.repl)
         self.logger.debug("Label updated: %s." % string)
         self.listener(string)
 
