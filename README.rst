@@ -10,8 +10,9 @@ Main changes from screenkey 0.2
 -------------------------------
 
 - Multi-monitor support
-- Configurable size/position
+- Configurable font/size/position
 - Can show modifier sequences only
+- Highlight recent keypresses
 - Improved backspace processing (3 different modes)
 - Normal/Emacs/Mac caps modes
 - Enable/disable dynamically by pressing both control keys

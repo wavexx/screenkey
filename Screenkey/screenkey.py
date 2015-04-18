@@ -67,10 +67,12 @@ class Screenkey(gtk.Window):
     def __init__(self, logger, options, show_settings=False):
         gtk.Window.__init__(self)
 
-        self.timer = None
+        self.timer_hide = None
+        self.timer_min = None
         self.logger = logger
 
         defaults = Options({'timeout': 2.5,
+                            'recent_thr': 0.1,
                             'position': 'bottom',
                             'persist': False,
                             'font_desc': 'Sans Bold',
@@ -108,6 +110,7 @@ class Screenkey(gtk.Window):
         self.set_opacity(0.7)
 
         self.label = gtk.Label()
+        self.label.set_attributes(pango.AttrList())
         self.label.set_ellipsize(pango.ELLIPSIZE_START)
         self.label.show()
         self.add(self.label)
@@ -118,6 +121,9 @@ class Screenkey(gtk.Window):
         scr.connect("size-changed", self.on_configure)
         scr.connect("monitors-changed", self.on_monitors_changed)
         self.set_active_monitor(self.options.screen)
+
+        self.font = pango.FontDescription(self.options.font_desc)
+        self.update_label()
 
         self.listenkbd = None
         self.on_change_mode()
@@ -214,15 +220,17 @@ class Screenkey(gtk.Window):
         self.set_active_monitor(self.monitor)
 
 
-    def update_label(self):
+    def override_font_attributes(self, attr):
         window_width, window_height = self.get_size()
-        font = pango.FontDescription(self.options.font_desc)
+        attr.insert(pango.AttrSize((50 * window_height // 100) * 1000, 0, -1))
+        attr.insert(pango.AttrFamily(self.font.get_family(), 0, -1))
+        attr.insert(pango.AttrWeight(self.font.get_weight(), 0, -1))
+        attr.insert(pango.AttrForeground(65535, 65535, 65535, 0, -1))
 
-        attr = pango.AttrList()
-        attr.change(pango.AttrSize((50 * window_height // 100) * 1000, 0, -1))
-        attr.change(pango.AttrFamily(font.get_family(), 0, -1))
-        attr.change(pango.AttrWeight(font.get_weight(), 0, -1))
-        attr.change(pango.AttrForeground(65535, 65535, 65535, 0, -1))
+
+    def update_label(self):
+        attr = self.label.get_attributes()
+        self.override_font_attributes(attr)
         self.label.set_attributes(attr)
 
 
@@ -275,10 +283,10 @@ class Screenkey(gtk.Window):
                        3, timestamp, widget)
 
 
-    def on_label_change(self, string):
+    def on_label_change(self, markup):
         try:
             gtk.gdk.threads_enter()
-            self._on_label_change(string)
+            self._on_label_change(markup)
         finally:
             gtk.gdk.threads_leave()
 
@@ -289,22 +297,36 @@ class Screenkey(gtk.Window):
         super(Screenkey, self).show()
 
 
-    def _on_label_change(self, string):
-        self.label.set_markup(string)
+    def _on_label_change(self, markup):
+        attr, text, _ = pango.parse_markup(markup)
+        self.override_font_attributes(attr)
+        self.label.set_text(text)
+        self.label.set_attributes(attr)
+
         if not self.get_property('visible'):
             self.show()
-        if self.timer:
-            self.timer.cancel()
+        if self.timer_hide:
+            self.timer_hide.cancel()
         if self.options.timeout > 0:
-            self.timer = Timer(self.options.timeout, self.on_timeout)
-            self.timer.start()
+            self.timer_hide = Timer(self.options.timeout, self.on_timeout_main)
+            self.timer_hide.start()
+        if self.timer_min:
+            self.timer_min.cancel()
+        self.timer_min = Timer(self.options.recent_thr * 2, self.on_timeout_min)
+        self.timer_min.start()
 
 
-    def on_timeout(self):
+    def on_timeout_main(self):
         if not self.options.persist:
             self.hide()
         self.label.set_text('')
         self.listenkbd.clear()
+
+
+    def on_timeout_min(self):
+        attr = self.label.get_attributes()
+        attr.change(pango.AttrUnderline(pango.UNDERLINE_NONE, 0, -1))
+        self.label.set_attributes(attr)
 
 
     def on_change_mode(self):
@@ -314,7 +336,8 @@ class Screenkey(gtk.Window):
                                    key_mode=self.options.key_mode,
                                    bak_mode=self.options.bak_mode,
                                    mods_mode=self.options.mods_mode,
-                                   mods_only=self.options.mods_only)
+                                   mods_only=self.options.mods_only,
+                                   recent_thr=self.options.recent_thr)
         self.listenkbd.start()
 
 
@@ -325,7 +348,8 @@ class Screenkey(gtk.Window):
                                        key_mode=self.options.key_mode,
                                        bak_mode=self.options.bak_mode,
                                        mods_mode=self.options.mods_mode,
-                                       mods_only=self.options.mods_only)
+                                       mods_only=self.options.mods_only,
+                                       recent_thr=self.options.recent_thr)
             self.listenkbd.start()
         else:
             self.logger.debug("Screenkey disabled.")
@@ -396,6 +420,7 @@ class Screenkey(gtk.Window):
 
         def on_btn_font(widget, data=None):
             self.options.font_desc = widget.get_font_name()
+            self.font = pango.FontDescription(self.options.font_desc)
             self.update_label()
 
         frm_main = gtk.Frame(_("Preferences"))

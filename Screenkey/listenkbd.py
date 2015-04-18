@@ -13,6 +13,7 @@ pygtk.require('2.0')
 import sys
 import threading
 from collections import namedtuple
+from datetime import datetime
 
 from Xlib import X, XK, display
 from Xlib.ext import record
@@ -20,7 +21,7 @@ from Xlib.protocol import rq
 
 
 KeyRepl = namedtuple('KeyRepl', ['bk_stop', 'silent', 'repl'])
-KeyData = namedtuple('KeyData', ['is_ctrl', 'bk_stop', 'silent', 'repl'])
+KeyData = namedtuple('KeyData', ['stamp', 'is_ctrl', 'bk_stop', 'silent', 'repl'])
 
 REPLACE_KEYS = {
     'XK_Escape':        KeyRepl(True,  True,  _('Esc')),
@@ -97,7 +98,7 @@ REPLACE_MODS = {
 
 
 class ListenKbd(threading.Thread):
-    def __init__(self, listener, logger, key_mode, bak_mode, mods_mode, mods_only):
+    def __init__(self, listener, logger, key_mode, bak_mode, mods_mode, mods_only, recent_thr):
         threading.Thread.__init__(self)
         self.key_mode = key_mode
         self.bak_mode = bak_mode
@@ -108,6 +109,7 @@ class ListenKbd(threading.Thread):
         self.enabled = True
         self.mutex = threading.Lock()
         self.mods_only = mods_only
+        self.recent_thr = recent_thr
         self.cmd_keys = {mod: False for mod in MODS_EVENT_MASK.keys()}
         self.logger.debug("Thread created")
         self.keymap = modmap.get_keymap_table()
@@ -160,17 +162,23 @@ class ListenKbd(threading.Thread):
 
 
     def update_text(self):
-        string = ""
+        markup = ""
+        recent = False
         for i, key in enumerate(self.data):
             if i != 0:
                 last = self.data[i - 1]
                 if len(key.repl) > 1 or len(last.repl) > 1:
-                    string += ' '
+                    markup += ' '
                 elif key.bk_stop or last.bk_stop:
-                    string += '<span font_family="sans">\u2009</span>'
-            string += '\u200c' + glib.markup_escape_text(key.repl)
-        self.logger.debug("Label updated: %s." % string)
-        self.listener(string)
+                    markup += '<span font_family="sans">\u2009</span>'
+            if not recent and (datetime.now() - key.stamp).total_seconds() < self.recent_thr:
+                recent = True
+                markup += '<u>'
+            markup += '\u200c' + glib.markup_escape_text(key.repl)
+        if recent:
+            markup += '</u>'
+        self.logger.debug("Label updated: %s." % markup)
+        self.listener(markup)
 
 
     def key_press(self, reply):
@@ -240,7 +248,7 @@ class ListenKbd(threading.Thread):
           not any(self.cmd_keys.values()) and not self.mods_only:
             key_repl = self.key_repl(key_normal, keysym)
             if self.bak_mode == 'normal':
-                self.data.append(KeyData(False, *key_repl))
+                self.data.append(KeyData(datetime.now(), False, *key_repl))
                 return True
             else:
                 if not len(self.data):
@@ -256,7 +264,7 @@ class ListenKbd(threading.Thread):
                 if pop:
                     self.data.pop()
                 else:
-                    self.data.append(KeyData(False, *key_repl))
+                    self.data.append(KeyData(datetime.now(), False, *key_repl))
                 return True
 
         # Regular keys
@@ -288,11 +296,11 @@ class ListenKbd(threading.Thread):
 
             if mod == '':
                 if not self.mods_only:
-                    self.data.append(KeyData(False, *key_repl))
+                    self.data.append(KeyData(datetime.now(), False, *key_repl))
                     return True
             else:
                 repl = mod + key_repl.repl
-                self.data.append(KeyData(True, key_repl.bk_stop,
+                self.data.append(KeyData(datetime.now(), True, key_repl.bk_stop,
                                          key_repl.silent, repl))
                 return True
 
