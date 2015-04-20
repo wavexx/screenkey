@@ -6,8 +6,8 @@ A screencast tool to display your keys; forked from screenkey_ 0.2, inspired by
 Screenflick_ and initially based on key-mon_.
 
 
-Main changes from screenkey 0.2
--------------------------------
+Main changes from the original screenkey
+----------------------------------------
 
 - Multi-monitor support
 - Configurable font/size/position
@@ -64,6 +64,14 @@ Persistent window:
 
 Press both control keys during a recording to disable screenkey (for example,
 during password prompts). Press both again to resume it.
+
+The default font is "Sans Bold", which is usually mapped to "DejaVu Sans" on
+most Linux installations. It's a good all-around font which provides all the
+required glyphs and has *excellent* readability.
+
+For screencasts about programming, we recommend "DejaVu Sans Mono Bold"
+instead, which provides better differentiation among similar letterforms (0/O,
+I/l, etc).
 
 
 Interaction with tiling window managers

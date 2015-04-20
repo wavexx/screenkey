@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from setuptools import setup
 
-setup(name='screenkey', version='0.3',
+setup(name='screenkey', version='0.4',
       description='A screencast tool to display keys',
 
       author='Pablo Seminario',
@@ -32,5 +32,5 @@ setup(name='screenkey', version='0.3',
       scripts=['screenkey'],
       packages=['Screenkey'],
       data_files=[('share/applications', ['data/screenkey.desktop']),
-                  ('share/doc/screenkey', ['README.rst'])],
+                  ('share/doc/screenkey', ['README.rst', 'NEWS.rst'])],
 )
