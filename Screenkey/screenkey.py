@@ -16,8 +16,6 @@ import pygtk
 pygtk.require('2.0')
 
 import gtk
-gtk.gdk.threads_init()
-
 import glib
 import pango
 
@@ -283,21 +281,13 @@ class Screenkey(gtk.Window):
                        3, timestamp, widget)
 
 
-    def on_label_change(self, markup):
-        try:
-            gtk.gdk.threads_enter()
-            self._on_label_change(markup)
-        finally:
-            gtk.gdk.threads_leave()
-
-
     def show(self):
         self.update_geometry()
         self.stick()
         super(Screenkey, self).show()
 
 
-    def _on_label_change(self, markup):
+    def on_label_change(self, markup):
         attr, text, _ = pango.parse_markup(markup)
         self.override_font_attributes(attr)
         self.label.set_text(text)
@@ -410,7 +400,7 @@ class Screenkey(gtk.Window):
             if not self.get_property('visible'):
                 self.show()
             else:
-                self._on_label_change(self.label.get_text())
+                self.on_label_change(self.label.get_text())
             self.logger.debug("Screen changed: %d." % self.options.screen)
 
         def on_btn_forget(widget, data=None):
@@ -601,3 +591,9 @@ class Screenkey(gtk.Window):
         about.set_logo_icon_name('preferences-desktop-keyboard-shortcuts')
         about.run()
         about.destroy()
+
+
+
+def run():
+    glib.threads_init()
+    gtk.main()

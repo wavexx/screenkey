@@ -178,7 +178,7 @@ class ListenKbd(threading.Thread):
         if recent:
             markup += '</u>'
         self.logger.debug("Label updated: %s." % markup)
-        self.listener(markup)
+        glib.idle_add(lambda: self.listener(markup))
 
 
     def key_press(self, reply):
