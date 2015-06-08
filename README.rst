@@ -34,7 +34,9 @@ To install::
 
 Dependencies:
 
+- Python 2.7 (Python 3 support yet incomplete)
 - PyGTK
+- Python Xlib
 - setuptools (build only)
 - DistUtils-Extra (build only)
 
