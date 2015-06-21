@@ -10,27 +10,22 @@ import re
 import subprocess
 
 
-def cmd_keymap_table():
-    proc = subprocess.Popen(['xmodmap', '-pk'],
-                            stdout=subprocess.PIPE,
-                            env={'DISPLAY': os.environ.get('DISPLAY'),
-                                 'XAUTHORITY': os.environ.get('XAUTHORITY'),
-                                 'LC_ALL': 'C'})
-    return proc.communicate()[0]
-
-
-def cmd_modifier_map():
-    proc = subprocess.Popen(['xmodmap', '-pm'],
-                            stdout=subprocess.PIPE,
-                            env={'DISPLAY': os.environ.get('DISPLAY'),
-                                 'XAUTHORITY': os.environ.get('XAUTHORITY'),
-                                 'LC_ALL': 'C'})
-    return proc.communicate()[0]
+def cmd_get_stdout(cmd):
+    env = {'DISPLAY': os.environ.get('DISPLAY', ':0'), 'LC_ALL': 'C'}
+    if 'XAUTHORITY' in os.environ:
+        env['XAUTHORITY'] = os.environ['XAUTHORITY']
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, env=env)
+    pipe = proc.communicate()
+    if proc.returncode != 0:
+        cmdline = ' '.join(cmd)
+        msg = 'Command "{}" exited with status {}'.format(cmdline, proc.returncode)
+        raise RuntimeError(msg)
+    return pipe[0]
 
 
 def get_keymap_table():
     keymap = {}
-    keymap_table = cmd_keymap_table()
+    keymap_table = cmd_get_stdout(['xmodmap', '-pk'])
 
     re_line = re.compile(r'0x\w+')
     for line in keymap_table.split('\n')[1:]:
@@ -88,7 +83,7 @@ def get_keymap_table():
 
 def get_modifier_map():
     modifiers = {}
-    modifier_map = cmd_modifier_map()
+    modifier_map = cmd_get_stdout(['xmodmap', '-pm'])
     re_line = re.compile(r'(0x\w+)')
 
     for line in modifier_map.split('\n')[1:]:
