@@ -1,3 +1,10 @@
+screenkey 0.5
+-------------
+
+- Fixes issues with recent ``glib`` versions.
+- ``XAUTHORITY`` is no longer required to be set.
+
+
 screenkey 0.4
 -------------
 
