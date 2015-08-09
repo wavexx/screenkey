@@ -19,6 +19,8 @@ from Xlib import X, XK, display
 from Xlib.ext import record
 from Xlib.protocol import rq
 
+XK.XK_ISO_Level3_Shift = 0xFE03
+
 
 KeyRepl = namedtuple('KeyRepl', ['bk_stop', 'silent', 'repl'])
 KeyData = namedtuple('KeyData', ['stamp', 'is_ctrl', 'bk_stop', 'silent', 'repl'])
@@ -228,11 +230,11 @@ class ListenKbd(threading.Thread):
     def key_normal_mode(self, event):
         keysym = self.local_dpy.keycode_to_keysym(event.detail, 0)
         if event.detail in self.keymap:
-            key_normal, key_shift, key_dead, key_deadshift = self.keymap[event.detail]
+            key_symbols = self.keymap[event.detail]
             self.logger.debug(
-                "Key %s(keycode) %s. Symbols %s" %
-                (event.detail, event.type == X.KeyPress and "pressed" or "released",
-                 self.keymap[event.detail]))
+                "Key %s(keycode) %s(keysym): %s. Symbols %s" %
+                (event.detail, keysym, event.type == X.KeyPress and "pressed" or "released",
+                 key_symbols))
         else:
             self.logger.debug('No mapping for scan_code %d' % event.detail)
             return
@@ -241,6 +243,8 @@ class ListenKbd(threading.Thread):
         for kcs in [mod_kcs for mod_kcs in self.modifiers]:
             if event.detail in kcs:
                 return
+        if keysym in [XK.XK_ISO_Level3_Shift, XK.XK_Multi_key]:
+            return
 
         # Backspace key
         if event.detail == 22 and event.type == X.KeyPress and \
@@ -268,8 +272,6 @@ class ListenKbd(threading.Thread):
 
         # Regular keys
         if event.type == X.KeyPress:
-            key = key_normal
-
             # visible modifiers
             mod = ''
             for cap in ['ctrl', 'alt', 'super', 'hyper']:
@@ -277,15 +279,17 @@ class ListenKbd(threading.Thread):
                     mod = mod + REPLACE_MODS[cap][self.mods_index]
 
             # silent modifiers
+            state = 0
             if self.cmd_keys['shift']:
-                key = key_shift
-            if self.cmd_keys['lock'] and ord(key_normal) in range(97, 123):
-                key = key_shift
+                state = 1
+            if self.cmd_keys['lock'] and ord(key_symbols[0]) in range(97, 123):
+                state = 1
             if self.cmd_keys['mode_switch']:
-                key = key_dead
+                state = 2
             if self.cmd_keys['shift'] and self.cmd_keys['mode_switch']:
-                key = key_deadshift
+                state = 3
 
+            key = key_symbols[state]
             key_repl = self.key_repl(key, keysym)
             if key_repl is None:
                 key_repl = KeyRepl(False, False, key)
