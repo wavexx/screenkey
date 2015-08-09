@@ -105,7 +105,7 @@ class Screenkey(gtk.Window):
         self.set_property('focus-on-map', False)
         bgcolor = gtk.gdk.color_parse("black")
         self.modify_bg(gtk.STATE_NORMAL, bgcolor)
-        self.set_opacity(0.7)
+        self.set_opacity(0.8)
 
         self.label = gtk.Label()
         self.label.set_attributes(pango.AttrList())
