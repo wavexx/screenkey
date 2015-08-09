@@ -76,10 +76,10 @@ MODS_EVENT_MASK = {
     'lock': gtk.gdk.LOCK_MASK,
     'ctrl': gtk.gdk.CONTROL_MASK,
     'alt': gtk.gdk.MOD1_MASK,
-    'mod2': gtk.gdk.MOD2_MASK,
-    'mod3': gtk.gdk.MOD3_MASK,
+    'num_lock': gtk.gdk.MOD2_MASK,
+    'hyper': gtk.gdk.MOD3_MASK,
     'super': gtk.gdk.MOD4_MASK,
-    'hyper': gtk.gdk.MOD5_MASK,
+    'mode_switch': gtk.gdk.MOD5_MASK,
 }
 
 MODS_MAP = {
@@ -281,9 +281,9 @@ class ListenKbd(threading.Thread):
                 key = key_shift
             if self.cmd_keys['lock'] and ord(key_normal) in range(97, 123):
                 key = key_shift
-            if self.cmd_keys['hyper']:
+            if self.cmd_keys['mode_switch']:
                 key = key_dead
-            if self.cmd_keys['shift'] and self.cmd_keys['hyper']:
+            if self.cmd_keys['shift'] and self.cmd_keys['mode_switch']:
                 key = key_deadshift
 
             key_repl = self.key_repl(key, keysym)
