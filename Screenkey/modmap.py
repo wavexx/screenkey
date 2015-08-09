@@ -79,24 +79,3 @@ def get_keymap_table():
                 keymap[keycode] = new_keysyms
 
     return keymap
-
-
-def get_modifier_map():
-    modifiers = {}
-    modifier_map = cmd_get_stdout(['xmodmap', '-pm'])
-    re_line = re.compile(r'(0x\w+)')
-
-    for line in modifier_map.split('\n')[1:]:
-        if len(line) > 0:
-            mod_name = re.match(r'(\w+).*', line)
-            if mod_name:
-                mod_name = mod_name.group(1)
-                keycodes = re_line.findall(line)
-
-                # Convert key codes from hex to dec for use them
-                # with the keymap table
-                keycodes = [int(kc, 16) for kc in keycodes]
-
-                modifiers[mod_name] = keycodes
-
-    return modifiers

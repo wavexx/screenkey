@@ -113,10 +113,9 @@ class ListenKbd(threading.Thread):
         self.cmd_keys = {mod: False for mod in MODS_EVENT_MASK.keys()}
         self.logger.debug("Thread created")
         self.keymap = modmap.get_keymap_table()
-        self.modifiers = modmap.get_modifier_map()
-
         self.local_dpy = display.Display()
         self.record_dpy = display.Display()
+        self.modifiers = map(list, self.local_dpy.get_modifier_mapping())
 
         if not self.record_dpy.has_extension("RECORD"):
             self.logger.error("RECORD extension not found.")
@@ -214,10 +213,10 @@ class ListenKbd(threading.Thread):
 
     def process_enabled(self, event):
         if event.type == X.KeyPress:
-            if event.detail in self.modifiers['control'] and self.cmd_keys['ctrl']:
+            if event.detail in self.modifiers[X.ControlMapIndex] and self.cmd_keys['ctrl']:
                 self.enabled = not self.enabled
                 self.logger.info("Ctrl+Ctrl detected: screenkey %s." %
-                                 'enabled' if self.enabled else 'disabled')
+                                 ('enabled' if self.enabled else 'disabled'))
         return self.enabled
 
 
@@ -239,7 +238,7 @@ class ListenKbd(threading.Thread):
             return
 
         # Ignore direct modifier keypresses
-        for kcs in self.modifiers.values():
+        for kcs in [mod_kcs for mod_kcs in self.modifiers]:
             if event.detail in kcs:
                 return
 
