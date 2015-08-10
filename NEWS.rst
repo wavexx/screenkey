@@ -1,3 +1,11 @@
+screenkey 0.6
+-------------
+
+- The ``python-xlib`` module and the ``xmodmap`` executable are not
+  required/used anymore.
+- Improved handling of key composition.
+
+
 screenkey 0.5
 -------------
 
