@@ -126,48 +126,10 @@ class Screenkey(gtk.Window):
         self.listenkbd = None
         self.on_change_mode()
 
-        menu = gtk.Menu()
-
-        show_item = gtk.CheckMenuItem(_("Show keys"))
-        show_item.set_active(True)
-        show_item.connect("toggled", self.on_show_keys)
-        show_item.show()
-        menu.append(show_item)
-
-        preferences_item = gtk.ImageMenuItem(gtk.STOCK_PREFERENCES)
-        preferences_item.connect("activate", self.on_preferences_dialog)
-        preferences_item.show()
-        menu.append(preferences_item)
-
-        about_item = gtk.ImageMenuItem(gtk.STOCK_ABOUT)
-        about_item.connect("activate", self.on_about_dialog)
-        about_item.show()
-        menu.append(about_item)
-
-        separator_item = gtk.SeparatorMenuItem()
-        separator_item.show()
-        menu.append(separator_item)
-
-        image = gtk.ImageMenuItem(gtk.STOCK_QUIT)
-        image.connect("activate", self.quit)
-        image.show()
-        menu.append(image)
-        menu.show()
-
-        try:
-            import appindicator
-            self.systray = appindicator.Indicator(
-                APP_NAME, 'indicator-messages', appindicator.CATEGORY_APPLICATION_STATUS)
-            self.systray.set_status(appindicator.STATUS_ACTIVE)
-            self.systray.set_attention_icon("indicator-messages-new")
-            self.systray.set_icon("preferences-desktop-keyboard-shortcuts")
-            self.systray.set_menu(menu)
-            self.logger.debug("Using AppIndicator.")
-        except ImportError:
-            self.systray = gtk.StatusIcon()
-            self.systray.set_from_icon_name("preferences-desktop-keyboard-shortcuts")
-            self.systray.connect("popup-menu", self.on_statusicon_popup, menu)
-            self.logger.debug("Using StatusIcon.")
+        self.make_menu()
+        self.make_about_dialog()
+        self.make_preferences_dialog()
+        self.make_systray()
 
         self.connect("delete-event", self.quit)
         if show_settings:
@@ -334,7 +296,7 @@ class Screenkey(gtk.Window):
     def on_show_keys(self, widget, data=None):
         if widget.get_active():
             self.logger.debug("Screenkey enabled.")
-            self.listenkbd = ListenKbd(self.label, logger=self.logger,
+            self.listenkbd = ListenKbd(self.on_label_change, logger=self.logger,
                                        key_mode=self.options.key_mode,
                                        bak_mode=self.options.bak_mode,
                                        mods_mode=self.options.mods_mode,
@@ -347,9 +309,19 @@ class Screenkey(gtk.Window):
 
 
     def on_preferences_dialog(self, widget=None, data=None):
-        prefs = gtk.Dialog(APP_NAME, None,
-                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                    (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
+        self.prefs.show()
+
+
+    def on_preferences_changed(self, widget=None, data=None):
+        self.store_state(self.options)
+        self.prefs.hide()
+
+
+    def make_preferences_dialog(self):
+        self.prefs = prefs = gtk.Dialog(APP_NAME, None,
+                                        gtk.DIALOG_DESTROY_WITH_PARENT,
+                                        (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
+        prefs.connect("response", self.on_preferences_changed)
 
         def on_sb_time_changed(widget, data=None):
             self.options.timeout = widget.get_value()
@@ -567,14 +539,57 @@ class Screenkey(gtk.Window):
         prefs.set_has_separator(False)
         prefs.set_default_response(gtk.RESPONSE_CLOSE)
         prefs.vbox.show_all()
-        response = prefs.run()
-        if response:
-            self.store_state(self.options)
-        prefs.destroy()
 
 
-    def on_about_dialog(self, widget, data=None):
-        about = gtk.AboutDialog()
+    def make_menu(self):
+        self.menu = menu = gtk.Menu()
+
+        show_item = gtk.CheckMenuItem(_("Show keys"))
+        show_item.set_active(True)
+        show_item.connect("toggled", self.on_show_keys)
+        show_item.show()
+        menu.append(show_item)
+
+        preferences_item = gtk.ImageMenuItem(gtk.STOCK_PREFERENCES)
+        preferences_item.connect("activate", self.on_preferences_dialog)
+        preferences_item.show()
+        menu.append(preferences_item)
+
+        about_item = gtk.ImageMenuItem(gtk.STOCK_ABOUT)
+        about_item.connect("activate", self.on_about_dialog)
+        about_item.show()
+        menu.append(about_item)
+
+        separator_item = gtk.SeparatorMenuItem()
+        separator_item.show()
+        menu.append(separator_item)
+
+        image = gtk.ImageMenuItem(gtk.STOCK_QUIT)
+        image.connect("activate", self.quit)
+        image.show()
+        menu.append(image)
+        menu.show()
+
+
+    def make_systray(self):
+        try:
+            import appindicator
+            self.systray = appindicator.Indicator(
+                APP_NAME, 'indicator-messages', appindicator.CATEGORY_APPLICATION_STATUS)
+            self.systray.set_status(appindicator.STATUS_ACTIVE)
+            self.systray.set_attention_icon("indicator-messages-new")
+            self.systray.set_icon("preferences-desktop-keyboard-shortcuts")
+            self.systray.set_menu(self.menu)
+            self.logger.debug("Using AppIndicator.")
+        except ImportError:
+            self.systray = gtk.StatusIcon()
+            self.systray.set_from_icon_name("preferences-desktop-keyboard-shortcuts")
+            self.systray.connect("popup-menu", self.on_statusicon_popup, self.menu)
+            self.logger.debug("Using StatusIcon.")
+
+
+    def make_about_dialog(self):
+        self.about = about = gtk.AboutDialog()
         about.set_program_name(APP_NAME)
         about.set_version(VERSION)
         about.set_copyright("""
@@ -589,8 +604,11 @@ class Screenkey(gtk.Window):
         about.set_website(APP_URL)
         about.set_icon_name('preferences-desktop-keyboard-shortcuts')
         about.set_logo_icon_name('preferences-desktop-keyboard-shortcuts')
-        about.run()
-        about.destroy()
+        about.connect("response", lambda *_: about.hide())
+
+
+    def on_about_dialog(self, widget, data=None):
+        self.about.show()
 
 
 
