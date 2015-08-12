@@ -81,7 +81,7 @@ REPLACE_MODS = {
 }
 
 
-class ListenKbd(object):
+class LabelManager(object):
     def __init__(self, listener, logger, key_mode, bak_mode, mods_mode, mods_only, recent_thr):
         self.key_mode = key_mode
         self.bak_mode = bak_mode

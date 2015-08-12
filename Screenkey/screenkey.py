@@ -6,7 +6,7 @@
 from __future__ import print_function, unicode_literals, division
 
 from . import APP_NAME, APP_DESC, APP_URL, VERSION
-from .listenkbd import ListenKbd
+from .labelmanager import LabelManager
 
 from threading import Timer
 import os
@@ -123,7 +123,7 @@ class Screenkey(gtk.Window):
         self.font = pango.FontDescription(self.options.font_desc)
         self.update_label()
 
-        self.listenkbd = None
+        self.labelmngr = None
         self.on_change_mode()
 
         self.make_menu()
@@ -139,7 +139,7 @@ class Screenkey(gtk.Window):
 
 
     def quit(self, widget, data=None):
-        self.listenkbd.stop()
+        self.labelmngr.stop()
         gtk.main_quit()
 
 
@@ -272,7 +272,7 @@ class Screenkey(gtk.Window):
         if not self.options.persist:
             self.hide()
         self.label.set_text('')
-        self.listenkbd.clear()
+        self.labelmngr.clear()
 
 
     def on_timeout_min(self):
@@ -282,30 +282,30 @@ class Screenkey(gtk.Window):
 
 
     def on_change_mode(self):
-        if self.listenkbd:
-            self.listenkbd.stop()
-        self.listenkbd = ListenKbd(self.on_label_change, logger=self.logger,
-                                   key_mode=self.options.key_mode,
-                                   bak_mode=self.options.bak_mode,
-                                   mods_mode=self.options.mods_mode,
-                                   mods_only=self.options.mods_only,
-                                   recent_thr=self.options.recent_thr)
-        self.listenkbd.start()
+        if self.labelmngr:
+            self.labelmngr.stop()
+        self.labelmngr = LabelManager(self.on_label_change, logger=self.logger,
+                                      key_mode=self.options.key_mode,
+                                      bak_mode=self.options.bak_mode,
+                                      mods_mode=self.options.mods_mode,
+                                      mods_only=self.options.mods_only,
+                                      recent_thr=self.options.recent_thr)
+        self.labelmngr.start()
 
 
     def on_show_keys(self, widget, data=None):
         if widget.get_active():
             self.logger.debug("Screenkey enabled.")
-            self.listenkbd = ListenKbd(self.on_label_change, logger=self.logger,
-                                       key_mode=self.options.key_mode,
-                                       bak_mode=self.options.bak_mode,
-                                       mods_mode=self.options.mods_mode,
-                                       mods_only=self.options.mods_only,
-                                       recent_thr=self.options.recent_thr)
-            self.listenkbd.start()
+            self.labelmngr = LabelManager(self.on_label_change, logger=self.logger,
+                                          key_mode=self.options.key_mode,
+                                          bak_mode=self.options.bak_mode,
+                                          mods_mode=self.options.mods_mode,
+                                          mods_only=self.options.mods_only,
+                                          recent_thr=self.options.recent_thr)
+            self.labelmngr.start()
         else:
             self.logger.debug("Screenkey disabled.")
-            self.listenkbd.stop()
+            self.labelmngr.stop()
 
 
     def on_preferences_dialog(self, widget=None, data=None):
