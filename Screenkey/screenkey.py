@@ -124,6 +124,7 @@ class Screenkey(gtk.Window):
         self.update_label()
 
         self.labelmngr = None
+        self.enabled = True
         self.on_change_mode()
 
         self.make_menu()
@@ -282,6 +283,9 @@ class Screenkey(gtk.Window):
 
 
     def on_change_mode(self):
+        if not self.enabled:
+            return
+        self.logger.debug("Restarting LabelManager.")
         if self.labelmngr:
             self.labelmngr.stop()
         self.labelmngr = LabelManager(self.on_label_change, logger=self.logger,
@@ -294,7 +298,8 @@ class Screenkey(gtk.Window):
 
 
     def on_show_keys(self, widget, data=None):
-        if widget.get_active():
+        self.enabled = widget.get_active()
+        if self.enabled:
             self.logger.debug("Screenkey enabled.")
             self.labelmngr = LabelManager(self.on_label_change, logger=self.logger,
                                           key_mode=self.options.key_mode,
