@@ -155,8 +155,8 @@ XrmDatabase = POINTER(_XrmDatabase)
 
 
 # constants
-XNInputStyle = "inputStyle".encode('ascii')
-XNClientWindow = "clientWindow".encode('ascii')
+XNInputStyle = b'inputStyle'
+XNClientWindow = b'clientWindow'
 
 XIMPreeditNothing = 0x0008
 XIMPreeditNone = 0x0010
