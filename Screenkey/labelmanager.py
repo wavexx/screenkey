@@ -20,7 +20,7 @@ REPLACE_KEYS = {
     'Return':       KeyRepl(True,  False, _('⏎')),
     'space':        KeyRepl(False, False, _('␣')),
     'BackSpace':    KeyRepl(True,  True,  _('⌫')),
-    'Caps_Lock':    KeyRepl(False, True,  _('⇪')),
+    'Caps_Lock':    KeyRepl(True,  True,  _('⇪')),
     'F1':           KeyRepl(True,  True,  _('F1')),
     'F2':           KeyRepl(True,  True,  _('F2')),
     'F3':           KeyRepl(True,  True,  _('F3')),
@@ -168,8 +168,14 @@ class LabelManager(object):
         if not self.enabled:
             return False
 
+        # Visible modifiers
+        mod = ''
+        for cap in ['ctrl', 'alt', 'super', 'hyper']:
+            if event.modifiers[cap]:
+                mod = mod + REPLACE_MODS[cap][self.mods_index]
+
         # Backspace handling
-        if event.symbol == 'BackSpace' and event.mods_mask == 0 and not self.mods_only:
+        if event.symbol == 'BackSpace' and mod == '' and not self.mods_only:
             key_repl = REPLACE_KEYS.get(event.symbol)
             if self.bak_mode == 'normal':
                 self.data.append(KeyData(datetime.now(), False, *key_repl))
@@ -191,13 +197,7 @@ class LabelManager(object):
                     self.data.append(KeyData(datetime.now(), False, *key_repl))
                 return True
 
-
         # Regular keys
-        mod = ''
-        for cap in ['ctrl', 'alt', 'super', 'hyper']:
-            if event.modifiers[cap]:
-                mod = mod + REPLACE_MODS[cap][self.mods_index]
-
         key_repl = REPLACE_KEYS.get(event.symbol)
         replaced = key_repl is not None
         if key_repl is None:
