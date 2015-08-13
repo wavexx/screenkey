@@ -82,7 +82,8 @@ REPLACE_MODS = {
 
 
 class LabelManager(object):
-    def __init__(self, listener, logger, key_mode, bak_mode, mods_mode, mods_only, recent_thr):
+    def __init__(self, listener, logger, key_mode, bak_mode, mods_mode, mods_only,
+                 vis_shift, recent_thr):
         self.key_mode = key_mode
         self.bak_mode = bak_mode
         self.mods_index = MODS_MAP[mods_mode]
@@ -91,6 +92,7 @@ class LabelManager(object):
         self.data = []
         self.enabled = True
         self.mods_only = mods_only
+        self.vis_shift = vis_shift
         self.recent_thr = recent_thr
         self.kl = None
 
@@ -197,12 +199,13 @@ class LabelManager(object):
                 mod = mod + REPLACE_MODS[cap][self.mods_index]
 
         key_repl = REPLACE_KEYS.get(event.symbol)
+        replaced = key_repl is not None
         if key_repl is None:
             if event.string:
                 key_repl = KeyRepl(False, False, event.string)
             else:
                 return False
-        elif event.modifiers['shift']:
+        if event.modifiers['shift'] and (replaced or (mod != '' and self.vis_shift)):
             # add back shift for translated keys
             mod = mod + REPLACE_MODS['shift'][self.mods_index]
 

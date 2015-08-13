@@ -79,6 +79,7 @@ class Screenkey(gtk.Window):
                             'bak_mode': 'baked',
                             'mods_mode': 'normal',
                             'mods_only': False,
+                            'vis_shift': False,
                             'geometry': None,
                             'screen': 0})
         self.options = self.load_state()
@@ -293,6 +294,7 @@ class Screenkey(gtk.Window):
                                       bak_mode=self.options.bak_mode,
                                       mods_mode=self.options.mods_mode,
                                       mods_only=self.options.mods_only,
+                                      vis_shift=self.options.vis_shift,
                                       recent_thr=self.options.recent_thr)
         self.labelmngr.start()
 
@@ -306,6 +308,7 @@ class Screenkey(gtk.Window):
                                           bak_mode=self.options.bak_mode,
                                           mods_mode=self.options.mods_mode,
                                           mods_only=self.options.mods_only,
+                                          vis_shift=self.options.vis_shift,
                                           recent_thr=self.options.recent_thr)
             self.labelmngr.start()
         else:
@@ -360,6 +363,11 @@ class Screenkey(gtk.Window):
             self.options.mods_only = widget.get_active()
             self.on_change_mode()
             self.logger.debug("Modifiers only changed: %s." % self.options.mods_only)
+
+        def on_cbox_visshift_changed(widget, data=None):
+            self.options.vis_shift = widget.get_active()
+            self.on_change_mode()
+            self.logger.debug("Visible Shift changed: %s." % self.options.vis_shift)
 
         def on_cbox_position_changed(widget, data=None):
             index = widget.get_active()
@@ -529,6 +537,12 @@ class Screenkey(gtk.Window):
 
         chk_kbd = gtk.CheckButton(_("Modifiers only"))
         chk_kbd.connect("toggled", on_cbox_modsonly_changed)
+        chk_kbd.set_active(self.options.mods_only)
+        vbox_kbd.pack_start(chk_kbd)
+
+        chk_kbd = gtk.CheckButton(_("Always show Shift"))
+        chk_kbd.connect("toggled", on_cbox_visshift_changed)
+        chk_kbd.set_active(self.options.vis_shift)
         vbox_kbd.pack_start(chk_kbd)
 
         frm_kbd.add(vbox_kbd)

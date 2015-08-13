@@ -60,6 +60,8 @@ def main():
                     help=_("modifiers visualization mode"))
     ap.add_argument("-m", "--mods-only", action="store_true",
                     help=_("show only keys with modifiers pressed"))
+    ap.add_argument("--vis-shift", action="store_true",
+                    help=_("always show Shift when modifiers are pressed"))
     ap.add_argument("--show-settings", action="store_true",
                     help=_("show settings dialog on start"))
     ap.add_argument("--scr", dest='screen', type=int,
@@ -72,7 +74,7 @@ def main():
     options = sc.Options()
     for arg in ['timeout', 'position', 'persist', 'font_desc',
                 'font_size', 'geometry', 'key_mode', 'bak_mode', 'mods_mode',
-                'mods_only', 'screen']:
+                'mods_only', 'vis_shift', 'screen']:
         if getattr(args, arg) is not None:
             options[arg] = getattr(args, arg)
 
