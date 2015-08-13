@@ -223,7 +223,7 @@ class KeyListener(threading.Thread):
                 ev.xkey.window = self.replay_win
 
                 data = KeyData()
-                data.filtered = xlib.XFilterEvent(ev, 0)
+                data.filtered = bool(xlib.XFilterEvent(ev, 0))
                 data.mods_mask = ev.xkey.state
                 self._event_modifiers(ev.xkey, data)
 
