@@ -10,6 +10,7 @@ Main changes from the original screenkey
 ----------------------------------------
 
 - Multi-monitor support
+- True key composition support
 - Configurable font/size/position
 - Can show modifier sequences only
 - Highlight recent keypresses

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # Distributed under the GNU GPLv3+ license, WITHOUT ANY WARRANTY.
 # Copyright(c) 2015: wave++ "Yuri D'Elia" <wavexx@thregr.org>
+
+from __future__ import unicode_literals
 from ctypes import *
 
 ## base X11
@@ -76,7 +78,7 @@ FocusOut = 10
 CopyFromParent = 0
 InputOnly = 2
 
-CWOverrideRedirect = (1L<<9)
+CWOverrideRedirect = (1<<9)
 
 ShiftMask = (1<<0)
 LockMask = (1<<1)
@@ -135,7 +137,6 @@ XSynchronize.restype = POINTER(CFUNCTYPE(c_int, POINTER(Display)))
 
 
 ## xim
-
 # types
 class _XIC(Structure):
     pass
@@ -154,13 +155,13 @@ XrmDatabase = POINTER(_XrmDatabase)
 
 
 # constants
-XNInputStyle = "inputStyle"
-XNClientWindow = "clientWindow"
+XNInputStyle = "inputStyle".encode('ascii')
+XNClientWindow = "clientWindow".encode('ascii')
 
-XIMPreeditNothing = 0x0008L
-XIMPreeditNone = 0x0010L
-XIMStatusNothing = 0x0400L
-XIMStatusNone = 0x0800L
+XIMPreeditNothing = 0x0008
+XIMPreeditNone = 0x0010
+XIMStatusNothing = 0x0400
+XIMStatusNone = 0x0800
 
 XBufferOverflow = -1
 NoSymbol = 0

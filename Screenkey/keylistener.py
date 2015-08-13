@@ -39,7 +39,12 @@ if __name__ == '__main__':
 else:
     from . import xlib
 
-import glib
+import sys
+if sys.version_info.major < 3:
+    import glib
+else:
+    import gi
+    from gi.repository import GLib as glib
 
 import threading
 import warnings
