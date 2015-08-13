@@ -220,6 +220,9 @@ class LabelManager(object):
 
 
     def key_raw_mode(self, event):
-        value = event.string or event.symbol
+        if event.symbol in REPLACE_KEYS:
+            value = event.symbol
+        else:
+            value = event.string or event.symbol
         self.data.append(KeyData(datetime.now(), True, True, None, value))
         return True
