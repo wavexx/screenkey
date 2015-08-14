@@ -141,10 +141,14 @@ class LabelManager(object):
 
 
     def key_press(self, event):
+        if event.pressed == False:
+            self.logger.debug("Key released {:5}(ks): {}".format(event.keysym, event.symbol))
+            return
         if event.filtered:
-            self.logger.debug("Filtered key pressed (composition going on).")
+            self.logger.debug("Key filtered {:5}(ks): {}".format(event.keysym, event.symbol))
         else:
-            self.logger.debug("Key {:5}(ks): \"{}\" ({}, mask: {:08b})".format
+            string = "{}".format(event.string) if event.string else None
+            self.logger.debug("Key pressed  {:5}(ks): {} ({}, mask: {:08b})".format
                               (event.keysym, event.string, event.symbol, event.mods_mask))
 
         # keep the window alive as the user is composing

@@ -96,8 +96,9 @@ def create_replay_window(dpy):
 
 
 class KeyData():
-    def __init__(self, filtered=None, string=None, keysym=None, status=None,
-                 symbol=None, mods_mask=None, modifiers=None):
+    def __init__(self, pressed=None, filtered=None, string=None, keysym=None,
+                 status=None, symbol=None, mods_mask=None, modifiers=None):
+        self.pressed = pressed
         self.filtered = filtered
         self.string = string
         self.keysym = keysym
@@ -129,6 +130,7 @@ class KeyListener(threading.Thread):
         return False
 
     def _event_processed(self, data):
+        data.symbol = xlib.XKeysymToString(data.keysym)
         glib.idle_add(self._event_callback, data)
 
 
@@ -161,7 +163,11 @@ class KeyListener(threading.Thread):
                     pass
         data.keysym = keysym.value
         data.status = status.value
-        data.symbol = xlib.XKeysymToString(keysym)
+
+
+    def _event_lookup(self, kev, data):
+        # this is mostly for debugging: we do not account for group/level
+        data.keysym = xlib.XkbKeycodeToKeysym(kev.display, kev.keycode, 0, 0)
 
 
     def start(self):
@@ -221,21 +227,18 @@ class KeyListener(threading.Thread):
                 xlib.XNextEvent(self.replay_dpy, xlib.byref(ev))
                 ev.xkey.send_event = False
                 ev.xkey.window = self.replay_win
+                filtered = bool(xlib.XFilterEvent(ev, 0))
 
                 data = KeyData()
-                data.filtered = bool(xlib.XFilterEvent(ev, 0))
+                data.filtered = filtered
+                data.pressed = (ev.type == xlib.KeyPress)
                 data.mods_mask = ev.xkey.state
                 self._event_modifiers(ev.xkey, data)
-
-                if data.filtered:
-                    # still signal to the receiver that the raw event was filtered
-                    self._event_processed(data)
-                    continue
-
-                if ev.type == xlib.KeyPress:
+                if not data.filtered and data.pressed:
                     self._event_keypress(ev.xkey, data)
-                    self._event_processed(data)
-                    continue
+                else:
+                    self._event_lookup(ev.xkey, data)
+                self._event_processed(data)
 
         xlib.XRecordFreeContext(self.control_dpy, self.record_ctx)
         xlib.XCloseDisplay(self.control_dpy)

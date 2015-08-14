@@ -203,6 +203,10 @@ XKeysymToString = libX11.XKeysymToString
 XKeysymToString.argtypes = [KeySym]
 XKeysymToString.restype = String
 
+XkbKeycodeToKeysym = libX11.XkbKeycodeToKeysym
+XkbKeycodeToKeysym.argtypes = [POINTER(Display), KeyCode, c_uint, c_uint]
+XkbKeycodeToKeysym.restype = KeySym
+
 
 ## record extensions
 libXtst = CDLL('libXtst.so.6')
