@@ -20,7 +20,7 @@ REPLACE_KEYS = {
     'Return':       KeyRepl(True,  False, _('⏎')),
     'space':        KeyRepl(False, False, _('␣')),
     'BackSpace':    KeyRepl(True,  True,  _('⌫')),
-    'Caps_Lock':    KeyRepl(True,  True,  _('⇪')),
+    'Caps_Lock':    KeyRepl(True,  True,  _('Caps')),
     'F1':           KeyRepl(True,  True,  _('F1')),
     'F2':           KeyRepl(True,  True,  _('F2')),
     'F3':           KeyRepl(True,  True,  _('F3')),
@@ -211,7 +211,15 @@ class LabelManager(object):
 
         if mod == '':
             if not self.mods_only:
-                self.data.append(KeyData(datetime.now(), False, *key_repl))
+                repl = key_repl.repl
+
+                # switches
+                if event.symbol in ['Caps_Lock', 'Num_Lock']:
+                    state = event.modifiers[event.symbol.lower()]
+                    repl += '(%s)' % (_('off') if state else _('on'))
+
+                self.data.append(KeyData(datetime.now(), False, key_repl.bk_stop,
+                                         key_repl.silent, repl))
         else:
             repl = mod + key_repl.repl
             self.data.append(KeyData(datetime.now(), True, key_repl.bk_stop,
