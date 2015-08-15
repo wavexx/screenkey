@@ -131,6 +131,10 @@ XFlush = libX11.XFlush
 XFlush.argtypes = [POINTER(Display)]
 XFlush.restype = c_int
 
+XPending = libX11.XPending
+XPending.argtypes = [POINTER(Display)]
+XPending.restype = c_int
+
 XSynchronize = libX11.XSynchronize
 XSynchronize.argtypes = [POINTER(Display), c_int]
 XSynchronize.restype = POINTER(CFUNCTYPE(c_int, POINTER(Display)))

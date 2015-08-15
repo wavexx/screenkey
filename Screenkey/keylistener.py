@@ -219,7 +219,14 @@ class KeyListener(threading.Thread):
             with self._lock:
                 if self._stop:
                     break
-            r_fd, _, _ = select.select([record_fd, replay_fd], [], [])
+
+            r_fd = []
+            if xlib.XPending(record_dpy):
+                r_fd.append(record_fd)
+            if xlib.XPending(self.replay_dpy):
+                r_fd.append(replay_fd)
+            if not r_fd:
+                r_fd, _, _ = select.select([record_fd, replay_fd], [], [])
             if not r_fd:
                 break
 
