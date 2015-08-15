@@ -52,10 +52,12 @@ import select
 
 
 # convenience wrappers
-def record_context(dpy, ev_range):
+def record_context(dpy, ev_range, dev_range):
     range_spec = xlib.XRecordAllocRange()
-    range_spec.contents.device_events.first = ev_range[0]
-    range_spec.contents.device_events.last = ev_range[1]
+    range_spec.contents.delivered_events.first = ev_range[0]
+    range_spec.contents.delivered_events.last = ev_range[1]
+    range_spec.contents.device_events.first = dev_range[0]
+    range_spec.contents.device_events.last = dev_range[1]
     rec_ctx = xlib.XRecordCreateContext(
         dpy, 0,
         xlib.byref(xlib.c_ulong(xlib.XRecordAllClients)), 1,
@@ -186,7 +188,9 @@ class KeyListener(threading.Thread):
     def run(self):
         self.control_dpy = xlib.XOpenDisplay(None)
         xlib.XSynchronize(self.control_dpy, True)
-        self.record_ctx = record_context(self.control_dpy, [xlib.KeyPress, xlib.FocusOut])
+        self.record_ctx = record_context(self.control_dpy,
+                                         [xlib.FocusIn, xlib.FocusOut],
+                                         [xlib.KeyPress, xlib.KeyRelease])
         record_dpy = xlib.XOpenDisplay(None)
         record_fd = xlib.XConnectionNumber(record_dpy)
 

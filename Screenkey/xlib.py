@@ -195,6 +195,10 @@ XSetICFocus = libX11.XSetICFocus
 XSetICFocus.argtypes = [XIC]
 XSetICFocus.restype = None
 
+Xutf8ResetIC = libX11.Xutf8ResetIC
+Xutf8ResetIC.argtypes = [XIC]
+Xutf8ResetIC.restype = String
+
 Xutf8LookupString = libX11.Xutf8LookupString
 Xutf8LookupString.argtypes = [XIC, POINTER(XKeyPressedEvent), String, c_int, POINTER(KeySym), POINTER(c_int)]
 Xutf8LookupString.restype = c_int
