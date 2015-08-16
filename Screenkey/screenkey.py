@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # "screenkey" is distributed under GNU GPLv3+, WITHOUT ANY WARRANTY.
-# Copyright(c) 2010-2012 Pablo Seminario <pabluk@gmail.com>
-# Copyright(c) 2015 by wave++ "Yuri D'Elia" <wavexx@thregr.org>.
+# Copyright(c) 2010-2012: Pablo Seminario <pabluk@gmail.com>
+# Copyright(c) 2015: wave++ "Yuri D'Elia" <wavexx@thregr.org>.
 
 from __future__ import print_function, unicode_literals, division
 
@@ -323,6 +323,7 @@ class Screenkey(gtk.Window):
     def on_preferences_changed(self, widget=None, data=None):
         self.store_state(self.options)
         self.prefs.hide()
+        return True
 
 
     def make_preferences_dialog(self):
@@ -330,6 +331,7 @@ class Screenkey(gtk.Window):
                                         gtk.DIALOG_DESTROY_WITH_PARENT,
                                         (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
         prefs.connect("response", self.on_preferences_changed)
+        prefs.connect("delete-event", self.on_preferences_changed)
 
         def on_sb_time_changed(widget, data=None):
             self.options.timeout = widget.get_value()
@@ -612,10 +614,9 @@ class Screenkey(gtk.Window):
         about.set_program_name(APP_NAME)
         about.set_version(VERSION)
         about.set_copyright("""
-        Copyright(c) 2010-2012 Pablo Seminario <pabluk@gmail.com>
-        Copyright(c) 2015 by wave++ "Yuri D'Elia" <wavexx@thregr.org>
+        Copyright(c) 2010-2012: Pablo Seminario <pabluk@gmail.com>
+        Copyright(c) 2015: wave++ "Yuri D'Elia" <wavexx@thregr.org>
         """)
-
         about.set_comments(APP_DESC)
         about.set_documenters(
                 ["José María Quiroga <pepelandia@gmail.com>"]
@@ -623,7 +624,8 @@ class Screenkey(gtk.Window):
         about.set_website(APP_URL)
         about.set_icon_name('preferences-desktop-keyboard-shortcuts')
         about.set_logo_icon_name('preferences-desktop-keyboard-shortcuts')
-        about.connect("response", lambda *_: about.hide())
+        about.connect("response", about.hide_on_delete)
+        about.connect("delete-event", about.hide_on_delete)
 
 
     def on_about_dialog(self, widget, data=None):
