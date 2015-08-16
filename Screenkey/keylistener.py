@@ -236,9 +236,12 @@ class KeyListener(threading.Thread):
             if replay_fd in r_fd:
                 ev = xlib.XEvent()
                 xlib.XNextEvent(self.replay_dpy, xlib.byref(ev))
-                ev.xkey.send_event = False
-                ev.xkey.window = self.replay_win
+                if ev.type in [xlib.KeyPress, xlib.KeyRelease]:
+                    ev.xkey.send_event = False
+                    ev.xkey.window = self.replay_win
                 filtered = bool(xlib.XFilterEvent(ev, 0))
+                if ev.type not in [xlib.KeyPress, xlib.KeyRelease]:
+                    continue
 
                 data = KeyData()
                 data.filtered = filtered
