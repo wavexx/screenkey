@@ -66,7 +66,7 @@ Screen:
   Physical screen/monitor used for the output window.
 
 Position:
-  Position of the output window. If "fixed" is chosen, the output window
+  Position of the output window. If "fixed" is chosen, the output window's
   position and size can be either specified on the command line or changed
   interactively (see `Interactive placement`_).
 
