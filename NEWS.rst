@@ -3,9 +3,9 @@ screenkey 0.6
 
 - The ``python-xlib`` module and the ``xmodmap`` executable are not
   required/used anymore. screenkey now uses ``libX11.so.6`` directly.
-- Improved handling of key composition.
+- Key composition/input method support.
 - A new setting (always show Shift) has been added to always add "Shift" in
-  modifier sequences containing letters.
+  modifier sequences which contain capitalizable letters.
 - CapsLock and NumLock status (on/off) is now shown when pressed.
 
 

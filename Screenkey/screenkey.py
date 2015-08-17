@@ -511,7 +511,7 @@ class Screenkey(gtk.Window):
         vbox_kbd = gtk.VBox(spacing=6)
 
         hbox_kbd = gtk.HBox()
-        lbl_kbd = gtk.Label(_("Insert mode"))
+        lbl_kbd = gtk.Label(_("Keyboard mode"))
         cbox_modes = gtk.combo_box_new_text()
         cbox_modes.set_name('mode')
         for key, value in enumerate(KEY_MODES):
