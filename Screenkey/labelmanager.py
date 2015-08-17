@@ -64,6 +64,7 @@ REPLACE_KEYS = {
     'Pause':        KeyRepl(False, True,  _('Pause')),
     'Break':        KeyRepl(False, True,  _('Break')),
     'Print':        KeyRepl(False, True,  _('Print')),
+    'Multi_key':    KeyRepl(False, True,  _('Compose')),
 }
 
 MODS_MAP = {
