@@ -3,7 +3,7 @@
 # Copyright(c) 2010-2012 Pablo Seminario <pabluk@gmail.com>
 # Copyright(c) 2015 by wave++ "Yuri D'Elia" <wavexx@thregr.org>.
 
-from __future__ import print_function, unicode_literals, absolute_import
+from __future__ import print_function, unicode_literals, absolute_import, generators
 
 from .keylistener import KeyListener
 import glib
@@ -73,13 +73,30 @@ MODS_MAP = {
     'mac': 2,
 }
 
-REPLACE_MODS = {
-    'shift': (_('Shift+'), 'S-', _('⇧+')),
-    'ctrl':  (_('Ctrl+'),  'C-', _('⌘+')),
-    'alt':   (_('Alt+'),   'M-', _('⌥+')),
-    'super': (_('Super+'), 's-', _('Super+')),
-    'hyper': (_('Hyper+'), 'H-', _('Hyper+')),
+MODS_SYMS = {
+    'shift':  {'Shift_L', 'Shift_R'},
+    'ctrl':   {'Control_L', 'Control_R'},
+    'alt':    {'Alt_L', 'Alt_R'},
+    'super':  {'Super_L', 'Super_R'},
+    'hyper':  {'Hyper_L', 'Hyper_R'},
+    'alt_gr': {'ISO_Level3_Shift'},
 }
+
+REPLACE_MODS = {
+    'shift':  (_('Shift+'), 'S-',     _('⇧+')),
+    'ctrl':   (_('Ctrl+'),  'C-',     _('⌘+')),
+    'alt':    (_('Alt+'),   'M-',     _('⌥+')),
+    'super':  (_('Super+'), 's-',     _('Super+')),
+    'hyper':  (_('Hyper+'), 'H-',     _('Hyper+')),
+    'alt_gr': (_('AltGr+'), 'AltGr-', _('AltGr+')),
+}
+
+
+def keysym_to_mod(keysym):
+    for k, v in MODS_SYMS.items():
+        if keysym in v:
+            return k
+    return None
 
 
 class LabelManager(object):
@@ -105,7 +122,9 @@ class LabelManager(object):
 
     def start(self):
         self.stop()
-        self.kl = KeyListener(self.key_press, self.key_mode)
+        compose = (self.key_mode == 'composed')
+        translate = (self.key_mode in ['composed', 'translated'])
+        self.kl = KeyListener(self.key_press, compose, translate)
         self.kl.start()
         self.logger.debug("Thread started.")
 
@@ -135,7 +154,11 @@ class LabelManager(object):
             if not recent and (datetime.now() - key.stamp).total_seconds() < self.recent_thr:
                 recent = True
                 markup += '<u>'
-            markup += '\u200c' + glib.markup_escape_text(key.repl)
+            if len(key.repl) == 1 and 0x0300 <= ord(key.repl) <= 0x036F:
+                # workaround for pango not handling ZWNJ correctly for combining marks
+                markup += '\u180e' + key.repl + '\u200a'
+            else:
+                markup += '\u200c' + glib.markup_escape_text(key.repl)
         if recent:
             markup += '</u>'
         self.logger.debug("Label updated: %s." % repr(markup))
@@ -154,7 +177,7 @@ class LabelManager(object):
                               (event.keysym, event.string, event.symbol, event.mods_mask))
 
         # Enable/disable handling
-        if event.modifiers['ctrl'] and event.symbol in ['Control_L', 'Control_R']:
+        if event.modifiers['ctrl'] and event.symbol in MODS_SYMS['ctrl']:
             self.enabled = not self.enabled
             self.logger.info("Ctrl+Ctrl detected: screenkey %s." %
                              ('enabled' if self.enabled else 'disabled'))
@@ -165,10 +188,12 @@ class LabelManager(object):
         update = len(self.data) and event.filtered
 
         if not event.filtered:
-            if self.key_mode == 'normal':
+            if self.key_mode in ['translated', 'composed']:
                 update |= self.key_normal_mode(event)
-            else:
+            elif self.key_mode == 'raw':
                 update |= self.key_raw_mode(event)
+            else:
+                update |= self.key_keysyms_mode(event)
         if update:
             self.update_text()
 
@@ -207,10 +232,11 @@ class LabelManager(object):
         key_repl = REPLACE_KEYS.get(event.symbol)
         replaced = key_repl is not None
         if key_repl is None:
-            if event.string:
-                key_repl = KeyRepl(False, False, event.string)
-            else:
+            if keysym_to_mod(event.symbol):
                 return False
+            else:
+                value = event.string or event.symbol
+                key_repl = KeyRepl(False, False, value)
         if event.modifiers['shift'] and \
            (replaced or (mod != '' and self.vis_shift and self.mods_mode != 'emacs')):
             # add back shift for translated keys
@@ -235,6 +261,40 @@ class LabelManager(object):
 
 
     def key_raw_mode(self, event):
+        # modifiers
+        mod = ''
+        for cap in REPLACE_MODS.keys():
+            print(event.modifiers)
+            if event.modifiers[cap]:
+                mod = mod + REPLACE_MODS[cap][self.mods_index]
+
+        # keycaps
+        key_repl = REPLACE_KEYS.get(event.symbol)
+        if key_repl is None:
+            if keysym_to_mod(event.symbol):
+                return False
+            else:
+                value = event.string.upper() if event.string else event.symbol
+                key_repl = KeyRepl(False, False, value)
+
+        if mod == '':
+            repl = key_repl.repl
+
+            # switches
+            if event.symbol in ['Caps_Lock', 'Num_Lock']:
+                state = event.modifiers[event.symbol.lower()]
+                repl += '(%s)' % (_('off') if state else _('on'))
+
+            self.data.append(KeyData(datetime.now(), False, key_repl.bk_stop,
+                                     key_repl.silent, repl))
+        else:
+            repl = mod + key_repl.repl
+            self.data.append(KeyData(datetime.now(), True, key_repl.bk_stop,
+                                     key_repl.silent, repl))
+        return True
+
+
+    def key_keysyms_mode(self, event):
         if event.symbol in REPLACE_KEYS:
             value = event.symbol
         else:

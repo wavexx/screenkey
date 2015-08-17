@@ -34,8 +34,10 @@ FONT_SIZES = {
 }
 
 KEY_MODES = {
+    'composed': _('Composed'),
+    'translated': _('Translated'),
+    'keysyms': _('Keysyms'),
     'raw': _('Raw'),
-    'normal': _('Normal'),
 }
 
 BAK_MODES = {
@@ -75,7 +77,7 @@ class Screenkey(gtk.Window):
                             'persist': False,
                             'font_desc': 'Sans Bold',
                             'font_size': 'medium',
-                            'key_mode': 'normal',
+                            'key_mode': 'composed',
                             'bak_mode': 'baked',
                             'mods_mode': 'normal',
                             'mods_only': False,
