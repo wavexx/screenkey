@@ -153,6 +153,14 @@ class LabelManager(object):
             self.logger.debug("Key pressed  {:5}(ks): {} ({}, mask: {:08b})".format
                               (event.keysym, event.string, event.symbol, event.mods_mask))
 
+        # Enable/disable handling
+        if event.modifiers['ctrl'] and event.symbol in ['Control_L', 'Control_R']:
+            self.enabled = not self.enabled
+            self.logger.info("Ctrl+Ctrl detected: screenkey %s." %
+                             ('enabled' if self.enabled else 'disabled'))
+        if not self.enabled:
+            return False
+
         # keep the window alive as the user is composing
         update = len(self.data) and event.filtered
 
@@ -166,14 +174,6 @@ class LabelManager(object):
 
 
     def key_normal_mode(self, event):
-        # Enable/disable handling
-        if event.modifiers['ctrl'] and event.symbol in ['Control_L', 'Control_R']:
-            self.enabled = not self.enabled
-            self.logger.info("Ctrl+Ctrl detected: screenkey %s." %
-                             ('enabled' if self.enabled else 'disabled'))
-        if not self.enabled:
-            return False
-
         # Visible modifiers
         mod = ''
         for cap in ['ctrl', 'alt', 'super', 'hyper']:
