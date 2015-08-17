@@ -41,6 +41,10 @@ Install dependencies (on Debian/Ubuntu)::
 
   sudo apt-get install python-gtk2 python-setuptools python-distutils-extra
 
+You can also install "screenkey" via ArchLinux's AUR package:
+
+https://aur.archlinux.org/packages/screenkey
+
 
 Settings
 --------
@@ -141,8 +145,8 @@ Interactive placement
 ~~~~~~~~~~~~~~~~~~~~~
 
 screenkey in "fixed" positioning mode allows its window to be resized and
-placed as you see fit. You can provide the geometry on the command line (see
-`Command-line recipes`_), but you can also move and resize it dynamically.
+placed as you see fit. You can provide the geometry on the command line, but
+you can also move and resize it dynamically.
 
 To perform this task, toggle "Persistent window" first so that the window
 no longer disappears, then select "Fixed" from the position drop-down.
@@ -159,6 +163,26 @@ After the window has been resized, toggle again "Persistent window" to restore
 the original behavior.
 
 
+Command-line placement
+~~~~~~~~~~~~~~~~~~~~~~
+
+The "geometry" argument follows the standard X11 geometry format
+(``WxH[+X+Y]``) and can be provided by slop_, which allows to select windows
+and/or drag the desired region interactively without calculating the
+coordinates manually.
+
+When a geometry argument has been provided, the position (top/middle/bottom)
+becomes relative to the selected rectangle. For example, to overlay screenkey
+on top of an existing window, you can simply do::
+
+  ./screenkey -g $(slop -n -f '%g')
+
+To set the actual text rectangle instead, use "fixed" positioning. Using slop,
+you can combine both and simply drag the desired rectangle during selection::
+
+  ./screenkey -p fixed -g $(slop -n -f '%g')
+
+
 Choosing a good font
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -170,22 +194,6 @@ readability.
 For screencasts about programming, we recommend "DejaVu Sans Mono Bold"
 instead, which provides better differentiation among similar letterforms (0/O,
 I/l, etc).
-
-
-Command-line recipes
-~~~~~~~~~~~~~~~~~~~~
-
-Overlay on top of an existing window, interactive selection using slop_:
-
-  ./screenkey -g $(slop -n -f '%g')
-
-Set actual text rectangle interactively (drag during selection):
-
-  ./screenkey -p fixed -g $(slop -n -f '%g')
-
-Record an Emacs screencast:
-
-  ./screenkey --mods-mode emacs -s small -g $(slop -n -f '%g')
 
 
 Tiling window managers
@@ -216,9 +224,8 @@ holding down modifiers to perform other mouse actions, key-mon_ might be a good
 companion to screenkey, or replace it entirely.
 
 key-mon can be configured to show the state of key modifiers continuously and
-circle the location of mouse clicks ("visible click").
-
-key-mon and screenkey complete each-other and can be used at the same time.
+circle the location of mouse clicks ("visible click"). key-mon and screenkey
+complete each-other and can be used at the same time.
 
 
 Authors and Copyright
