@@ -185,7 +185,8 @@ class LabelManager(object):
             return False
 
         # keep the window alive as the user is composing
-        update = len(self.data) and event.filtered
+        mod_pressed = keysym_to_mod(event.symbol) is not None
+        update = len(self.data) and (event.filtered or mod_pressed)
 
         if not event.filtered:
             if self.key_mode in ['translated', 'composed']:
