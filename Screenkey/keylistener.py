@@ -115,8 +115,8 @@ class KeyListener(threading.Thread):
         super(KeyListener, self).__init__()
         self.callback = callback
         self.mode = mode
-        self._lock = threading.Lock()
-        self._stop = True
+        self.lock = threading.Lock()
+        self.stopped = True
 
 
     def _event_received(self, ev):
@@ -173,15 +173,15 @@ class KeyListener(threading.Thread):
 
 
     def start(self):
-        self._lock.acquire()
-        self._stop = False
+        self.lock.acquire()
+        self.stopped = False
         super(KeyListener, self).start()
 
 
     def stop(self):
-        with self._lock:
-            if not self._stop:
-                self._stop = True
+        with self.lock:
+            if not self._stopped:
+                self._stopped = True
                 xlib.XRecordDisableContext(self.control_dpy, self.record_ctx)
 
 
@@ -214,10 +214,10 @@ class KeyListener(threading.Thread):
         # we need to keep the proc_ref alive
         proc_ref = record_enable(record_dpy, self.record_ctx, self._event_received)
 
-        self._lock.release()
+        self.lock.release()
         while True:
-            with self._lock:
-                if self._stop:
+            with self.lock:
+                if self.stopped:
                     break
 
             r_fd = []
