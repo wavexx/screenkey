@@ -86,6 +86,7 @@ class LabelManager(object):
                  vis_shift, recent_thr):
         self.key_mode = key_mode
         self.bak_mode = bak_mode
+        self.mods_mode = mods_mode
         self.mods_index = MODS_MAP[mods_mode]
         self.logger = logger
         self.listener = listener
@@ -209,7 +210,8 @@ class LabelManager(object):
                 key_repl = KeyRepl(False, False, event.string)
             else:
                 return False
-        if event.modifiers['shift'] and (replaced or (mod != '' and self.vis_shift)):
+        if event.modifiers['shift'] and \
+           (replaced or (mod != '' and self.vis_shift and self.mods_mode != 'emacs')):
             # add back shift for translated keys
             mod = mod + REPLACE_MODS['shift'][self.mods_index]
 
