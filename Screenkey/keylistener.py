@@ -36,8 +36,10 @@ from __future__ import unicode_literals, absolute_import
 
 if __name__ == '__main__':
     import xlib
+    import keysyms
 else:
     from . import xlib
+    from . import keysyms
 
 import sys
 if sys.version_info.major < 3:
@@ -111,10 +113,11 @@ class KeyData():
 
 
 class KeyListener(threading.Thread):
-    def __init__(self, callback, mode):
+    def __init__(self, callback, compose, translate):
         super(KeyListener, self).__init__()
         self.callback = callback
-        self.mode = mode
+        self.compose = compose
+        self.translate = translate
         self.lock = threading.Lock()
         self.stopped = True
 
@@ -133,6 +136,10 @@ class KeyListener(threading.Thread):
 
     def _event_processed(self, data):
         data.symbol = xlib.XKeysymToString(data.keysym)
+        if data.string is None:
+            keysym = keysyms.KEYMAP.get(data.keysym)
+            if keysym is not None:
+                data.string = keysym[0]
         glib.idle_add(self._event_callback, data)
 
 
@@ -145,7 +152,7 @@ class KeyListener(threading.Thread):
         modifiers['num_lock'] = bool(kev.state & xlib.Mod2Mask)
         modifiers['hyper'] = bool(kev.state & xlib.Mod3Mask)
         modifiers['super'] = bool(kev.state & xlib.Mod4Mask)
-        modifiers['mode_switch'] = bool(kev.state & xlib.Mod5Mask)
+        modifiers['alt_gr'] = bool(kev.state & xlib.Mod5Mask)
 
 
     def _event_keypress(self, kev, data):
@@ -199,11 +206,13 @@ class KeyListener(threading.Thread):
         replay_fd = xlib.XConnectionNumber(self.replay_dpy)
         self.replay_win = create_replay_window(self.replay_dpy)
 
-        if self.mode == 'raw':
-            style = xlib.XIMPreeditNone | xlib.XIMStatusNone
-        else:
+        if self.compose:
             style = xlib.XIMPreeditNothing | xlib.XIMStatusNothing
+        else:
+            style = xlib.XIMPreeditNone | xlib.XIMStatusNone
 
+        # TODO: implement preedit callbacks for on-the-spot composition
+        #       (this would fix focus-stealing for the global IM state)
         replay_xim = xlib.XOpenIM(self.replay_dpy, None, None, None)
         self.replay_xic = xlib.XCreateIC(replay_xim,
                                          xlib.XNClientWindow, self.replay_win,
@@ -248,7 +257,7 @@ class KeyListener(threading.Thread):
                 data.pressed = (ev.type == xlib.KeyPress)
                 data.mods_mask = ev.xkey.state
                 self._event_modifiers(ev.xkey, data)
-                if not data.filtered and data.pressed:
+                if not data.filtered and data.pressed and self.translate:
                     self._event_keypress(ev.xkey, data)
                 else:
                     self._event_lookup(ev.xkey, data)
@@ -274,7 +283,7 @@ if __name__ == '__main__':
         print(values)
 
     glib.threads_init()
-    kl = KeyListener(callback, 'normal')
+    kl = KeyListener(callback, True, True)
     try:
         kl.start()
         glib.MainLoop().run()
