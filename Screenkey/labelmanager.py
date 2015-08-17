@@ -264,7 +264,6 @@ class LabelManager(object):
         # modifiers
         mod = ''
         for cap in REPLACE_MODS.keys():
-            print(event.modifiers)
             if event.modifiers[cap]:
                 mod = mod + REPLACE_MODS[cap][self.mods_index]
 

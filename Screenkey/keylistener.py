@@ -187,8 +187,8 @@ class KeyListener(threading.Thread):
 
     def stop(self):
         with self.lock:
-            if not self._stopped:
-                self._stopped = True
+            if not self.stopped:
+                self.stopped = True
                 xlib.XRecordDisableContext(self.control_dpy, self.record_ctx)
 
 
