@@ -213,8 +213,9 @@ Related tools
 ~~~~~~~~~~~~~
 
 If you're recording a screencast where almost all editing is already visible
-(for example, in ``vi`` or most other text editors), considering using a bigger
-screen font instead, which lets the viewer read the text directly.
+(for example, in ``vi`` or most other text editors), consider using a bigger
+screen font instead, letting the viewer read the text directly on the real
+program.
 
 If the control sequences you're typing are rare, you might even want to spell
 what you're doing instead of obscuring the screen with the typing output.
