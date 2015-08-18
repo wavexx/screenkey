@@ -4,7 +4,8 @@ Screencast your keys.
 
 .. contents::
 
-A screencast tool to display your keys inspired by Screenflick_.
+A screencast tool to display your keys, inspired by Screenflick_.
+
 This is an almost-complete rewrite of screenkey_ 0.2, featuring:
 
 - Several keyboard translation methods
@@ -51,7 +52,8 @@ Settings
 
 Display time:
   Persistence (in seconds) of the output window after typing has stopped.
-  Defaults to 2.5 seconds.
+  Defaults to 2.5 seconds. When the window is persistent, display time still
+  controls the time before the text is cleared.
 
 Persistent window:
   Forces the output window to be always visible, irregardless of typing
@@ -138,7 +140,7 @@ during password prompts). Press both again to resume it.
 
 If you need the viewer to focus on a sentence you just typed, you can press a
 silent modifier (such as Shift, or Control) to keep the output window visible a
-bit longer.
+little longer.
 
 
 Interactive placement
@@ -168,8 +170,8 @@ Command-line placement
 
 The "geometry" argument follows the standard X11 geometry format
 (``WxH[+X+Y]``) and can be provided by slop_, which allows to select windows
-and/or drag the desired region interactively without calculating the
-coordinates manually.
+and/or drag over the desired region interactively without the need of
+calculating the coordinates manually.
 
 When a geometry argument has been provided, the position (top/middle/bottom)
 becomes relative to the selected rectangle. For example, to overlay screenkey
@@ -214,8 +216,8 @@ Related tools
 
 If you're recording a screencast where almost all editing is already visible
 (for example, in ``vi`` or most other text editors), consider using a bigger
-screen font instead, letting the viewer read the text directly on the real
-program.
+screen font instead, so that the viewer can read the text directly while the
+program is being used.
 
 If the control sequences you're typing are rare, you might even want to spell
 what you're doing instead of obscuring the screen with the typing output.
@@ -251,7 +253,7 @@ Additional Thanks
 * zhum (launchpad)
 
 
-.. _screenkey: https://launchpad.net/screenkey
 .. _Screenflick: http://www.araelium.com/screenflick/
 .. _key-mon: https://code.google.com/p/key-mon/
+.. _screenkey: https://launchpad.net/screenkey
 .. _slop: https://github.com/naelstrof/slop
