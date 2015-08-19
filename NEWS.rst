@@ -1,3 +1,9 @@
+screenkey 0.6.1
+---------------
+
+- Fix exception on first run.
+
+
 screenkey 0.6
 -------------
 
