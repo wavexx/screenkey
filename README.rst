@@ -91,9 +91,10 @@ Keyboard mode:
   a dead key followed by a letter will show both keys.
 
   "Raw" shows which key caps were pressed on the keyboard, without translation.
-  For example, the key "!" which is often located on the "1" key, requires
-  pressing "Shift+1", which is what this output mode shows. "Backspace mode",
-  "Always visible Shift" and "Modifiers only" have no effect in this mode.
+  For example, typing "!" (which is often located on top of the key "1")
+  requires pressing "Shift+1", which is what this output mode shows. "Backspace
+  mode", "Always visible Shift" and "Modifiers only" have no effect in this
+  mode.
 
   "Keysyms" shows the keysyms ("symbolic" names) of each pressed key as
   received by the server. Mostly useful for debugging.
@@ -112,9 +113,9 @@ Backspace mode:
 
 Modifiers mode:
   Select how modifiers keys (such as Control, Alt) are displayed in the output
-  window. "Normal" uses traditional PC names while "Mac" uses Mac symbols
-  directly. The "Emacs" mode will display Emacs-style shortened keyboard
-  sequences.
+  window. "Normal" uses traditional PC names (Ctrl+A) while "Mac" uses Mac
+  symbols directly (⌘+A). The "Emacs" mode will display Emacs-style shortened
+  keyboard sequences (C-A).
 
 Modifiers only:
   Only show modifier/control sequences in the output window.
@@ -207,7 +208,7 @@ If you don't have a system tray, you can either configure it through command
 line flags or use ``--show-settings`` to test the configuration interactively.
 
 To get transparency you need a compositor to be running. For example, "compton"
-or "unagi" are popular for their low impact on performance, but "xcompmngr"
+or "unagi" are popular for their low impact on performance, but "xcompmgr"
 also works correctly without any additional configuration.
 
 
@@ -234,11 +235,15 @@ complete each-other and can be used at the same time.
 Authors and Copyright
 ---------------------
 
-"screenkey" can be found at https://github.com/wavexx/screenkey
+"screenkey" can be found at http://www.thregr.org/~wavexx/software/screenkey/
 
 | "screenkey" is distributed under GNU GPLv3+, WITHOUT ANY WARRANTY.
-| Copyright(c) 2010-2012 Pablo Seminario <pabluk@gmail.com>
-| Copyright(c) 2015 by wave++ "Yuri D'Elia" <wavexx@thregr.org>.
+| Copyright(c) 2010-2012: Pablo Seminario <pabluk@gmail.com>
+| Copyright(c) 2015: wave++ "Yuri D'Elia" <wavexx@thregr.org>.
+
+screenkey's GIT repository is publicly accessible at:
+
+https://github.com/wavexx/screenkey
 
 
 Additional Thanks

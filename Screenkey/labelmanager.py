@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # "screenkey" is distributed under GNU GPLv3+, WITHOUT ANY WARRANTY.
-# Copyright(c) 2010-2012 Pablo Seminario <pabluk@gmail.com>
-# Copyright(c) 2015 by wave++ "Yuri D'Elia" <wavexx@thregr.org>.
+# Copyright(c) 2010-2012: Pablo Seminario <pabluk@gmail.com>
+# Copyright(c) 2015: wave++ "Yuri D'Elia" <wavexx@thregr.org>.
 
 from __future__ import print_function, unicode_literals, absolute_import, generators
 
