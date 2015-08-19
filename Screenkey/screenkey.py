@@ -160,7 +160,7 @@ class Screenkey(gtk.Window):
             self.logger.debug("file %s is invalid." % self.STATE_FILE)
 
         # compatibility with previous versions (0.5)
-        if options.key_mode == 'normal':
+        if options and options.key_mode == 'normal':
             options.key_mode = 'composed'
 
         return options
