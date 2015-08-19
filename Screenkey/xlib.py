@@ -9,6 +9,7 @@ from ctypes import *
 libX11 = CDLL('libX11.so.6')
 
 # types
+Bool = c_int
 XID = c_ulong
 Colormap = XID
 Cursor = XID
@@ -29,7 +30,7 @@ class Visual(Structure):
 class XKeyEvent(Structure):
     _fields_ = [('type', c_int),
                 ('serial', c_ulong),
-                ('send_event', c_int),
+                ('send_event', Bool),
                 ('display', POINTER(Display)),
                 ('window', Window),
                 ('root', Window),
@@ -41,7 +42,7 @@ class XKeyEvent(Structure):
                 ('y_root', c_int),
                 ('state', c_uint),
                 ('keycode', c_uint),
-                ('same_screen', c_int)]
+                ('same_screen', Bool)]
 
 XKeyPressedEvent = XKeyEvent
 XKeyReleasedEvent = XKeyEvent
@@ -61,10 +62,10 @@ class XSetWindowAttributes(Structure):
                 ('backing_store', c_int),
                 ('backing_planes', c_ulong),
                 ('backing_pixel', c_ulong),
-                ('save_under', c_int),
+                ('save_under', Bool),
                 ('event_mask', c_long),
                 ('do_not_propagate_mask', c_long),
-                ('override_redirect', c_int),
+                ('override_redirect', Bool),
                 ('colormap', Colormap),
                 ('cursor', Cursor)]
 

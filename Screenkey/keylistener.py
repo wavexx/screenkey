@@ -100,10 +100,12 @@ def create_replay_window(dpy):
 
 
 class KeyData():
-    def __init__(self, pressed=None, filtered=None, string=None, keysym=None,
-                 status=None, symbol=None, mods_mask=None, modifiers=None):
+    def __init__(self, pressed=None, filtered=None, repeated=None,
+                 string=None, keysym=None, status=None, symbol=None,
+                 mods_mask=None, modifiers=None):
         self.pressed = pressed
         self.filtered = filtered
+        self.repeated = repeated
         self.string = string
         self.keysym = keysym
         self.status = status
@@ -222,6 +224,7 @@ class KeyListener(threading.Thread):
 
         # we need to keep the proc_ref alive
         proc_ref = record_enable(record_dpy, self.record_ctx, self._event_received)
+        last_ev = xlib.XEvent()
 
         self.lock.release()
         while True:
@@ -255,6 +258,9 @@ class KeyListener(threading.Thread):
                 data = KeyData()
                 data.filtered = filtered
                 data.pressed = (ev.type == xlib.KeyPress)
+                data.repeated = (ev.type == last_ev.type and \
+                                 ev.xkey.state == last_ev.xkey.state and \
+                                 ev.xkey.keycode == last_ev.xkey.keycode)
                 data.mods_mask = ev.xkey.state
                 self._event_modifiers(ev.xkey, data)
                 if not data.filtered and data.pressed and self.translate:
@@ -262,6 +268,7 @@ class KeyListener(threading.Thread):
                 else:
                     self._event_lookup(ev.xkey, data)
                 self._event_processed(data)
+                last_ev = ev
 
         xlib.XRecordFreeContext(self.control_dpy, self.record_ctx)
         xlib.XCloseDisplay(self.control_dpy)

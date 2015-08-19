@@ -172,9 +172,10 @@ class LabelManager(object):
         if event.filtered:
             self.logger.debug("Key filtered {:5}(ks): {}".format(event.keysym, event.symbol))
         else:
-            string = "{}".format(event.string) if event.string else None
-            self.logger.debug("Key pressed  {:5}(ks): {} ({}, mask: {:08b})".format
-                              (event.keysym, event.string, event.symbol, event.mods_mask))
+            state = "repeated" if event.repeated else "pressed"
+            string = '"{}"'.format(event.string) if event.string else None
+            self.logger.debug("Key {:8} {:5}(ks): {} ({}, mask: {:08b})".format
+                              (state, event.keysym, string, event.symbol, event.mods_mask))
 
         # Enable/disable handling
         if event.modifiers['ctrl'] and event.symbol in MODS_SYMS['ctrl']:
