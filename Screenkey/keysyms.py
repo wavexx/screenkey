@@ -115,7 +115,7 @@
 #
 # This table evolved out of an earlier one by Richard Verhoeven, TU Eindhoven.
 
-KEYMAP = {
+KEYSYMS = {
 
 # We begin with the original keysyms found in X11R6.4
 0x0020:   [u'\u0020',   '.'],   # space

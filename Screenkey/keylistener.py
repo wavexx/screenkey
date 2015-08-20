@@ -98,6 +98,15 @@ def create_replay_window(dpy):
     return win
 
 
+def keysym_to_unicode(keysym):
+    if 0x01000000 <= keysym <= 0x0110FFFF:
+        return unichr(keysym - 0x01000000)
+    keydata = keysyms.KEYSYMS.get(keysym)
+    if keydata is not None:
+        return keydata[0]
+    return None
+
+
 
 class KeyData():
     def __init__(self, pressed=None, filtered=None, repeated=None,
@@ -139,9 +148,7 @@ class KeyListener(threading.Thread):
     def _event_processed(self, data):
         data.symbol = xlib.XKeysymToString(data.keysym)
         if data.string is None:
-            keysym = keysyms.KEYMAP.get(data.keysym)
-            if keysym is not None:
-                data.string = keysym[0]
+            data.string = keysym_to_unicode(data.keysym)
         glib.idle_add(self._event_callback, data)
 
 
