@@ -124,6 +124,10 @@ XNextEvent = libX11.XNextEvent
 XNextEvent.argtypes = [POINTER(Display), POINTER(XEvent)]
 XNextEvent.restype = c_int
 
+XPeekEvent = libX11.XPeekEvent
+XPeekEvent.argtypes = [POINTER(Display), POINTER(XEvent)]
+XPeekEvent.restype = c_int
+
 XSendEvent = libX11.XSendEvent
 XSendEvent.argtypes = [POINTER(Display), Window, c_int, c_long, POINTER(XEvent)]
 XSendEvent.restype = c_int

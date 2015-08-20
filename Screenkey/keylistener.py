@@ -98,6 +98,17 @@ def create_replay_window(dpy):
     return win
 
 
+def phantom_release(dpy, kev):
+    if not xlib.XPending(dpy):
+        return False
+    ev = xlib.XEvent()
+    xlib.XPeekEvent(dpy, xlib.byref(ev))
+    return (ev.type == xlib.KeyPress and \
+            ev.xkey.state == kev.state and \
+            ev.xkey.keycode == kev.keycode and \
+            ev.xkey.time == kev.time)
+
+
 def keysym_to_unicode(keysym):
     if 0x01000000 <= keysym <= 0x0110FFFF:
         return unichr(keysym - 0x01000000)
@@ -263,6 +274,9 @@ class KeyListener(threading.Thread):
                     ev.xkey.window = self.replay_win
                 filtered = bool(xlib.XFilterEvent(ev, 0))
                 if ev.type not in [xlib.KeyPress, xlib.KeyRelease]:
+                    continue
+                if ev.type == xlib.KeyRelease and \
+                   phantom_release(self.replay_dpy, ev.xkey):
                     continue
 
                 data = KeyData()
