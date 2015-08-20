@@ -137,8 +137,10 @@ class KeyListener(threading.Thread):
         if ev.type in [xlib.KeyPress, xlib.KeyRelease]:
             xlib.XSendEvent(self.replay_dpy, self.replay_win, False, 0, ev)
         elif ev.type in [xlib.FocusIn, xlib.FocusOut]:
+            # TODO: This also needs to be forwarded and handled later with a
+            #       custom message. It might reset the XIC too early if there
+            #       are many other events queued.
             xlib.XFree(xlib.Xutf8ResetIC(self.replay_xic))
-        xlib.XFlush(self.replay_dpy)
 
 
     def _event_callback(self, data):
@@ -251,6 +253,7 @@ class KeyListener(threading.Thread):
 
             if record_fd in r_fd:
                 xlib.XRecordProcessReplies(record_dpy)
+                xlib.XFlush(self.replay_dpy)
 
             if replay_fd in r_fd:
                 ev = xlib.XEvent()
