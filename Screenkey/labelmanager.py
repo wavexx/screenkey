@@ -173,7 +173,7 @@ class LabelManager(object):
             self.logger.debug("Key filtered {:5}(ks): {}".format(event.keysym, event.symbol))
         else:
             state = "repeated" if event.repeated else "pressed"
-            string = '"{}"'.format(event.string) if event.string else None
+            string = repr(event.string)
             self.logger.debug("Key {:8} {:5}(ks): {} ({}, mask: {:08b})".format
                               (state, event.keysym, string, event.symbol, event.mods_mask))
 
