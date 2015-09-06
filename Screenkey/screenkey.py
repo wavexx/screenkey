@@ -191,7 +191,7 @@ class Screenkey(gtk.Window):
 
     def override_font_attributes(self, attr):
         window_width, window_height = self.get_size()
-        attr.insert(pango.AttrSize((50 * window_height // 100) * 1000, 0, -1))
+        attr.insert(pango.AttrSizeAbsolute((50 * window_height // 100) * 1000, 0, -1))
         attr.insert(pango.AttrFamily(self.font.get_family(), 0, -1))
         attr.insert(pango.AttrWeight(self.font.get_weight(), 0, -1))
         attr.insert(pango.AttrForeground(65535, 65535, 65535, 0, -1))
