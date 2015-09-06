@@ -433,6 +433,7 @@ class Screenkey(gtk.Window):
 
         chk_persist = gtk.CheckButton(_("Persistent window"))
         chk_persist.connect("toggled", on_cbox_persist_changed)
+        chk_persist.set_active(self.options.persist)
         vbox_time.pack_start(chk_persist)
 
         frm_time.add(vbox_time)
