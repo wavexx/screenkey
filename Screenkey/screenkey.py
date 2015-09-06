@@ -209,6 +209,7 @@ class Screenkey(gtk.Window):
         if self.options.position == 'fixed':
             # update internal geometry in order to handle user resizes
             self.options.geometry = [window_x, window_y, window_width, window_height]
+            self.btn_reset_geom.set_sensitive(True)
 
         # set some proportional inner padding
         self.label.set_padding(window_width // 100, 0)
@@ -397,10 +398,10 @@ class Screenkey(gtk.Window):
                 self.on_label_change(self.label.get_text())
             self.logger.debug("Screen changed: %d." % self.options.screen)
 
-        def on_btn_forget(widget, data=None):
+        def on_btn_reset_geom(widget, data=None):
             self.options.geometry = None
             self.update_geometry()
-            widget.hide()
+            widget.set_sensitive(False)
 
         def on_btn_font(widget, data=None):
             self.options.font_desc = widget.get_font_name()
@@ -476,9 +477,13 @@ class Screenkey(gtk.Window):
             cbox_positions.insert_text(key, value)
         cbox_positions.set_active(POSITIONS.keys().index(self.options.position))
         cbox_positions.connect("changed", on_cbox_position_changed)
+        self.btn_reset_geom = btn_reset_geom = gtk.Button(_("Reset"))
+        btn_reset_geom.connect("clicked", on_btn_reset_geom)
+        btn_reset_geom.set_sensitive(self.options.geometry is not None)
 
         hbox1_aspect.pack_start(lbl_positions, expand=False, fill=False, padding=6)
         hbox1_aspect.pack_start(cbox_positions, expand=False, fill=False, padding=4)
+        hbox1_aspect.pack_start(btn_reset_geom, expand=False, fill=False, padding=4)
 
         hbox2_aspect = gtk.HBox()
 
@@ -497,11 +502,6 @@ class Screenkey(gtk.Window):
         vbox_aspect.pack_start(hbox0_aspect)
         vbox_aspect.pack_start(hbox1_aspect)
         vbox_aspect.pack_start(hbox2_aspect)
-
-        if self.options.geometry:
-            btn_forget = gtk.Button(_("Forget stored geometry"))
-            btn_forget.connect("clicked", on_btn_forget)
-            vbox_aspect.pack_start(btn_forget)
 
         frm_aspect.add(vbox_aspect)
 
