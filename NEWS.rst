@@ -1,3 +1,12 @@
+screenkey 0.6.2
+---------------
+
+- HiDPI support
+- Fix initial state of "Persistent window" in the preferences.
+- Allow to reset the stored the geometry from the preferences also when
+  changed interactively.
+
+
 screenkey 0.6.1
 ---------------
 
