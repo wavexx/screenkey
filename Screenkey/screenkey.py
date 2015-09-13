@@ -71,12 +71,15 @@ class Screenkey(gtk.Window):
         self.timer_min = None
         self.logger = logger
 
-        defaults = Options({'timeout': 2.5,
+        defaults = Options({'no_systray': False,
+                            'timeout': 2.5,
                             'recent_thr': 0.1,
                             'position': 'bottom',
                             'persist': False,
                             'font_desc': 'Sans Bold',
                             'font_size': 'medium',
+                            'font_color': 'white',
+                            'bg_color': 'black',
                             'key_mode': 'composed',
                             'bak_mode': 'baked',
                             'mods_mode': 'normal',
@@ -106,13 +109,13 @@ class Screenkey(gtk.Window):
         self.stick()
         self.set_property('accept-focus', False)
         self.set_property('focus-on-map', False)
-        bgcolor = gtk.gdk.color_parse("black")
-        self.modify_bg(gtk.STATE_NORMAL, bgcolor)
+        self.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse(self.options.bg_color))
         self.set_opacity(0.8)
 
         self.label = gtk.Label()
         self.label.set_attributes(pango.AttrList())
         self.label.set_ellipsize(pango.ELLIPSIZE_START)
+        self.label.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse(self.options.font_color))
         self.label.show()
         self.add(self.label)
 
@@ -133,7 +136,9 @@ class Screenkey(gtk.Window):
         self.make_menu()
         self.make_about_dialog()
         self.make_preferences_dialog()
-        self.make_systray()
+
+        if not self.options.no_systray:
+            self.make_systray()
 
         self.connect("delete-event", self.quit)
         if show_settings:
@@ -194,7 +199,6 @@ class Screenkey(gtk.Window):
         attr.insert(pango.AttrSizeAbsolute((50 * window_height // 100) * 1000, 0, -1))
         attr.insert(pango.AttrFamily(self.font.get_family(), 0, -1))
         attr.insert(pango.AttrWeight(self.font.get_weight(), 0, -1))
-        attr.insert(pango.AttrForeground(65535, 65535, 65535, 0, -1))
 
 
     def update_label(self):
