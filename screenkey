@@ -43,6 +43,8 @@ def main():
                     help=_("do not detach from the parent"))
     ap.add_argument("-d", "--debug", action="store_true",
                     default=False, help=_("enable debugging (implies --no-detach)"))
+    ap.add_argument("--no-systray", action="store_true", default=False,
+                    help=_("do not create system tray icon"))
     ap.add_argument("-t", "--timeout", type=float, help=_("timeout in seconds"))
     ap.add_argument("-p", "--position", choices=sc.POSITIONS,
                     help=_("set vertical position"))
@@ -68,13 +70,17 @@ def main():
                     help=_("show on the specified screen number"))
     ap.add_argument("-f", "--font", dest='font_desc',
                     help=_("set font family/weight"))
+    ap.add_argument("--fontcolor", dest='font_color',
+                    help=_("set font color"))
+    ap.add_argument("--bgcolor", dest='bg_color',
+                    help=_("background color"))
     args = ap.parse_args()
 
     # Set options
     options = sc.Options()
-    for arg in ['timeout', 'position', 'persist', 'font_desc',
+    for arg in ['timeout', 'position', 'persist', 'font_desc', 'font_color', 'bg_color',
                 'font_size', 'geometry', 'key_mode', 'bak_mode', 'mods_mode',
-                'mods_only', 'vis_shift', 'screen']:
+                'mods_only', 'vis_shift', 'screen', 'no_systray']:
         if getattr(args, arg) is not None:
             options[arg] = getattr(args, arg)
 
