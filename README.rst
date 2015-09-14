@@ -250,6 +250,7 @@ Additional Thanks
 -----------------
 
 * Benjamin Chrétien
+* Dmitry Bushev
 * Doug Patti
 * Ivan Makfinsky
 * Jacob Gardner

@@ -1,3 +1,10 @@
+screenkey 0.7.0
+---------------
+
+- Font color, background color and transparency level are now
+  fully configurable.
+
+
 screenkey 0.6.2
 ---------------
 
