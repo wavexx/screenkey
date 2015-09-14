@@ -110,13 +110,10 @@ class Screenkey(gtk.Window):
         self.stick()
         self.set_property('accept-focus', False)
         self.set_property('focus-on-map', False)
-        self.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse(self.options.bg_color))
-        self.set_opacity(self.options.opacity)
 
         self.label = gtk.Label()
         self.label.set_attributes(pango.AttrList())
         self.label.set_ellipsize(pango.ELLIPSIZE_START)
-        self.label.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse(self.options.font_color))
         self.label.show()
         self.add(self.label)
 
@@ -128,6 +125,7 @@ class Screenkey(gtk.Window):
         self.set_active_monitor(self.options.screen)
 
         self.font = pango.FontDescription(self.options.font_desc)
+        self.update_colors()
         self.update_label()
 
         self.labelmngr = None
@@ -206,6 +204,12 @@ class Screenkey(gtk.Window):
         attr = self.label.get_attributes()
         self.override_font_attributes(attr)
         self.label.set_attributes(attr)
+
+
+    def update_colors(self):
+        self.label.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse(self.options.font_color))
+        self.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse(self.options.bg_color))
+        self.set_opacity(self.options.opacity)
 
 
     def on_configure(self, *_):
@@ -340,6 +344,7 @@ class Screenkey(gtk.Window):
 
 
     def make_preferences_dialog(self):
+        # TODO: switch to something declarative or at least clean-up the following mess
         self.prefs = prefs = gtk.Dialog(APP_NAME, None,
                                         gtk.DIALOG_DESTROY_WITH_PARENT,
                                         (gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE))
@@ -410,7 +415,15 @@ class Screenkey(gtk.Window):
 
         def on_adj_opacity_changed(widget, data=None):
             self.options.opacity = widget.get_value()
-            self.set_opacity(self.options.opacity)
+            self.update_colors()
+
+        def on_font_color_changed(widget, data=None):
+            self.options.font_color = widget.get_color().to_string()
+            self.update_colors()
+
+        def on_bg_color_changed(widget, data=None):
+            self.options.bg_color = widget.get_color().to_string()
+            self.update_colors()
 
         def on_btn_font(widget, data=None):
             self.options.font_desc = widget.get_font_name()
@@ -507,21 +520,41 @@ class Screenkey(gtk.Window):
         hbox2_aspect.pack_start(lbl_sizes, expand=False, fill=False, padding=6)
         hbox2_aspect.pack_start(cbox_sizes, expand=False, fill=False, padding=4)
 
-        hbox3_aspect = gtk.HBox()
+        hbox3_font_color = gtk.HBox()
+
+        lbl_font_color = gtk.Label(_("Font color"))
+        btn_font_color = gtk.ColorButton(color=gtk.gdk.color_parse(self.options.font_color))
+        btn_font_color.connect("color-set", on_font_color_changed)
+
+        hbox3_font_color.pack_start(lbl_font_color, expand=False, fill=False, padding=6)
+        hbox3_font_color.pack_start(btn_font_color, expand=False, fill=False, padding=4)
+
+        hbox3_bg_color = gtk.HBox()
+
+        lbl_bg_color = gtk.Label(_("Background color"))
+        btn_bg_color = gtk.ColorButton(color=gtk.gdk.color_parse(self.options.bg_color))
+        btn_bg_color.connect("color-set", on_bg_color_changed)
+
+        hbox3_bg_color.pack_start(lbl_bg_color, expand=False, fill=False, padding=6)
+        hbox3_bg_color.pack_start(btn_bg_color, expand=False, fill=False, padding=4)
+
+        hbox4_aspect = gtk.HBox()
 
         lbl_opacity = gtk.Label(_("Opacity"))
         adj_opacity = gtk.Adjustment(self.options.opacity, 0.0, 1.0, 0.1, 0, 0)
         adj_opacity.connect("value-changed", on_adj_opacity_changed)
         adj_scale = gtk.HScale(adj_opacity)
 
-        hbox3_aspect.pack_start(lbl_opacity, expand=False, fill=False, padding=6)
-        hbox3_aspect.pack_start(adj_scale, expand=True, fill=True, padding=4)
+        hbox4_aspect.pack_start(lbl_opacity, expand=False, fill=False, padding=6)
+        hbox4_aspect.pack_start(adj_scale, expand=True, fill=True, padding=4)
 
         vbox_aspect.pack_start(hbox0_font)
         vbox_aspect.pack_start(hbox0_aspect)
         vbox_aspect.pack_start(hbox1_aspect)
         vbox_aspect.pack_start(hbox2_aspect)
-        vbox_aspect.pack_start(hbox3_aspect)
+        vbox_aspect.pack_start(hbox3_font_color)
+        vbox_aspect.pack_start(hbox3_bg_color)
+        vbox_aspect.pack_start(hbox4_aspect)
 
         frm_aspect.add(vbox_aspect)
 
