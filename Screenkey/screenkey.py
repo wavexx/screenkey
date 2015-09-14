@@ -80,6 +80,7 @@ class Screenkey(gtk.Window):
                             'font_size': 'medium',
                             'font_color': 'white',
                             'bg_color': 'black',
+                            'opacity': 0.8,
                             'key_mode': 'composed',
                             'bak_mode': 'baked',
                             'mods_mode': 'normal',
@@ -110,7 +111,7 @@ class Screenkey(gtk.Window):
         self.set_property('accept-focus', False)
         self.set_property('focus-on-map', False)
         self.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse(self.options.bg_color))
-        self.set_opacity(0.8)
+        self.set_opacity(self.options.opacity)
 
         self.label = gtk.Label()
         self.label.set_attributes(pango.AttrList())
@@ -407,6 +408,10 @@ class Screenkey(gtk.Window):
             self.update_geometry()
             widget.set_sensitive(False)
 
+        def on_adj_opacity_changed(widget, data=None):
+            self.options.opacity = widget.get_value()
+            self.set_opacity(self.options.opacity)
+
         def on_btn_font(widget, data=None):
             self.options.font_desc = widget.get_font_name()
             self.font = pango.FontDescription(self.options.font_desc)
@@ -502,10 +507,21 @@ class Screenkey(gtk.Window):
         hbox2_aspect.pack_start(lbl_sizes, expand=False, fill=False, padding=6)
         hbox2_aspect.pack_start(cbox_sizes, expand=False, fill=False, padding=4)
 
+        hbox3_aspect = gtk.HBox()
+
+        lbl_opacity = gtk.Label(_("Opacity"))
+        adj_opacity = gtk.Adjustment(self.options.opacity, 0.0, 1.0, 0.1, 0, 0)
+        adj_opacity.connect("value-changed", on_adj_opacity_changed)
+        adj_scale = gtk.HScale(adj_opacity)
+
+        hbox3_aspect.pack_start(lbl_opacity, expand=False, fill=False, padding=6)
+        hbox3_aspect.pack_start(adj_scale, expand=True, fill=True, padding=4)
+
         vbox_aspect.pack_start(hbox0_font)
         vbox_aspect.pack_start(hbox0_aspect)
         vbox_aspect.pack_start(hbox1_aspect)
         vbox_aspect.pack_start(hbox2_aspect)
+        vbox_aspect.pack_start(hbox3_aspect)
 
         frm_aspect.add(vbox_aspect)
 

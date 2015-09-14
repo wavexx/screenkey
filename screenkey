@@ -74,13 +74,15 @@ def main():
                     help=_("set font color"))
     ap.add_argument("--bgcolor", dest='bg_color',
                     help=_("background color"))
+    ap.add_argument("--opacity", dest='opacity', type=float,
+                    help=_("window opacity (in range 0.0-1.0)"))
     args = ap.parse_args()
 
     # Set options
     options = sc.Options()
     for arg in ['timeout', 'position', 'persist', 'font_desc', 'font_color', 'bg_color',
                 'font_size', 'geometry', 'key_mode', 'bak_mode', 'mods_mode',
-                'mods_only', 'vis_shift', 'screen', 'no_systray']:
+                'mods_only', 'vis_shift', 'screen', 'no_systray', 'opacity']:
         if getattr(args, arg) is not None:
             options[arg] = getattr(args, arg)
 
