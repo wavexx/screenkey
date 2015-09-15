@@ -70,9 +70,9 @@ def main():
                     help=_("show on the specified screen number"))
     ap.add_argument("-f", "--font", dest='font_desc',
                     help=_("set font family/weight"))
-    ap.add_argument("--fontcolor", dest='font_color',
+    ap.add_argument("--font-color", dest='font_color',
                     help=_("set font color"))
-    ap.add_argument("--bgcolor", dest='bg_color',
+    ap.add_argument("--bg-color", dest='bg_color',
                     help=_("background color"))
     ap.add_argument("--opacity", dest='opacity', type=float,
                     help=_("window opacity (in range 0.0-1.0)"))
