@@ -541,7 +541,7 @@ class Screenkey(gtk.Window):
         hbox4_aspect = gtk.HBox()
 
         lbl_opacity = gtk.Label(_("Opacity"))
-        adj_opacity = gtk.Adjustment(self.options.opacity, 0.0, 1.0, 0.1, 0, 0)
+        adj_opacity = gtk.Adjustment(self.options.opacity, 0.1, 1.0, 0.1, 0, 0)
         adj_opacity.connect("value-changed", on_adj_opacity_changed)
         adj_scale = gtk.HScale(adj_opacity)
 
