@@ -1,8 +1,9 @@
 screenkey 0.7.0
 ---------------
 
-- Font color, background color and transparency level are now
-  fully configurable.
+- Font color, background color and opacity are now fully configurable.
+- The saved state of boolean settings (persistent, modifiers only, etc) is
+  correctly restored when changed from the settings dialog.
 
 
 screenkey 0.6.2

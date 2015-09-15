@@ -39,16 +39,16 @@ def geometry(string):
 
 def main():
     ap = ArgumentParser(description=APP_DESC, version=VERSION)
-    ap.add_argument("--no-detach", action="store_true", default=False,
+    ap.add_argument("--no-detach", action="store_true",
                     help=_("do not detach from the parent"))
     ap.add_argument("-d", "--debug", action="store_true",
-                    default=False, help=_("enable debugging (implies --no-detach)"))
-    ap.add_argument("--no-systray", action="store_true", default=False,
+                    help=_("enable debugging (implies --no-detach)"))
+    ap.add_argument("--no-systray", action="store_true",
                     help=_("do not create system tray icon"))
     ap.add_argument("-t", "--timeout", type=float, help=_("timeout in seconds"))
     ap.add_argument("-p", "--position", choices=sc.POSITIONS,
                     help=_("set vertical position"))
-    ap.add_argument("--persist", action='store_true',
+    ap.add_argument("--persist", action='store_true', default=None,
                     help=_("make window persistent"))
     ap.add_argument("-s", "--font-size", choices=sc.FONT_SIZES,
                     help=_("set font size"))
@@ -60,9 +60,9 @@ def main():
                     help=_("backspace processing mode"))
     ap.add_argument("--mods-mode", choices=sc.MODS_MODES,
                     help=_("modifiers visualization mode"))
-    ap.add_argument("-m", "--mods-only", action="store_true",
+    ap.add_argument("-m", "--mods-only", action="store_true", default=None,
                     help=_("show only keys with modifiers pressed"))
-    ap.add_argument("--vis-shift", action="store_true",
+    ap.add_argument("--vis-shift", action="store_true", default=None,
                     help=_("always show Shift when modifiers are pressed"))
     ap.add_argument("--show-settings", action="store_true",
                     help=_("show settings dialog on start"))

@@ -406,7 +406,7 @@ class Screenkey(gtk.Window):
                 self.show()
             else:
                 self.on_label_change(self.label.get_text())
-            self.logger.debug("Screen changed: %d." % self.options.screen)
+            self.logger.debug("Persistent changed: %s." % self.options.persist)
 
         def on_btn_reset_geom(widget, data=None):
             self.options.geometry = None
