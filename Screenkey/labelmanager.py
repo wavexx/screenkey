@@ -76,7 +76,7 @@ MODS_MAP = {
 MODS_SYMS = {
     'shift':  {'Shift_L', 'Shift_R'},
     'ctrl':   {'Control_L', 'Control_R'},
-    'alt':    {'Alt_L', 'Alt_R'},
+    'alt':    {'Alt_L', 'Alt_R', 'Meta_L', 'Meta_R'},
     'super':  {'Super_L', 'Super_R'},
     'hyper':  {'Hyper_L', 'Hyper_R'},
     'alt_gr': {'ISO_Level3_Shift'},
@@ -239,8 +239,11 @@ class LabelManager(object):
             else:
                 value = event.string or event.symbol
                 key_repl = KeyRepl(False, False, value)
+
         if event.modifiers['shift'] and \
-           (replaced or (mod != '' and self.vis_shift and self.mods_mode != 'emacs')):
+           (replaced or (mod != '' and \
+                         self.vis_shift and \
+                         self.mods_mode != 'emacs')):
             # add back shift for translated keys
             mod = mod + REPLACE_MODS['shift'][self.mods_index]
 
