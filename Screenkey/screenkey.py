@@ -65,7 +65,7 @@ class Screenkey(gtk.Window):
     STATE_FILE = os.path.join(glib.get_user_config_dir(), 'screenkey.json')
 
     def __init__(self, logger, options, show_settings=False):
-        gtk.Window.__init__(self)
+        gtk.Window.__init__(self, gtk.WINDOW_POPUP)
 
         self.timer_hide = None
         self.timer_min = None
@@ -107,9 +107,9 @@ class Screenkey(gtk.Window):
         self.set_skip_pager_hint(True)
         self.set_keep_above(True)
         self.set_decorated(False)
+        self.set_accept_focus(False)
+        self.set_focus_on_map(False)
         self.stick()
-        self.set_property('accept-focus', False)
-        self.set_property('focus-on-map', False)
 
         self.label = gtk.Label()
         self.label.set_attributes(pango.AttrList())
@@ -264,7 +264,6 @@ class Screenkey(gtk.Window):
 
     def show(self):
         self.update_geometry()
-        self.stick()
         super(Screenkey, self).show()
 
 
