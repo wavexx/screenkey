@@ -2,7 +2,7 @@
 Encoding=UTF-8
 Name=Screenkey
 Comment=Screencast your keys
-Version=0.7.0
+Version=0.8
 Exec=screenkey
 Terminal=false
 Icon=preferences-desktop-keyboard-shortcuts
