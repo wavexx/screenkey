@@ -1,5 +1,8 @@
-screenkey 0.7.0
----------------
+screenkey 0.8
+-------------
+
+screenkey 0.7
+-------------
 
 - Font color, background color and opacity are now fully configurable.
 - The saved state of boolean settings (persistent, modifiers only, etc) is

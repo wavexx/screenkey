@@ -102,14 +102,9 @@ class Screenkey(gtk.Window):
                 if v is not None:
                     self.options[k] = v
 
-        self.set_type_hint(gtk.gdk.WINDOW_TYPE_HINT_UTILITY)
-        self.set_skip_taskbar_hint(True)
-        self.set_skip_pager_hint(True)
         self.set_keep_above(True)
-        self.set_decorated(False)
         self.set_accept_focus(False)
         self.set_focus_on_map(False)
-        self.stick()
 
         self.label = gtk.Label()
         self.label.set_attributes(pango.AttrList())
@@ -215,6 +210,9 @@ class Screenkey(gtk.Window):
     def on_configure(self, *_):
         window_x, window_y = self.get_position()
         window_width, window_height = self.get_size()
+        mask = gtk.gdk.Pixmap(None, window_width, window_height, 1)
+        self.input_shape_combine_mask(mask, 0, 0)
+
         if self.options.position == 'fixed':
             # update internal geometry in order to handle user resizes
             self.options.geometry = [window_x, window_y, window_width, window_height]
