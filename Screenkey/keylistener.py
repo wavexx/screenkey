@@ -148,10 +148,14 @@ class KeyListener(threading.Thread):
         if ev.type in [xlib.KeyPress, xlib.KeyRelease]:
             xlib.XSendEvent(self.replay_dpy, self.replay_win, False, 0, ev)
         elif ev.type in [xlib.FocusIn, xlib.FocusOut]:
-            # TODO: This also needs to be forwarded and handled later with a
-            #       custom message. It might reset the XIC too early if there
-            #       are many other events queued.
-            xlib.XFree(xlib.Xutf8ResetIC(self.replay_xic))
+            # Forward the event as a custom message in the same queue instead
+            # of resetting the XIC directly, in order to preserve queued events
+            fwd_ev = xlib.XEvent()
+            fwd_ev.type = xlib.ClientMessage
+            fwd_ev.xclient.message_type = self.custom_atom
+            fwd_ev.xclient.format = 32
+            fwd_ev.xclient.data[0] = ev.type
+            xlib.XSendEvent(self.replay_dpy, self.replay_win, False, 0, fwd_ev)
 
 
     def _event_callback(self, data):
@@ -225,6 +229,7 @@ class KeyListener(threading.Thread):
 
         # note that we never ever map the window
         self.replay_dpy = xlib.XOpenDisplay(None)
+        self.custom_atom = xlib.XInternAtom(self.replay_dpy, "SCREENKEY", False)
         replay_fd = xlib.XConnectionNumber(self.replay_dpy)
         self.replay_win = create_replay_window(self.replay_dpy)
 
@@ -269,9 +274,16 @@ class KeyListener(threading.Thread):
             if replay_fd in r_fd:
                 ev = xlib.XEvent()
                 xlib.XNextEvent(self.replay_dpy, xlib.byref(ev))
-                if ev.type in [xlib.KeyPress, xlib.KeyRelease]:
+                if ev.type == xlib.ClientMessage and \
+                   ev.xclient.message_type == self.custom_atom:
+                    if ev.xclient.data[0] in [xlib.FocusIn, xlib.FocusOut]:
+                        # We do not keep track of multiple XICs, just reset
+                        xlib.XFree(xlib.Xutf8ResetIC(self.replay_xic))
+                    continue
+                elif ev.type in [xlib.KeyPress, xlib.KeyRelease]:
                     ev.xkey.send_event = False
                     ev.xkey.window = self.replay_win
+
                 filtered = bool(xlib.XFilterEvent(ev, 0))
                 if ev.type not in [xlib.KeyPress, xlib.KeyRelease]:
                     continue

@@ -9,6 +9,7 @@ from ctypes import *
 libX11 = CDLL('libX11.so.6')
 
 # types
+Atom = c_ulong
 Bool = c_int
 XID = c_ulong
 Colormap = XID
@@ -47,9 +48,20 @@ class XKeyEvent(Structure):
 XKeyPressedEvent = XKeyEvent
 XKeyReleasedEvent = XKeyEvent
 
+class XClientMessageEvent(Structure):
+    _fields_ = [('type', c_int),
+                ('serial', c_ulong),
+                ('send_event', Bool),
+                ('display', POINTER(Display)),
+                ('window', Window),
+                ('message_type', Atom),
+                ('format', c_int),
+                ('data', c_long * 5)]
+
 class XEvent(Union):
     _fields_ = [('type', c_int),
                 ('xkey', XKeyEvent),
+                ('xclient', XClientMessageEvent),
                 ('pad', c_long * 24)]
 
 class XSetWindowAttributes(Structure):
@@ -75,6 +87,7 @@ KeyPress = 2
 KeyRelease = 3
 FocusIn = 9
 FocusOut = 10
+ClientMessage = 33
 
 CopyFromParent = 0
 InputOnly = 2
@@ -103,6 +116,10 @@ XCloseDisplay.restype = c_int
 XConnectionNumber = libX11.XConnectionNumber
 XConnectionNumber.argtypes = [POINTER(Display)]
 XConnectionNumber.restype = c_int
+
+XInternAtom = libX11.XInternAtom
+XInternAtom.argtypes = [POINTER(Display), String, Bool]
+XInternAtom.restype = c_int
 
 XDefaultRootWindow = libX11.XDefaultRootWindow
 XDefaultRootWindow.argtypes = [POINTER(Display)]
