@@ -74,6 +74,7 @@ class Screenkey(gtk.Window):
         defaults = Options({'no_systray': False,
                             'timeout': 2.5,
                             'recent_thr': 0.1,
+                            'ignore': [],
                             'position': 'bottom',
                             'persist': False,
                             'font_desc': 'Sans Bold',
@@ -297,9 +298,7 @@ class Screenkey(gtk.Window):
         self.label.set_attributes(attr)
 
 
-    def on_change_mode(self):
-        if not self.enabled:
-            return
+    def restart_labelmanager(self):
         self.logger.debug("Restarting LabelManager.")
         if self.labelmngr:
             self.labelmngr.stop()
@@ -309,22 +308,22 @@ class Screenkey(gtk.Window):
                                       mods_mode=self.options.mods_mode,
                                       mods_only=self.options.mods_only,
                                       vis_shift=self.options.vis_shift,
-                                      recent_thr=self.options.recent_thr)
+                                      recent_thr=self.options.recent_thr,
+                                      ignore=self.options.ignore)
         self.labelmngr.start()
+
+
+    def on_change_mode(self):
+        if not self.enabled:
+            return
+        self.restart_labelmanager()
 
 
     def on_show_keys(self, widget, data=None):
         self.enabled = widget.get_active()
         if self.enabled:
             self.logger.debug("Screenkey enabled.")
-            self.labelmngr = LabelManager(self.on_label_change, logger=self.logger,
-                                          key_mode=self.options.key_mode,
-                                          bak_mode=self.options.bak_mode,
-                                          mods_mode=self.options.mods_mode,
-                                          mods_only=self.options.mods_only,
-                                          vis_shift=self.options.vis_shift,
-                                          recent_thr=self.options.recent_thr)
-            self.labelmngr.start()
+            self.restart_labelmanager()
         else:
             self.logger.debug("Screenkey disabled.")
             self.labelmngr.stop()

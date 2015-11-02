@@ -101,7 +101,7 @@ def keysym_to_mod(keysym):
 
 class LabelManager(object):
     def __init__(self, listener, logger, key_mode, bak_mode, mods_mode, mods_only,
-                 vis_shift, recent_thr):
+                 vis_shift, recent_thr, ignore):
         self.key_mode = key_mode
         self.bak_mode = bak_mode
         self.mods_mode = mods_mode
@@ -113,6 +113,7 @@ class LabelManager(object):
         self.mods_only = mods_only
         self.vis_shift = vis_shift
         self.recent_thr = recent_thr
+        self.ignore = ignore
         self.kl = None
 
 
@@ -168,6 +169,9 @@ class LabelManager(object):
     def key_press(self, event):
         if event.pressed == False:
             self.logger.debug("Key released {:5}(ks): {}".format(event.keysym, event.symbol))
+            return
+        if event.symbol in self.ignore:
+            self.logger.debug("Key ignored {:5}(ks): {}".format(event.keysym, event.symbol))
             return
         if event.filtered:
             self.logger.debug("Key filtered {:5}(ks): {}".format(event.keysym, event.symbol))
