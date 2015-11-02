@@ -212,7 +212,11 @@ class Screenkey(gtk.Window):
     def on_configure(self, *_):
         window_x, window_y = self.get_position()
         window_width, window_height = self.get_size()
+
         mask = gtk.gdk.Pixmap(None, window_width, window_height, 1)
+        gc = gtk.gdk.GC(mask)
+        gc.set_foreground(gtk.gdk.Color(pixel=0))
+        mask.draw_rectangle(gc, True, 0, 0, window_width, window_height)
         self.input_shape_combine_mask(mask, 0, 0)
 
         # set some proportional inner padding
