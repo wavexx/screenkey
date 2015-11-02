@@ -1,6 +1,15 @@
 screenkey 0.8
 -------------
 
+- Fix Alt+Shift mapping on stock altgr-intl keyboard layouts.
+- Correctly stay above fullscreen windows.
+- Do not mask pointer/keyboard events: allow the mouse to be used normally
+  "under" the output window.
+- Improved interactive positioning (slop is required).
+- Allow KeySyms to be ignored (added ``--ignore`` on the command line), for
+  better interaction with custom keyboard maps.
+
+
 screenkey 0.7
 -------------
 

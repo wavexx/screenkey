@@ -37,6 +37,7 @@ Dependencies:
 - PyGTK
 - setuptools (build only)
 - DistUtils-Extra (build only)
+- slop (https://github.com/naelstrof/slop)
 
 Install dependencies (on Debian/Ubuntu)::
 
@@ -60,17 +61,19 @@ Persistent window:
   activity. Mostly useful for interactive window placement and/or "fixed"
   positioning.
 
-Font:
-  Font used for the output window. A scalable font and wide Unicode coverage is
-  required (the DejaVu family is *highly* recommended).
-
 Screen:
   Physical screen/monitor used for the output window.
 
 Position:
-  Position of the output window. If "fixed" is chosen, the output window's
-  position and size can be either specified on the command line or changed
-  interactively (see `Interactive placement`_).
+  Position of the output window. The position is normally relative to the
+  chosen screen. If a window has been selected with "Select window/region", the
+  position becomes relative to the window. If "fixed" is chosen, the output
+  window's position and size are specified explicitly. See `Interactive
+  placement`_ for more details.
+
+Font:
+  Font used for the output window. A scalable font and wide Unicode coverage is
+  required (the DejaVu family is *highly* recommended).
 
 Size:
   Size of the font used in the output window. Chooses proportionally between
@@ -147,23 +150,18 @@ little longer.
 Interactive placement
 ~~~~~~~~~~~~~~~~~~~~~
 
-screenkey in "fixed" positioning mode allows its window to be resized and
-placed as you see fit. You can provide the geometry on the command line, but
-you can also move and resize it dynamically.
+screenkey is normally positioned on the top/center/bottom part of the screen.
 
-To perform this task, toggle "Persistent window" first so that the window
-no longer disappears, then select "Fixed" from the position drop-down.
+If you're recording a screencast only for a specific application, you can click
+on "Select window/region" to select on which window the output should be
+overlaid (slop_ must be installed for this task). When a window has been
+selected, top/center/bottom refer to the window's contents. Press "Reset" to
+restore the original behavior.
 
-Since the window has no borders, the actual resizing method depends on the
-window manager and might vary a bit. Most window managers allow to resize any
-window by holding down the Alt (or Win) key and dragging with the third mouse
-button next to the corner of a window.
-
-Move the mouse next to the corner that you want to resize, hold down Alt, hold
-down the third (right) mouse button and drag in the direction you want.
-
-After the window has been resized, toggle again "Persistent window" to restore
-the original behavior.
+When "fixed" is chosen, the position of the output is specified *directly*. The
+cursor turns immediately into a crossbar: drag over the desired screen region
+(where the text should appear), or press "Esc" to abort. Again, press "Reset"
+to restore the original behavior.
 
 
 Command-line placement
