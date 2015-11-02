@@ -9,8 +9,9 @@ from . import APP_NAME, APP_DESC, APP_URL, VERSION
 from .labelmanager import LabelManager
 
 from threading import Timer
-import os
 import json
+import os
+import subprocess
 
 import pygtk
 pygtk.require('2.0')
@@ -214,11 +215,6 @@ class Screenkey(gtk.Window):
         mask = gtk.gdk.Pixmap(None, window_width, window_height, 1)
         self.input_shape_combine_mask(mask, 0, 0)
 
-        if self.options.position == 'fixed':
-            # update internal geometry in order to handle user resizes
-            self.options.geometry = [window_x, window_y, window_width, window_height]
-            self.btn_reset_geom.set_sensitive(True)
-
         # set some proportional inner padding
         self.label.set_padding(window_width // 100, 0)
 
@@ -388,6 +384,8 @@ class Screenkey(gtk.Window):
         def on_cbox_position_changed(widget, data=None):
             index = widget.get_active()
             self.options.position = POSITIONS.keys()[index]
+            if self.options.position == 'fixed':
+                on_btn_sel_geom(widget)
             self.update_geometry()
             self.logger.debug("Window position changed: %s." % self.options.position)
 
@@ -404,8 +402,32 @@ class Screenkey(gtk.Window):
                 self.on_label_change(self.label.get_text())
             self.logger.debug("Persistent changed: %s." % self.options.persist)
 
+        def on_btn_sel_geom(widget, data=None):
+            try:
+                ret = subprocess.check_output(['slop', '-f', '%x %y %w %h'])
+            except subprocess.CalledProcessError:
+                return
+            except OSError:
+                msg = gtk.MessageDialog(parent=self,
+                                        type=gtk.MESSAGE_ERROR,
+                                        buttons=gtk.BUTTONS_OK,
+                                        message_format="Error running \"slop\"")
+                msg.format_secondary_markup("\"slop\" is required for interactive selection. "
+                                            "See <a href=\"https://github.com/naelstrof/slop\">"
+                                            "https://github.com/naelstrof/slop</a>")
+                msg.run()
+                msg.destroy()
+                return
+
+            self.options.geometry = map(int, ret.split(' '))
+            self.update_geometry()
+            self.btn_reset_geom.set_sensitive(True)
+
         def on_btn_reset_geom(widget, data=None):
             self.options.geometry = None
+            if self.options.position == 'fixed':
+                self.options.position = 'bottom'
+                self.cbox_positions.set_active(POSITIONS.keys().index(self.options.position))
             self.update_geometry()
             widget.set_sensitive(False)
 
@@ -458,22 +480,11 @@ class Screenkey(gtk.Window):
         frm_time.add(vbox_time)
         frm_time.show_all()
 
-        frm_aspect = gtk.Frame("<b>%s</b>" % _("Aspect"))
-        frm_aspect.set_border_width(4)
-        frm_aspect.get_label_widget().set_use_markup(True)
-        frm_aspect.set_shadow_type(gtk.SHADOW_NONE)
-        vbox_aspect = gtk.VBox(spacing=6)
-
-        hbox0_font = gtk.HBox()
-        lbl_font = gtk.Label(_("Font"))
-        btn_font = gtk.FontButton(self.options.font_desc)
-        btn_font.set_use_size(False)
-        btn_font.set_show_size(False)
-        btn_font.connect("font-set", on_btn_font)
-        hbox0_font.pack_start(lbl_font, expand=False, fill=False, padding=6)
-        hbox0_font.pack_start(btn_font, expand=False, fill=False, padding=4)
-
-        hbox0_aspect = gtk.HBox()
+        frm_position = gtk.Frame("<b>%s</b>" % _("Position"))
+        frm_position.set_border_width(4)
+        frm_position.get_label_widget().set_use_markup(True)
+        frm_position.set_shadow_type(gtk.SHADOW_NONE)
+        vbox_position = gtk.VBox(spacing=6)
 
         lbl_screen = gtk.Label(_("Screen"))
         cbox_screen = gtk.combo_box_new_text()
@@ -483,25 +494,49 @@ class Screenkey(gtk.Window):
         cbox_screen.set_active(self.monitor)
         cbox_screen.connect("changed", on_cbox_screen_changed)
 
-        hbox0_aspect.pack_start(lbl_screen, expand=False, fill=False, padding=6)
-        hbox0_aspect.pack_start(cbox_screen, expand=False, fill=False, padding=4)
-
-        hbox1_aspect = gtk.HBox()
+        hbox0_position = gtk.HBox()
+        hbox0_position.pack_start(lbl_screen, expand=False, fill=False, padding=6)
+        hbox0_position.pack_start(cbox_screen, expand=False, fill=False, padding=4)
+        vbox_position.pack_start(hbox0_position)
 
         lbl_positions = gtk.Label(_("Position"))
-        cbox_positions = gtk.combo_box_new_text()
+        self.cbox_positions = cbox_positions = gtk.combo_box_new_text()
         cbox_positions.set_name('position')
         for key, value in enumerate(POSITIONS):
             cbox_positions.insert_text(key, value)
         cbox_positions.set_active(POSITIONS.keys().index(self.options.position))
         cbox_positions.connect("changed", on_cbox_position_changed)
+
         self.btn_reset_geom = btn_reset_geom = gtk.Button(_("Reset"))
         btn_reset_geom.connect("clicked", on_btn_reset_geom)
         btn_reset_geom.set_sensitive(self.options.geometry is not None)
 
-        hbox1_aspect.pack_start(lbl_positions, expand=False, fill=False, padding=6)
-        hbox1_aspect.pack_start(cbox_positions, expand=False, fill=False, padding=4)
-        hbox1_aspect.pack_start(btn_reset_geom, expand=False, fill=False, padding=4)
+        hbox1_position = gtk.HBox()
+        hbox1_position.pack_start(lbl_positions, expand=False, fill=False, padding=6)
+        hbox1_position.pack_start(cbox_positions, expand=False, fill=False, padding=4)
+        hbox1_position.pack_start(btn_reset_geom, expand=False, fill=False, padding=4)
+        vbox_position.pack_start(hbox1_position)
+
+        btn_sel_geom = gtk.Button(_("Select window/region"))
+        btn_sel_geom.connect("clicked", on_btn_sel_geom)
+        vbox_position.pack_start(btn_sel_geom)
+
+        frm_aspect = gtk.Frame("<b>%s</b>" % _("Aspect"))
+        frm_aspect.set_border_width(4)
+        frm_aspect.get_label_widget().set_use_markup(True)
+        frm_aspect.set_shadow_type(gtk.SHADOW_NONE)
+        vbox_aspect = gtk.VBox(spacing=6)
+
+        frm_position.add(vbox_position)
+
+        hbox0_font = gtk.HBox()
+        lbl_font = gtk.Label(_("Font"))
+        btn_font = gtk.FontButton(self.options.font_desc)
+        btn_font.set_use_size(False)
+        btn_font.set_show_size(False)
+        btn_font.connect("font-set", on_btn_font)
+        hbox0_font.pack_start(lbl_font, expand=False, fill=False, padding=6)
+        hbox0_font.pack_start(btn_font, expand=False, fill=False, padding=4)
 
         hbox2_aspect = gtk.HBox()
 
@@ -545,8 +580,6 @@ class Screenkey(gtk.Window):
         hbox4_aspect.pack_start(adj_scale, expand=True, fill=True, padding=4)
 
         vbox_aspect.pack_start(hbox0_font)
-        vbox_aspect.pack_start(hbox0_aspect)
-        vbox_aspect.pack_start(hbox1_aspect)
         vbox_aspect.pack_start(hbox2_aspect)
         vbox_aspect.pack_start(hbox3_font_color)
         vbox_aspect.pack_start(hbox3_bg_color)
@@ -607,6 +640,7 @@ class Screenkey(gtk.Window):
         frm_kbd.add(vbox_kbd)
 
         vbox_main.pack_start(frm_time, False, False, 6)
+        vbox_main.pack_start(frm_position, False, False, 6)
         vbox_main.pack_start(frm_aspect, False, False, 6)
         vbox_main.pack_start(frm_kbd, False, False, 6)
         frm_main.add(vbox_main)
