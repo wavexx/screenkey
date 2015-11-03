@@ -387,9 +387,16 @@ class Screenkey(gtk.Window):
 
         def on_cbox_position_changed(widget, data=None):
             index = widget.get_active()
-            self.options.position = POSITIONS.keys()[index]
-            if self.options.position == 'fixed':
-                on_btn_sel_geom(widget)
+            new_position = POSITIONS.keys()[index]
+            if new_position == 'fixed':
+                new_geom = on_btn_sel_geom(widget)
+                if not new_geom:
+                    self.cbox_positions.set_active(POSITIONS.keys().index(self.options.position))
+                    return
+            elif self.options.position == 'fixed':
+                # automatically clear geometry
+                self.options.geometry = None
+            self.options.position = new_position
             self.update_geometry()
             self.logger.debug("Window position changed: %s." % self.options.position)
 
@@ -410,7 +417,7 @@ class Screenkey(gtk.Window):
             try:
                 ret = subprocess.check_output(['slop', '-f', '%x %y %w %h'])
             except subprocess.CalledProcessError:
-                return
+                return False
             except OSError:
                 msg = gtk.MessageDialog(parent=self,
                                         type=gtk.MESSAGE_ERROR,
@@ -421,11 +428,12 @@ class Screenkey(gtk.Window):
                                             "https://github.com/naelstrof/slop</a>")
                 msg.run()
                 msg.destroy()
-                return
+                return False
 
             self.options.geometry = map(int, ret.split(' '))
             self.update_geometry()
             self.btn_reset_geom.set_sensitive(True)
+            return True
 
         def on_btn_reset_geom(widget, data=None):
             self.options.geometry = None
