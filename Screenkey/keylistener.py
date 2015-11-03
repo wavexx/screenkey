@@ -278,7 +278,8 @@ class KeyListener(threading.Thread):
                    ev.xclient.message_type == self.custom_atom:
                     if ev.xclient.data[0] in [xlib.FocusIn, xlib.FocusOut]:
                         # We do not keep track of multiple XICs, just reset
-                        xlib.XFree(xlib.Xutf8ResetIC(self.replay_xic))
+                        xic = xlib.Xutf8ResetIC(self.replay_xic)
+                        if xic is not None: xlib.XFree(xic)
                     continue
                 elif ev.type in [xlib.KeyPress, xlib.KeyRelease]:
                     ev.xkey.send_event = False
