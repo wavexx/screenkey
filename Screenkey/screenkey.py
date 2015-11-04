@@ -568,18 +568,12 @@ class Screenkey(gtk.Window):
         lbl_font_color = gtk.Label(_("Font color"))
         btn_font_color = gtk.ColorButton(color=gtk.gdk.color_parse(self.options.font_color))
         btn_font_color.connect("color-set", on_font_color_changed)
-
-        hbox3_font_color.pack_start(lbl_font_color, expand=False, fill=False, padding=6)
-        hbox3_font_color.pack_start(btn_font_color, expand=False, fill=False, padding=4)
-
-        hbox3_bg_color = gtk.HBox()
-
-        lbl_bg_color = gtk.Label(_("Background color"))
         btn_bg_color = gtk.ColorButton(color=gtk.gdk.color_parse(self.options.bg_color))
         btn_bg_color.connect("color-set", on_bg_color_changed)
 
-        hbox3_bg_color.pack_start(lbl_bg_color, expand=False, fill=False, padding=6)
-        hbox3_bg_color.pack_start(btn_bg_color, expand=False, fill=False, padding=4)
+        hbox3_font_color.pack_start(lbl_font_color, expand=False, fill=False, padding=6)
+        hbox3_font_color.pack_start(btn_font_color, expand=False, fill=False, padding=4)
+        hbox3_font_color.pack_start(btn_bg_color, expand=False, fill=False, padding=4)
 
         hbox4_aspect = gtk.HBox()
 
@@ -594,7 +588,6 @@ class Screenkey(gtk.Window):
         vbox_aspect.pack_start(hbox0_font)
         vbox_aspect.pack_start(hbox2_aspect)
         vbox_aspect.pack_start(hbox3_font_color)
-        vbox_aspect.pack_start(hbox3_bg_color)
         vbox_aspect.pack_start(hbox4_aspect)
 
         frm_aspect.add(vbox_aspect)
