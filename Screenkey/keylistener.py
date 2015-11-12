@@ -241,6 +241,9 @@ class KeyListener(threading.Thread):
         # TODO: implement preedit callbacks for on-the-spot composition
         #       (this would fix focus-stealing for the global IM state)
         replay_xim = xlib.XOpenIM(self.replay_dpy, None, None, None)
+        if not replay_xim:
+            raise Exception("Cannot initialize input method")
+
         self.replay_xic = xlib.XCreateIC(replay_xim,
                                          xlib.XNClientWindow, self.replay_win,
                                          xlib.XNInputStyle, style,
