@@ -6,8 +6,7 @@
 
 from __future__ import print_function, unicode_literals
 
-from Screenkey import APP_NAME, APP_DESC, VERSION
-import Screenkey.screenkey as sc
+from Screenkey import *
 
 import logging
 import os
@@ -46,19 +45,19 @@ def main():
     ap.add_argument("--no-systray", action="store_true",
                     help=_("do not create system tray icon"))
     ap.add_argument("-t", "--timeout", type=float, help=_("timeout in seconds"))
-    ap.add_argument("-p", "--position", choices=sc.POSITIONS,
+    ap.add_argument("-p", "--position", choices=POSITIONS,
                     help=_("set vertical position"))
     ap.add_argument("--persist", action='store_true', default=None,
                     help=_("make window persistent"))
-    ap.add_argument("-s", "--font-size", choices=sc.FONT_SIZES,
+    ap.add_argument("-s", "--font-size", choices=FONT_SIZES,
                     help=_("set font size"))
     ap.add_argument("-g", "--geometry", type=geometry,
                     help=_("set fixed area/window geometry"))
-    ap.add_argument("--key-mode", choices=sc.KEY_MODES,
+    ap.add_argument("--key-mode", choices=KEY_MODES,
                     help=_("set key processing mode"))
-    ap.add_argument("--bak-mode", choices=sc.BAK_MODES,
+    ap.add_argument("--bak-mode", choices=BAK_MODES,
                     help=_("backspace processing mode"))
-    ap.add_argument("--mods-mode", choices=sc.MODS_MODES,
+    ap.add_argument("--mods-mode", choices=MODS_MODES,
                     help=_("modifiers visualization mode"))
     ap.add_argument("-m", "--mods-only", action="store_true", default=None,
                     help=_("show only keys with modifiers pressed"))
@@ -81,7 +80,7 @@ def main():
     args = ap.parse_args()
 
     # Set options
-    options = sc.Options()
+    options = Options()
     for arg in ['timeout', 'position', 'persist', 'font_desc', 'font_color', 'bg_color',
                 'font_size', 'geometry', 'key_mode', 'bak_mode', 'mods_mode', 'mods_only',
                 'vis_shift', 'screen', 'no_systray', 'opacity', 'ignore']:
@@ -99,6 +98,7 @@ def main():
     if args.no_detach == False:
         detach()
 
+    import Screenkey.screenkey as sc
     sc.Screenkey(logger=logger, options=options, show_settings=args.show_settings)
     try:
         sc.run()

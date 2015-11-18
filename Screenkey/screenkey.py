@@ -5,7 +5,7 @@
 
 from __future__ import print_function, unicode_literals, division
 
-from . import APP_NAME, APP_DESC, APP_URL, VERSION
+from . import *
 from .labelmanager import LabelManager
 
 from threading import Timer
@@ -13,53 +13,14 @@ import json
 import os
 import subprocess
 
+import glib
+glib.threads_init()
+
 import pygtk
 pygtk.require('2.0')
 
 import gtk
-import glib
 import pango
-
-
-POSITIONS = {
-    'top': _('Top'),
-    'center': _('Center'),
-    'bottom': _('Bottom'),
-    'fixed': _('Fixed'),
-}
-
-FONT_SIZES = {
-    'large': _('Large'),
-    'medium': _('Medium'),
-    'small': _('Small'),
-}
-
-KEY_MODES = {
-    'composed': _('Composed'),
-    'translated': _('Translated'),
-    'keysyms': _('Keysyms'),
-    'raw': _('Raw'),
-}
-
-BAK_MODES = {
-    'normal': _('Normal'),
-    'baked': _('Baked'),
-    'full': _('Full'),
-}
-
-MODS_MODES = {
-    'normal': _('Normal'),
-    'emacs': _('Emacs'),
-    'mac': _('Mac'),
-}
-
-
-class Options(dict):
-    def __getattr__(self, k):
-        return self[k]
-
-    def __setattr__(self, k, v):
-        self[k] = v
 
 
 class Screenkey(gtk.Window):
@@ -730,5 +691,4 @@ class Screenkey(gtk.Window):
 
 
 def run():
-    glib.threads_init()
     gtk.main()
