@@ -1,3 +1,10 @@
+screenkey 0.8.1
+---------------
+
+- Fixed startup issue in Ubuntu without using ``--no-detach``.
+- Fixed desktop menu file.
+
+
 screenkey 0.8
 -------------
 
