@@ -200,14 +200,19 @@ I/l, etc).
 Tiling window managers
 ~~~~~~~~~~~~~~~~~~~~~~
 
-"screenkey" should work correctly by default with tiling window managers.
+"screenkey" should work correctly by default with any tiling window manager.
 
-If you don't have a system tray, you can either configure it through command
-line flags or use ``--show-settings`` to test the configuration interactively.
+The original version of screenkey used to require customization for the output
+window to work/float correctly. These settings are *no longer required* with
+this fork, and can be safely removed.
+
+If you don't have a system tray, you can either configure screenkey through
+command line flags or use ``--show-settings`` to test the configuration
+interactively.
 
 To get transparency you need a compositor to be running. For example, "compton"
-or "unagi" are popular for their low impact on performance, but "xcompmgr"
-also works correctly without any additional configuration.
+or "unagi" are popular for their low impact on performance, but "xcompmgr" also
+works correctly without any additional configuration.
 
 
 Related tools
