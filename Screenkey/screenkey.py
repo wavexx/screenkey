@@ -48,6 +48,7 @@ class Screenkey(gtk.Window):
                             'bak_mode': 'baked',
                             'mods_mode': 'normal',
                             'mods_only': False,
+                            'multiline': False,
                             'vis_shift': False,
                             'geometry': None,
                             'screen': 0})
@@ -72,6 +73,7 @@ class Screenkey(gtk.Window):
         self.label = gtk.Label()
         self.label.set_attributes(pango.AttrList())
         self.label.set_ellipsize(pango.ELLIPSIZE_START)
+        self.label.set_justify(gtk.JUSTIFY_CENTER)
         self.label.show()
         self.add(self.label)
 
@@ -151,16 +153,18 @@ class Screenkey(gtk.Window):
         self.set_active_monitor(self.monitor)
 
 
-    def override_font_attributes(self, attr):
+    def override_font_attributes(self, attr, text):
         window_width, window_height = self.get_size()
-        attr.insert(pango.AttrSizeAbsolute((50 * window_height // 100) * 1000, 0, -1))
+        lines = text.count('\n') + 1
+        attr.insert(pango.AttrSizeAbsolute((50 * window_height // lines // 100) * 1000, 0, -1))
         attr.insert(pango.AttrFamily(self.font.get_family(), 0, -1))
         attr.insert(pango.AttrWeight(self.font.get_weight(), 0, -1))
 
 
     def update_label(self):
         attr = self.label.get_attributes()
-        self.override_font_attributes(attr)
+        text = self.label.get_text()
+        self.override_font_attributes(attr, text)
         self.label.set_attributes(attr)
 
 
@@ -229,7 +233,7 @@ class Screenkey(gtk.Window):
 
     def on_label_change(self, markup):
         attr, text, _ = pango.parse_markup(markup)
-        self.override_font_attributes(attr)
+        self.override_font_attributes(attr, text)
         self.label.set_text(text)
         self.label.set_attributes(attr)
 
@@ -268,6 +272,7 @@ class Screenkey(gtk.Window):
                                       bak_mode=self.options.bak_mode,
                                       mods_mode=self.options.mods_mode,
                                       mods_only=self.options.mods_only,
+                                      multiline=self.options.multiline,
                                       vis_shift=self.options.vis_shift,
                                       recent_thr=self.options.recent_thr,
                                       ignore=self.options.ignore)

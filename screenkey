@@ -61,6 +61,8 @@ def main():
                     help=_("modifiers visualization mode"))
     ap.add_argument("-m", "--mods-only", action="store_true", default=None,
                     help=_("show only keys with modifiers pressed"))
+    ap.add_argument("--multiline", action="store_true", default=None,
+                    help=_("span text over multiple lines"))
     ap.add_argument("--vis-shift", action="store_true", default=None,
                     help=_("always show Shift when modifiers are pressed"))
     ap.add_argument("--show-settings", action="store_true",
@@ -83,7 +85,7 @@ def main():
     options = Options()
     for arg in ['timeout', 'position', 'persist', 'font_desc', 'font_color', 'bg_color',
                 'font_size', 'geometry', 'key_mode', 'bak_mode', 'mods_mode', 'mods_only',
-                'vis_shift', 'screen', 'no_systray', 'opacity', 'ignore']:
+                'multiline', 'vis_shift', 'screen', 'no_systray', 'opacity', 'ignore']:
         if getattr(args, arg) is not None:
             options[arg] = getattr(args, arg)
 

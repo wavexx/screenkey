@@ -101,7 +101,7 @@ def keysym_to_mod(keysym):
 
 class LabelManager(object):
     def __init__(self, listener, logger, key_mode, bak_mode, mods_mode, mods_only,
-                 vis_shift, recent_thr, ignore):
+                 multiline, vis_shift, recent_thr, ignore):
         self.key_mode = key_mode
         self.bak_mode = bak_mode
         self.mods_mode = mods_mode
@@ -111,6 +111,7 @@ class LabelManager(object):
         self.data = []
         self.enabled = True
         self.mods_only = mods_only
+        self.multiline = multiline
         self.vis_shift = vis_shift
         self.recent_thr = recent_thr
         self.ignore = ignore
@@ -147,8 +148,11 @@ class LabelManager(object):
         recent = False
         for i, key in enumerate(self.data):
             if i != 0:
+                # character block spacing
                 last = self.data[i - 1]
-                if len(key.repl) > 1 or len(last.repl) > 1:
+                if last.repl[-1] == '\n':
+                    pass
+                elif len(key.repl.rstrip('\n')) > 1 or len(last.repl) > 1:
                     markup += ' '
                 elif key.bk_stop or last.bk_stop:
                     markup += '<span font_family="sans">\u2009</span>'
@@ -250,6 +254,10 @@ class LabelManager(object):
                          self.mods_mode != 'emacs')):
             # add back shift for translated keys
             mod = mod + REPLACE_MODS['shift'][self.mods_index]
+
+        # Return
+        if event.symbol == 'Return' and self.multiline == True:
+            key_repl = KeyRepl(key_repl.bk_stop, key_repl.silent, key_repl.repl + '\n')
 
         if mod == '':
             if not self.mods_only:
