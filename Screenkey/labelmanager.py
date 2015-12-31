@@ -167,6 +167,7 @@ class LabelManager(object):
                 markup += '\u180e' + key.repl + '\u200a'
             else:
                 markup += '\u200c' + glib.markup_escape_text(key.repl)
+        markup = markup.rstrip('\n')
         if recent:
             markup += '</u>'
         self.logger.debug("Label updated: %s." % repr(markup))
