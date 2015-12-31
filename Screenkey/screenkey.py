@@ -50,6 +50,7 @@ class Screenkey(gtk.Window):
                             'mods_only': False,
                             'multiline': False,
                             'vis_shift': False,
+                            'vis_space': True,
                             'geometry': None,
                             'screen': 0})
         self.options = self.load_state()
@@ -274,6 +275,7 @@ class Screenkey(gtk.Window):
                                       mods_only=self.options.mods_only,
                                       multiline=self.options.multiline,
                                       vis_shift=self.options.vis_shift,
+                                      vis_space=self.options.vis_space,
                                       recent_thr=self.options.recent_thr,
                                       ignore=self.options.ignore)
         self.labelmngr.start()

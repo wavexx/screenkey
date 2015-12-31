@@ -67,6 +67,8 @@ REPLACE_KEYS = {
     'Multi_key':    KeyRepl(False, True,  _('Compose')),
 }
 
+WHITESPACE_CHARS = set(['Tab', 'Return', 'space', 'KP_Enter'])
+
 MODS_MAP = {
     'normal': 0,
     'emacs': 1,
@@ -101,7 +103,7 @@ def keysym_to_mod(keysym):
 
 class LabelManager(object):
     def __init__(self, listener, logger, key_mode, bak_mode, mods_mode, mods_only,
-                 multiline, vis_shift, recent_thr, ignore):
+                 multiline, vis_shift, vis_space, recent_thr, ignore):
         self.key_mode = key_mode
         self.bak_mode = bak_mode
         self.mods_mode = mods_mode
@@ -113,6 +115,7 @@ class LabelManager(object):
         self.mods_only = mods_only
         self.multiline = multiline
         self.vis_shift = vis_shift
+        self.vis_space = vis_space
         self.recent_thr = recent_thr
         self.ignore = ignore
         self.kl = None
@@ -255,7 +258,11 @@ class LabelManager(object):
             # add back shift for translated keys
             mod = mod + REPLACE_MODS['shift'][self.mods_index]
 
-        # Return
+        # Whitespace handling
+        if not self.vis_space and mod == '' and event.symbol in WHITESPACE_CHARS:
+            key_repl = KeyRepl(key_repl.bk_stop, key_repl.silent, ' ')
+
+        # Multiline
         if event.symbol == 'Return' and self.multiline == True:
             key_repl = KeyRepl(key_repl.bk_stop, key_repl.silent, key_repl.repl + '\n')
 
