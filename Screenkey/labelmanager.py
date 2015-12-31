@@ -270,11 +270,14 @@ class LabelManager(object):
 
                 self.data.append(KeyData(datetime.now(), False, key_repl.bk_stop,
                                          key_repl.silent, repl))
+                return True
         else:
             repl = mod + key_repl.repl
             self.data.append(KeyData(datetime.now(), True, key_repl.bk_stop,
                                      key_repl.silent, repl))
-        return True
+            return True
+
+        return False
 
 
     def key_raw_mode(self, event):
