@@ -179,7 +179,7 @@ class LabelManager(object):
             self.logger.debug("Key released {:5}(ks): {}".format(event.keysym, event.symbol))
             return
         if event.symbol in self.ignore:
-            self.logger.debug("Key ignored {:5}(ks): {}".format(event.keysym, event.symbol))
+            self.logger.debug("Key ignored  {:5}(ks): {}".format(event.keysym, event.symbol))
             return
         if event.filtered:
             self.logger.debug("Key filtered {:5}(ks): {}".format(event.keysym, event.symbol))
