@@ -190,8 +190,8 @@ class LabelManager(object):
                               (state, event.keysym, string, event.symbol, event.mods_mask))
 
         # Enable/disable handling
-        if not event.filtered and not event.repeated and \
-           event.modifiers['ctrl'] and event.symbol in MODS_SYMS['ctrl']:
+        if not event.repeated and event.modifiers['ctrl'] \
+           and event.symbol in MODS_SYMS['ctrl']:
             self.enabled = not self.enabled
             self.logger.info("Ctrl+Ctrl detected: screenkey %s." %
                              ('enabled' if self.enabled else 'disabled'))
