@@ -14,7 +14,7 @@ from datetime import datetime
 KeyRepl = namedtuple('KeyRepl', ['bk_stop', 'silent', 'repl'])
 KeyData = namedtuple('KeyData', ['stamp', 'is_ctrl', 'bk_stop', 'silent', 'repl'])
 
-REPLACE_KEYS = {
+REPLACE_SYMS = {
     'Escape':       KeyRepl(True,  True,  _('Esc')),
     'Tab':          KeyRepl(True,  False, _('↹')),
     'Return':       KeyRepl(True,  False, _('⏎')),
@@ -67,7 +67,7 @@ REPLACE_KEYS = {
     'Multi_key':    KeyRepl(False, True,  _('Compose')),
 }
 
-WHITESPACE_CHARS = set(['Tab', 'Return', 'space', 'KP_Enter'])
+WHITESPACE_SYMS = set(['Tab', 'Return', 'space', 'KP_Enter'])
 
 MODS_MAP = {
     'normal': 0,
@@ -222,7 +222,7 @@ class LabelManager(object):
 
         # Backspace handling
         if event.symbol == 'BackSpace' and mod == '' and not self.mods_only:
-            key_repl = REPLACE_KEYS.get(event.symbol)
+            key_repl = REPLACE_SYMS.get(event.symbol)
             if self.bak_mode == 'normal':
                 self.data.append(KeyData(datetime.now(), False, *key_repl))
                 return True
@@ -244,7 +244,7 @@ class LabelManager(object):
                 return True
 
         # Regular keys
-        key_repl = REPLACE_KEYS.get(event.symbol)
+        key_repl = REPLACE_SYMS.get(event.symbol)
         replaced = key_repl is not None
         if key_repl is None:
             if keysym_to_mod(event.symbol):
@@ -261,7 +261,7 @@ class LabelManager(object):
             mod = mod + REPLACE_MODS['shift'][self.mods_index]
 
         # Whitespace handling
-        if not self.vis_space and mod == '' and event.symbol in WHITESPACE_CHARS:
+        if not self.vis_space and mod == '' and event.symbol in WHITESPACE_SYMS:
             key_repl = KeyRepl(key_repl.bk_stop, key_repl.silent, ' ')
 
         # Multiline
@@ -297,7 +297,7 @@ class LabelManager(object):
                 mod = mod + REPLACE_MODS[cap][self.mods_index]
 
         # keycaps
-        key_repl = REPLACE_KEYS.get(event.symbol)
+        key_repl = REPLACE_SYMS.get(event.symbol)
         if key_repl is None:
             if keysym_to_mod(event.symbol):
                 return False
@@ -323,7 +323,7 @@ class LabelManager(object):
 
 
     def key_keysyms_mode(self, event):
-        if event.symbol in REPLACE_KEYS:
+        if event.symbol in REPLACE_SYMS:
             value = event.symbol
         else:
             value = event.string or event.symbol
