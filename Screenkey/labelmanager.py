@@ -221,7 +221,8 @@ class LabelManager(object):
                 mod = mod + REPLACE_MODS[cap][self.mods_index]
 
         # Backspace handling
-        if event.symbol == 'BackSpace' and mod == '' and not self.mods_only:
+        if event.symbol == 'BackSpace' and not self.mods_only and \
+           mod == '' and not event.modifiers['shift']:
             key_repl = REPLACE_SYMS.get(event.symbol)
             if self.bak_mode == 'normal':
                 self.data.append(KeyData(datetime.now(), False, *key_repl))
