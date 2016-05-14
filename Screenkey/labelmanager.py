@@ -11,6 +11,14 @@ import glib
 from collections import namedtuple
 from datetime import datetime
 
+# Key replacement data:
+#
+# bk_stop: stops backspace processing in baked mode, but not full mode
+#          these keys are also automatically padded with a thin space
+# silent:  always stops backspace processing (baked/full mode)
+#          these keys generally do not emit output in the text and cannot be processed
+# spaced:  strong spacing is required around the symbol
+
 ReplData = namedtuple('ReplData', ['value', 'font'])
 KeyRepl  = namedtuple('KeyRepl',  ['bk_stop', 'silent', 'spaced', 'repl'])
 KeyData  = namedtuple('KeyData',  ['stamp', 'is_ctrl', 'bk_stop', 'silent', 'spaced', 'markup'])
