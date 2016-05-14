@@ -149,6 +149,7 @@ class LabelManager(object):
     def update_text(self):
         markup = ""
         recent = False
+        stamp = datetime.now()
         for i, key in enumerate(self.data):
             if i != 0:
                 # character block spacing
@@ -159,14 +160,15 @@ class LabelManager(object):
                     markup += ' '
                 elif key.bk_stop or last.bk_stop:
                     markup += '<span font_family="sans">\u2009</span>'
-            if not recent and (datetime.now() - key.stamp).total_seconds() < self.recent_thr:
+            key_markup = glib.markup_escape_text(key.repl)
+            if not recent and (stamp - key.stamp).total_seconds() < self.recent_thr:
                 recent = True
-                markup += '<u>'
-            if len(key.repl) == 1 and 0x0300 <= ord(key.repl) <= 0x036F:
+                key_markup = '<u>' + key_markup
+            if len(key.markup) == 1 and 0x0300 <= ord(key.markup) <= 0x036F:
                 # workaround for pango not handling ZWNJ correctly for combining marks
-                markup += '\u180e' + key.repl + '\u200a'
+                markup += '\u180e' + key_markup + '\u200a'
             else:
-                markup += '\u200c' + glib.markup_escape_text(key.repl)
+                markup += '\u200c' + key_markup
         markup = markup.rstrip('\n')
         if recent:
             markup += '</u>'
