@@ -11,60 +11,73 @@ import glib
 from collections import namedtuple
 from datetime import datetime
 
-KeyRepl = namedtuple('KeyRepl', ['bk_stop', 'silent', 'repl'])
-KeyData = namedtuple('KeyData', ['stamp', 'is_ctrl', 'bk_stop', 'silent', 'repl'])
+ReplData = namedtuple('ReplData', ['value', 'font'])
+KeyRepl  = namedtuple('KeyRepl',  ['bk_stop', 'silent', 'spaced', 'repl'])
+KeyData  = namedtuple('KeyData',  ['stamp', 'is_ctrl', 'bk_stop', 'silent', 'spaced', 'markup'])
 
 REPLACE_SYMS = {
-    'Escape':       KeyRepl(True,  True,  _('Esc')),
-    'Tab':          KeyRepl(True,  False, _('↹')),
-    'Return':       KeyRepl(True,  False, _('⏎')),
-    'space':        KeyRepl(False, False, _('␣')),
-    'BackSpace':    KeyRepl(True,  True,  _('⌫')),
-    'Caps_Lock':    KeyRepl(True,  True,  _('Caps')),
-    'F1':           KeyRepl(True,  True,  _('F1')),
-    'F2':           KeyRepl(True,  True,  _('F2')),
-    'F3':           KeyRepl(True,  True,  _('F3')),
-    'F4':           KeyRepl(True,  True,  _('F4')),
-    'F5':           KeyRepl(True,  True,  _('F5')),
-    'F6':           KeyRepl(True,  True,  _('F6')),
-    'F7':           KeyRepl(True,  True,  _('F7')),
-    'F8':           KeyRepl(True,  True,  _('F8')),
-    'F9':           KeyRepl(True,  True,  _('F9')),
-    'F10':          KeyRepl(True,  True,  _('F10')),
-    'F11':          KeyRepl(True,  True,  _('F11')),
-    'F12':          KeyRepl(True,  True,  _('F12')),
-    'Home':         KeyRepl(True,  True,  _('Home')),
-    'Up':           KeyRepl(True,  True,  _('↑')),
-    'Prior':        KeyRepl(True,  True,  _('PgUp')),
-    'Next':         KeyRepl(True,  True,  _('PgDn')),
-    'Left':         KeyRepl(True,  True,  _('←')),
-    'Right':        KeyRepl(True,  True,  _('→')),
-    'End':          KeyRepl(True,  True,  _('End')),
-    'Down':         KeyRepl(True,  True,  _('↓')),
-    'Insert':       KeyRepl(False, True,  _('Ins')),
-    'Delete':       KeyRepl(True,  False, _('Del')),
-    'KP_End':       KeyRepl(False, False, _('(1)')),
-    'KP_Down':      KeyRepl(False, False, _('(2)')),
-    'KP_Next':      KeyRepl(False, False, _('(3)')),
-    'KP_Left':      KeyRepl(False, False, _('(4)')),
-    'KP_Begin':     KeyRepl(False, False, _('(5)')),
-    'KP_Right':     KeyRepl(False, False, _('(6)')),
-    'KP_Home':      KeyRepl(False, False, _('(7)')),
-    'KP_Up':        KeyRepl(False, False, _('(8)')),
-    'KP_Prior':     KeyRepl(False, False, _('(9)')),
-    'KP_Insert':    KeyRepl(False, False, _('(0)')),
-    'KP_Delete':    KeyRepl(False, False, _('(.)')),
-    'KP_Add':       KeyRepl(False, False, _('(+)')),
-    'KP_Subtract':  KeyRepl(False, False, _('(-)')),
-    'KP_Multiply':  KeyRepl(False, False, _('(*)')),
-    'KP_Divide':    KeyRepl(False, False, _('(/)')),
-    'KP_Enter':     KeyRepl(True,  False, _('⏎')),
-    'Num_Lock':     KeyRepl(False, True,  _('NumLck')),
-    'Scroll_Lock':  KeyRepl(False, True,  _('ScrLck')),
-    'Pause':        KeyRepl(False, True,  _('Pause')),
-    'Break':        KeyRepl(False, True,  _('Break')),
-    'Print':        KeyRepl(False, True,  _('Print')),
-    'Multi_key':    KeyRepl(False, True,  _('Compose')),
+    # Regular keys
+    'Escape':       KeyRepl(True,  True,  True,  _('Esc')),
+    'Tab':          KeyRepl(True,  False, False, _('↹')),
+    'Return':       KeyRepl(True,  False, False, _('⏎')),
+    'space':        KeyRepl(False, False, False, _('␣')),
+    'BackSpace':    KeyRepl(True,  True,  False, _('⌫')),
+    'Caps_Lock':    KeyRepl(True,  True,  True,  _('Caps')),
+    'F1':           KeyRepl(True,  True,  True,  _('F1')),
+    'F2':           KeyRepl(True,  True,  True,  _('F2')),
+    'F3':           KeyRepl(True,  True,  True,  _('F3')),
+    'F4':           KeyRepl(True,  True,  True,  _('F4')),
+    'F5':           KeyRepl(True,  True,  True,  _('F5')),
+    'F6':           KeyRepl(True,  True,  True,  _('F6')),
+    'F7':           KeyRepl(True,  True,  True,  _('F7')),
+    'F8':           KeyRepl(True,  True,  True,  _('F8')),
+    'F9':           KeyRepl(True,  True,  True,  _('F9')),
+    'F10':          KeyRepl(True,  True,  True,  _('F10')),
+    'F11':          KeyRepl(True,  True,  True,  _('F11')),
+    'F12':          KeyRepl(True,  True,  True,  _('F12')),
+    'Up':           KeyRepl(True,  True,  False, _('↑')),
+    'Left':         KeyRepl(True,  True,  False, _('←')),
+    'Right':        KeyRepl(True,  True,  False, _('→')),
+    'Down':         KeyRepl(True,  True,  False, _('↓')),
+    'Prior':        KeyRepl(True,  True,  True,  _('PgUp')),
+    'Next':         KeyRepl(True,  True,  True,  _('PgDn')),
+    'Home':         KeyRepl(True,  True,  True,  _('Home')),
+    'End':          KeyRepl(True,  True,  True,  _('End')),
+    'Insert':       KeyRepl(False, True,  True,  _('Ins')),
+    'Delete':       KeyRepl(True,  False, True,  _('Del')),
+    'KP_End':       KeyRepl(False, False, True,  _('(1)')),
+    'KP_Down':      KeyRepl(False, False, True,  _('(2)')),
+    'KP_Next':      KeyRepl(False, False, True,  _('(3)')),
+    'KP_Left':      KeyRepl(False, False, True,  _('(4)')),
+    'KP_Begin':     KeyRepl(False, False, True,  _('(5)')),
+    'KP_Right':     KeyRepl(False, False, True,  _('(6)')),
+    'KP_Home':      KeyRepl(False, False, True,  _('(7)')),
+    'KP_Up':        KeyRepl(False, False, True,  _('(8)')),
+    'KP_Prior':     KeyRepl(False, False, True,  _('(9)')),
+    'KP_Insert':    KeyRepl(False, False, True,  _('(0)')),
+    'KP_Delete':    KeyRepl(False, False, True,  _('(.)')),
+    'KP_Add':       KeyRepl(False, False, True,  _('(+)')),
+    'KP_Subtract':  KeyRepl(False, False, True,  _('(-)')),
+    'KP_Multiply':  KeyRepl(False, False, True,  _('(*)')),
+    'KP_Divide':    KeyRepl(False, False, True,  _('(/)')),
+    'KP_Enter':     KeyRepl(True,  False, False, _('⏎')),
+    'Num_Lock':     KeyRepl(False, True,  True,  _('NumLck')),
+    'Scroll_Lock':  KeyRepl(False, True,  True,  _('ScrLck')),
+    'Pause':        KeyRepl(False, True,  True,  _('Pause')),
+    'Break':        KeyRepl(False, True,  True,  _('Break')),
+    'Print':        KeyRepl(False, True,  True,  _('Print')),
+    'Multi_key':    KeyRepl(False, True,  True,  _('Compose')),
+
+    # Multimedia keys
+    'XF86AudioMute':         KeyRepl(True, True, True, [ReplData(_('\uf026'), 'FontAwesome')]),
+    'XF86AudioMicMute':      KeyRepl(True, True, True, [ReplData(_('\uf131'), 'FontAwesome')]),
+    'XF86AudioRaiseVolume':  KeyRepl(True, True, True, [ReplData(_('\uf028'), 'FontAwesome')]),
+    'XF86AudioLowerVolume':  KeyRepl(True, True, True, [ReplData(_('\uf027'), 'FontAwesome')]),
+    'XF86MonBrightnessDown': KeyRepl(True, True, True, [ReplData(_('\uf186'), 'FontAwesome')]),
+    'XF86MonBrightnessUp':   KeyRepl(True, True, True, [ReplData(_('\uf185'), 'FontAwesome')]),
+    'XF86Display':           KeyRepl(True, True, True, [ReplData(_('\uf108'), 'FontAwesome')]),
+    'XF86WLAN':              KeyRepl(True, True, True, [ReplData(_('\uf1eb'), 'FontAwesome')]),
+    'XF86Search':            KeyRepl(True, True, True, [ReplData(_('\uf002'), 'FontAwesome')]),
 }
 
 WHITESPACE_SYMS = set(['Tab', 'Return', 'space', 'KP_Enter'])
@@ -119,6 +132,7 @@ class LabelManager(object):
         self.recent_thr = recent_thr
         self.ignore = ignore
         self.kl = None
+        self.update_replacement_map()
 
 
     def __del__(self):
@@ -146,6 +160,26 @@ class LabelManager(object):
         self.data = []
 
 
+    def get_repl_markup(self, repl):
+        if type(repl) != list:
+            repl = [repl]
+        for c in repl:
+            if type(c) != ReplData:
+                return glib.markup_escape_text(c)
+            # TODO: handle font fallback
+            if c.font is None:
+                return glib.markup_escape_text(c.value)
+            else:
+                return '<span font_family="' + c.font + '">' + \
+                    glib.markup_escape_text(c.value) + '</span>'
+
+    def update_replacement_map(self):
+        self.replace_syms = {}
+        for k, v in REPLACE_SYMS.items():
+            markup = self.get_repl_markup(v.repl)
+            self.replace_syms[k] = KeyRepl(v.bk_stop, v.silent, v.spaced, markup)
+
+
     def update_text(self):
         markup = ""
         recent = False
@@ -154,13 +188,13 @@ class LabelManager(object):
             if i != 0:
                 # character block spacing
                 last = self.data[i - 1]
-                if last.repl[-1] == '\n':
+                if last.markup[-1] == '\n':
                     pass
-                elif len(key.repl.rstrip('\n')) > 1 or len(last.repl) > 1:
+                elif key.is_ctrl or last.is_ctrl or key.spaced or last.spaced:
                     markup += ' '
                 elif key.bk_stop or last.bk_stop:
                     markup += '<span font_family="sans">\u2009</span>'
-            key_markup = glib.markup_escape_text(key.repl)
+            key_markup = key.markup
             if not recent and (stamp - key.stamp).total_seconds() < self.recent_thr:
                 recent = True
                 key_markup = '<u>' + key_markup
@@ -225,7 +259,7 @@ class LabelManager(object):
         # Backspace handling
         if event.symbol == 'BackSpace' and not self.mods_only and \
            mod == '' and not event.modifiers['shift']:
-            key_repl = REPLACE_SYMS.get(event.symbol)
+            key_repl = self.replace_syms.get(event.symbol)
             if self.bak_mode == 'normal':
                 self.data.append(KeyData(datetime.now(), False, *key_repl))
                 return True
@@ -247,14 +281,15 @@ class LabelManager(object):
                 return True
 
         # Regular keys
-        key_repl = REPLACE_SYMS.get(event.symbol)
+        key_repl = self.replace_syms.get(event.symbol)
         replaced = key_repl is not None
         if key_repl is None:
             if keysym_to_mod(event.symbol):
                 return False
             else:
-                value = event.string or event.symbol
-                key_repl = KeyRepl(False, False, value)
+                repl = event.string or event.symbol
+                markup = glib.markup_escape_text(repl)
+                key_repl = KeyRepl(False, False, len(repl) > 1, markup)
 
         if event.modifiers['shift'] and \
            (replaced or (mod != '' and \
@@ -265,11 +300,12 @@ class LabelManager(object):
 
         # Whitespace handling
         if not self.vis_space and mod == '' and event.symbol in WHITESPACE_SYMS:
-            key_repl = KeyRepl(key_repl.bk_stop, key_repl.silent, ' ')
+            key_repl = KeyRepl(key_repl.bk_stop, key_repl.silent, key_repl.spaced, ' ')
 
         # Multiline
         if event.symbol == 'Return' and self.multiline == True:
-            key_repl = KeyRepl(key_repl.bk_stop, key_repl.silent, key_repl.repl + '\n')
+            key_repl = KeyRepl(key_repl.bk_stop, key_repl.silent,
+                               key_repl.spaced, key_repl.repl + '\n')
 
         if mod == '':
             if not self.mods_only:
@@ -281,7 +317,7 @@ class LabelManager(object):
                     repl += '(%s)' % (_('off') if state else _('on'))
 
                 self.data.append(KeyData(datetime.now(), False, key_repl.bk_stop,
-                                         key_repl.silent, repl))
+                                         key_repl.silent, key_repl.spaced, repl))
                 return True
         else:
             if key_repl.repl[0] != mod[-1]:
@@ -289,7 +325,7 @@ class LabelManager(object):
             else:
                 repl = mod + '‟' + key_repl.repl + '”'
             self.data.append(KeyData(datetime.now(), True, key_repl.bk_stop,
-                                     key_repl.silent, repl))
+                                     key_repl.silent, key_repl.spaced, repl))
             return True
 
         return False
@@ -303,13 +339,14 @@ class LabelManager(object):
                 mod = mod + REPLACE_MODS[cap][self.mods_index]
 
         # keycaps
-        key_repl = REPLACE_SYMS.get(event.symbol)
+        key_repl = self.replace_syms.get(event.symbol)
         if key_repl is None:
             if keysym_to_mod(event.symbol):
                 return False
             else:
-                value = event.string.upper() if event.string else event.symbol
-                key_repl = KeyRepl(False, False, value)
+                repl = event.string.upper() if event.string else event.symbol
+                markup = glib.markup_escape_text(repl)
+                key_repl = KeyRepl(False, False, len(repl) > 1, markup)
 
         if mod == '':
             repl = key_repl.repl
@@ -320,14 +357,14 @@ class LabelManager(object):
                 repl += '(%s)' % (_('off') if state else _('on'))
 
             self.data.append(KeyData(datetime.now(), False, key_repl.bk_stop,
-                                     key_repl.silent, repl))
+                                     key_repl.silent, key_repl.spaced, repl))
         else:
             if key_repl.repl[0] != mod[-1]:
                 repl = mod + key_repl.repl
             else:
                 repl = mod + '‟' + key_repl.repl + '”'
             self.data.append(KeyData(datetime.now(), True, key_repl.bk_stop,
-                                     key_repl.silent, repl))
+                                     key_repl.silent, key_repl.spaced, repl))
         return True
 
 
@@ -336,5 +373,5 @@ class LabelManager(object):
             value = event.symbol
         else:
             value = event.string or event.symbol
-        self.data.append(KeyData(datetime.now(), True, True, None, value))
+        self.data.append(KeyData(datetime.now(), True, True, True, True, value))
         return True
