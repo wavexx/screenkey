@@ -69,15 +69,24 @@ REPLACE_SYMS = {
     'Multi_key':    KeyRepl(False, True,  True,  _('Compose')),
 
     # Multimedia keys
-    'XF86AudioMute':         KeyRepl(True, True, True, [ReplData(_('\uf026'), 'FontAwesome')]),
-    'XF86AudioMicMute':      KeyRepl(True, True, True, [ReplData(_('\uf131'), 'FontAwesome')]),
-    'XF86AudioRaiseVolume':  KeyRepl(True, True, True, [ReplData(_('\uf028'), 'FontAwesome')]),
-    'XF86AudioLowerVolume':  KeyRepl(True, True, True, [ReplData(_('\uf027'), 'FontAwesome')]),
-    'XF86MonBrightnessDown': KeyRepl(True, True, True, [ReplData(_('\uf186'), 'FontAwesome')]),
-    'XF86MonBrightnessUp':   KeyRepl(True, True, True, [ReplData(_('\uf185'), 'FontAwesome')]),
-    'XF86Display':           KeyRepl(True, True, True, [ReplData(_('\uf108'), 'FontAwesome')]),
-    'XF86WLAN':              KeyRepl(True, True, True, [ReplData(_('\uf1eb'), 'FontAwesome')]),
-    'XF86Search':            KeyRepl(True, True, True, [ReplData(_('\uf002'), 'FontAwesome')]),
+    'XF86AudioMute':         KeyRepl(True, True, True, [ReplData(_('\uf026'), 'FontAwesome'),
+                                                        ReplData(_('Mute'),    None)]),
+    'XF86AudioMicMute':      KeyRepl(True, True, True, [ReplData(_('\uf131'), 'FontAwesome'),
+                                                        ReplData(_('Rec'),     None)]),
+    'XF86AudioRaiseVolume':  KeyRepl(True, True, True, [ReplData(_('\uf028'), 'FontAwesome'),
+                                                        ReplData(_('Vol+'),    None)]),
+    'XF86AudioLowerVolume':  KeyRepl(True, True, True, [ReplData(_('\uf027'), 'FontAwesome'),
+                                                        ReplData(_('Vol-'),    None)]),
+    'XF86MonBrightnessDown': KeyRepl(True, True, True, [ReplData(_('\uf186'), 'FontAwesome'),
+                                                        ReplData(_('Bright+'), None)]),
+    'XF86MonBrightnessUp':   KeyRepl(True, True, True, [ReplData(_('\uf185'), 'FontAwesome'),
+                                                        ReplData(_('Bright-'), None)]),
+    'XF86Display':           KeyRepl(True, True, True, [ReplData(_('\uf108'), 'FontAwesome'),
+                                                        ReplData(_('Display'), None)]),
+    'XF86WLAN':              KeyRepl(True, True, True, [ReplData(_('\uf1eb'), 'FontAwesome'),
+                                                        ReplData(_('WLAN'),    None)]),
+    'XF86Search':            KeyRepl(True, True, True, [ReplData(_('\uf002'), 'FontAwesome'),
+                                                        ReplData(_('Search'),  None)]),
 }
 
 WHITESPACE_SYMS = set(['Tab', 'Return', 'space', 'KP_Enter'])
@@ -116,7 +125,7 @@ def keysym_to_mod(keysym):
 
 class LabelManager(object):
     def __init__(self, listener, logger, key_mode, bak_mode, mods_mode, mods_only,
-                 multiline, vis_shift, vis_space, recent_thr, ignore):
+                 multiline, vis_shift, vis_space, recent_thr, ignore, pango_ctx):
         self.key_mode = key_mode
         self.bak_mode = bak_mode
         self.mods_mode = mods_mode
@@ -132,6 +141,7 @@ class LabelManager(object):
         self.recent_thr = recent_thr
         self.ignore = ignore
         self.kl = None
+        self.font_families = {x.get_name() for x in pango_ctx.list_families()}
         self.update_replacement_map()
 
 
@@ -166,10 +176,9 @@ class LabelManager(object):
         for c in repl:
             if type(c) != ReplData:
                 return glib.markup_escape_text(c)
-            # TODO: handle font fallback
             if c.font is None:
                 return glib.markup_escape_text(c.value)
-            else:
+            elif c.font in self.font_families:
                 return '<span font_family="' + c.font + '">' + \
                     glib.markup_escape_text(c.value) + '</span>'
 

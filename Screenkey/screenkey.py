@@ -277,7 +277,8 @@ class Screenkey(gtk.Window):
                                       vis_shift=self.options.vis_shift,
                                       vis_space=self.options.vis_space,
                                       recent_thr=self.options.recent_thr,
-                                      ignore=self.options.ignore)
+                                      ignore=self.options.ignore,
+                                      pango_ctx=self.label.get_pango_context())
         self.labelmngr.start()
 
 
