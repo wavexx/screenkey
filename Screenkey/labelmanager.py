@@ -211,6 +211,7 @@ class LabelManager(object):
                     markup += ' '
                 elif key.bk_stop or last.bk_stop:
                     markup += '<span font_family="sans">\u2009</span>'
+
             key_markup = key.markup
             if not recent and (stamp - key.stamp).total_seconds() < self.recent_thr:
                 recent = True
@@ -220,7 +221,9 @@ class LabelManager(object):
                 markup += '\u180e' + key_markup + '\u200a'
             else:
                 markup += '\u200c' + key_markup
-        markup = markup.rstrip('\n')
+
+        if len(markup) and markup[-1] == '\n':
+            markup = markup[:-2] + self.replace_syms['Return'].repl
         if recent:
             markup += '</u>'
         self.logger.debug("Label updated: %s." % repr(markup))
@@ -320,7 +323,7 @@ class LabelManager(object):
             key_repl = KeyRepl(key_repl.bk_stop, key_repl.silent, key_repl.spaced, ' ')
 
         # Multiline
-        if event.symbol == 'Return' and self.multiline == True:
+        if event.symbol in ['Return', 'KP_Enter'] and self.multiline == True:
             key_repl = KeyRepl(key_repl.bk_stop, key_repl.silent,
                                key_repl.spaced, key_repl.repl + '\n')
 
