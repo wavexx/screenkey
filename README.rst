@@ -255,11 +255,14 @@ Additional Thanks
 * Benjamin Chrétien
 * Dmitry Bushev
 * Doug Patti
+* Igor Bronovskyi
 * Ivan Makfinsky
 * Jacob Gardner
 * Muneeb Shaikh
+* Stanislav Seletskiy
 * farrer (launchpad)
 * zhum (launchpad)
+* 伊冲
 
 
 .. _Screenflick: http://www.araelium.com/screenflick/
