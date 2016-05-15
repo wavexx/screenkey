@@ -217,12 +217,14 @@ class LabelManager(object):
                             markup += '<u>'
                             recent = True
                         markup += '<sub><small>…{}x</small></sub>'.format(repeats + 1)
+                        if len(key.markup) and key.markup[-1] == '\n':
+                            markup += '\n'
                         continue
                     else:
                         continue
 
                 # character block spacing
-                if last.markup[-1] == '\n':
+                if len(last.markup) and last.markup[-1] == '\n':
                     pass
                 elif key.is_ctrl or last.is_ctrl or key.spaced or last.spaced:
                     markup += ' '
@@ -235,14 +237,19 @@ class LabelManager(object):
             if not recent and (stamp - key.stamp).total_seconds() < self.recent_thr:
                 recent = True
                 key_markup = '<u>' + key_markup
+
+            # disable ligatures
             if len(key.markup) == 1 and 0x0300 <= ord(key.markup) <= 0x036F:
                 # workaround for pango not handling ZWNJ correctly for combining marks
                 markup += '\u180e' + key_markup + '\u200a'
-            else:
+            elif len(key_markup):
                 markup += '\u200c' + key_markup
 
         if len(markup) and markup[-1] == '\n':
-            markup = markup[:-2] + self.replace_syms['Return'].repl
+            markup = markup.rstrip('\n')
+            if not self.vis_space and not self.data[-1].is_ctrl:
+                # always show some return symbol at the last line
+                markup += self.replace_syms['Return'].repl
         if recent:
             markup += '</u>'
         self.logger.debug("Label updated: %s." % repr(markup))
@@ -339,7 +346,13 @@ class LabelManager(object):
 
         # Whitespace handling
         if not self.vis_space and mod == '' and event.symbol in WHITESPACE_SYMS:
-            key_repl = KeyRepl(key_repl.bk_stop, key_repl.silent, key_repl.spaced, ' ')
+            if event.symbol not in ['Return', 'KP_Enter']:
+                repl = event.string
+            elif self.multiline:
+                repl = ''
+            else:
+                repl = key_repl.repl
+            key_repl = KeyRepl(key_repl.bk_stop, key_repl.silent, key_repl.spaced, repl)
 
         # Multiline
         if event.symbol in ['Return', 'KP_Enter'] and self.multiline == True:
