@@ -356,6 +356,11 @@ class Screenkey(gtk.Window):
             self.on_change_mode()
             self.logger.debug("Visible Shift changed: %s." % self.options.vis_shift)
 
+        def on_cbox_visspace_changed(widget, data=None):
+            self.options.vis_space = widget.get_active()
+            self.on_change_mode()
+            self.logger.debug("Show Whitespace changed: %s." % self.options.vis_space)
+
         def on_cbox_position_changed(widget, data=None):
             index = widget.get_active()
             new_position = POSITIONS.keys()[index]
@@ -612,6 +617,11 @@ class Screenkey(gtk.Window):
         chk_kbd.connect("toggled", on_cbox_visshift_changed)
         chk_kbd.set_active(self.options.vis_shift)
         vbox_kbd.pack_start(chk_kbd)
+
+        chk_vspace = gtk.CheckButton(_("Show Whitespace characters"))
+        chk_vspace.connect("toggled", on_cbox_visspace_changed)
+        chk_vspace.set_active(self.options.vis_space)
+        vbox_kbd.pack_start(chk_vspace)
 
         frm_kbd.add(vbox_kbd)
 
