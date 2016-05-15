@@ -630,8 +630,8 @@ class Screenkey(gtk.Window):
         vbox_kbd.pack_start(chk_kbd)
 
         chk_vspace = gtk.CheckButton(_("Show Whitespace characters"))
-        chk_vspace.connect("toggled", on_cbox_visspace_changed)
         chk_vspace.set_active(self.options.vis_space)
+        chk_vspace.connect("toggled", on_cbox_visspace_changed)
         vbox_kbd.pack_start(chk_vspace)
 
         hbox_compr = gtk.HBox()
