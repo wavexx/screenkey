@@ -389,6 +389,18 @@ class Screenkey(gtk.Window):
                 self.on_label_change(self.label.get_text())
             self.logger.debug("Persistent changed: %s." % self.options.persist)
 
+        def on_sb_compr_changed(widget, data=None):
+            self.options.compr_cnt = widget.get_value_as_int()
+            self.on_change_mode()
+            self.logger.debug("Compress repeats value changed: %d." % self.options.compr_cnt)
+
+        def on_cbox_compr_changed(widget, data=None):
+            compr_enabled = widget.get_active()
+            self.sb_compr.set_sensitive(compr_enabled)
+            self.options.compr_cnt = self.sb_compr.get_value_as_int() if compr_enabled else 0
+            self.on_change_mode()
+            self.logger.debug("Compress repeats value changed: %d." % self.options.compr_cnt)
+
         def on_btn_sel_geom(widget, data=None):
             try:
                 ret = subprocess.check_output(['slop', '-f', '%x %y %w %h'])
@@ -622,6 +634,21 @@ class Screenkey(gtk.Window):
         chk_vspace.connect("toggled", on_cbox_visspace_changed)
         chk_vspace.set_active(self.options.vis_space)
         vbox_kbd.pack_start(chk_vspace)
+
+        hbox_compr = gtk.HBox()
+        chk_compr = gtk.CheckButton(_("Compress repeats after"))
+        chk_compr.set_active(self.options.compr_cnt > 0)
+        chk_compr.connect("toggled", on_cbox_compr_changed)
+        self.sb_compr = sb_compr = gtk.SpinButton(digits=0)
+        sb_compr.set_increments(1, 1)
+        sb_compr.set_range(1, 100)
+        sb_compr.set_numeric(True)
+        sb_compr.set_update_policy(gtk.UPDATE_IF_VALID)
+        sb_compr.set_value(self.options.compr_cnt or 3)
+        sb_compr.connect("value-changed", on_sb_compr_changed)
+        hbox_compr.pack_start(chk_compr, expand=False, fill=False)
+        hbox_compr.pack_start(sb_compr, expand=False, fill=False, padding=4)
+        vbox_kbd.pack_start(hbox_compr)
 
         frm_kbd.add(vbox_kbd)
 
