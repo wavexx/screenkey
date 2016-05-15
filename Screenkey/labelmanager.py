@@ -27,6 +27,7 @@ REPLACE_SYMS = {
     # Regular keys
     'Escape':       KeyRepl(True,  True,  True,  _('Esc')),
     'Tab':          KeyRepl(True,  False, False, _('↹')),
+    'ISO_Left_Tab': KeyRepl(True,  False, False, _('↹')),
     'Return':       KeyRepl(True,  False, False, _('⏎')),
     'space':        KeyRepl(False, False, False, _('␣')),
     'BackSpace':    KeyRepl(True,  True,  False, _('⌫')),
@@ -97,7 +98,7 @@ REPLACE_SYMS = {
                                                         ReplData(_('Search'),  None)]),
 }
 
-WHITESPACE_SYMS = set(['Tab', 'Return', 'space', 'KP_Enter'])
+WHITESPACE_SYMS = {'Tab', 'ISO_Left_Tab', 'Return', 'space', 'KP_Enter'}
 
 MODS_MAP = {
     'normal': 0,
