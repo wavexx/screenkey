@@ -620,7 +620,7 @@ class Screenkey(gtk.Window):
         hbox_kbd.pack_start(cbox_modes, expand=False, fill=False, padding=4)
         vbox_kbd.pack_start(hbox_kbd)
 
-        chk_kbd = gtk.CheckButton(_("Modifiers only"))
+        chk_kbd = gtk.CheckButton(_("Show Modifier sequences only"))
         chk_kbd.connect("toggled", on_cbox_modsonly_changed)
         chk_kbd.set_active(self.options.mods_only)
         vbox_kbd.pack_start(chk_kbd)
