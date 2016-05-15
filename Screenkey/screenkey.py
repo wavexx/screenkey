@@ -450,7 +450,6 @@ class Screenkey(gtk.Window):
 
         frm_main = gtk.Frame(_("Preferences"))
         frm_main.set_border_width(6)
-        vbox_main = gtk.VBox()
 
         frm_time = gtk.Frame("<b>%s</b>" % _("Time"))
         frm_time.set_border_width(4)
@@ -652,11 +651,16 @@ class Screenkey(gtk.Window):
 
         frm_kbd.add(vbox_kbd)
 
+        hbox_main = gtk.HBox()
+        vbox_main = gtk.VBox()
         vbox_main.pack_start(frm_time, False, False, 6)
         vbox_main.pack_start(frm_position, False, False, 6)
         vbox_main.pack_start(frm_aspect, False, False, 6)
+        hbox_main.pack_start(vbox_main)
+        vbox_main = gtk.VBox()
         vbox_main.pack_start(frm_kbd, False, False, 6)
-        frm_main.add(vbox_main)
+        hbox_main.pack_start(vbox_main)
+        frm_main.add(hbox_main)
 
         prefs.vbox.pack_start(frm_main)
         prefs.set_destroy_with_parent(True)
