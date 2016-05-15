@@ -216,7 +216,7 @@ class LabelManager(object):
                         if not recent and (stamp - key.stamp).total_seconds() < self.recent_thr:
                             markup += '<u>'
                             recent = True
-                        markup += '<sub><small>…{}x</small></sub>'.format(repeats + 1)
+                        markup += '<sub><small>…{}×</small></sub>'.format(repeats + 1)
                         if len(key.markup) and key.markup[-1] == '\n':
                             markup += '\n'
                         continue
