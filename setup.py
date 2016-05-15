@@ -9,7 +9,7 @@ setup(name='screenkey', version='0.9',
       maintainer='Yuri D\'Elia',
       maintainer_email='wavexx@thregr.org',
       license='GPLv3+',
-      keywords='screencast keyboard keys',
+      keywords='screencast keyboard presentation keys',
       url='http://www.thregr.org/~wavexx/software/screenkey/',
 
       classifiers=['Development Status :: 5 - Production/Stable',
@@ -30,6 +30,7 @@ setup(name='screenkey', version='0.9',
 
       scripts=['screenkey'],
       packages=['Screenkey'],
+      setup_requires=['setuptools', 'setuptools-git', 'python-distutils-extra'],
       data_files=[('share/applications', ['data/screenkey.desktop']),
                   ('share/doc/screenkey', ['README.rst', 'NEWS.rst'])],
 )

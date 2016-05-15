@@ -37,13 +37,14 @@ Dependencies:
 - Python 2.7 (Python 3 support yet incomplete)
 - PyGTK
 - setuptools (build only)
+- setuptools-git (build only)
 - DistUtils-Extra (build only)
 - slop (https://github.com/naelstrof/slop)
 - FontAwesome_ (for multimedia symbols)
 
 Install dependencies (on Debian/Ubuntu)::
 
-  sudo apt-get install python-gtk2 python-setuptools python-distutils-extra
+  sudo apt-get install python-gtk2 python-setuptools python-setuptools-git python-distutils-extra
 
 You can also install "screenkey" via ArchLinux's AUR package:
 
