@@ -1,3 +1,17 @@
+screenkey 0.9
+-------------
+
+- Ctrl+Ctrl detection now works correctly in more scenarios.
+- Ctrl++ (and similar sequences with repeated characters) are now shown as
+  Ctrl+"+" for improved readability.
+- Shift+Backspace is now recognized and shown correctly.
+- Several multimedia keys are now supported. If "FontAwesome" is installed,
+  the correct symbol is also displayed instead of a text abbreviation.
+- Visualization of whitespace characters can now be controlled.
+- Repeated key sequences are now abbreviated with a repeat count if above the
+  specified threshold (3 by default).
+
+
 screenkey 0.8.1
 ---------------
 

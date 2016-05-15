@@ -17,6 +17,7 @@ This is an almost-complete rewrite of screenkey_ 0.2, featuring:
 - Multi-monitor support
 - Dynamic recording control by pressing both control keys
 - Switch for visible shift and modifier sequences only
+- Repeats compression
 - Countless bug fixes
 
 
@@ -38,6 +39,7 @@ Dependencies:
 - setuptools (build only)
 - DistUtils-Extra (build only)
 - slop (https://github.com/naelstrof/slop)
+- FontAwesome_ (for multimedia symbols)
 
 Install dependencies (on Debian/Ubuntu)::
 
@@ -120,7 +122,7 @@ Modifiers mode:
   symbols directly (⌘+A). The "Emacs" mode will display Emacs-style shortened
   keyboard sequences (C-A).
 
-Modifiers only:
+Show Modifier sequences only:
   Only show modifier/control sequences in the output window.
   Bare, shifted or translated letters are not shown.
 
@@ -131,6 +133,16 @@ Always show Shift:
 
   When "Always show Shift" is used, Shift is always included in modifier
   sequences, if pressed. Has no effect when using the "Emacs" modifiers mode.
+
+Show Whitespace characters:
+  Convert regular whitespace characters (tabs and spaces) to a visible
+  representation instead of showing a blank. Newlines are also hidden when
+  unambiguous in multiline mode.
+
+Compress repeats:
+  When enabled, contiguous repeated sequences are truncated after the requested
+  threshold. A counter of total occurrences is shown instead, which is
+  generally more legible.
 
 
 Advanced usage
@@ -197,6 +209,18 @@ instead, which provides better differentiation among similar letterforms (0/O,
 I/l, etc).
 
 
+Multimedia keys
+~~~~~~~~~~~~~~~
+
+"screenkey" supports several multimedia keys. To display them with symbols
+instead of text abbreviations, FontAwesome_ needs to be installed.
+
+On Debian/Ubuntu, the font is available in the ``fonts-font-awesome`` package. On
+Arch Linux the package is instead ``ttf-font-awesome``.
+
+.. _FontAwesome: http://fontawesome.io/
+
+
 Tiling window managers
 ~~~~~~~~~~~~~~~~~~~~~~
 
@@ -238,7 +262,7 @@ complete each-other and can be used at the same time.
 Authors and Copyright
 ---------------------
 
-"screenkey" can be found at http://www.thregr.org/~wavexx/software/screenkey/
+"screenkey" can be found at https://www.thregr.org/~wavexx/software/screenkey/
 
 | "screenkey" is distributed under GNU GPLv3+, WITHOUT ANY WARRANTY.
 | Copyright(c) 2010-2012: Pablo Seminario <pabluk@gmail.com>
