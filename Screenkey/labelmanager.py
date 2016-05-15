@@ -183,12 +183,12 @@ class LabelManager(object):
             repl = [repl]
         for c in repl:
             if type(c) != ReplData:
-                return glib.markup_escape_text(c)
+                return unicode(glib.markup_escape_text(c))
             if c.font is None:
-                return glib.markup_escape_text(c.value)
+                return unicode(glib.markup_escape_text(c.value))
             elif c.font in self.font_families:
                 return '<span font_family="' + c.font + '">' + \
-                    glib.markup_escape_text(c.value) + '</span>'
+                    unicode(glib.markup_escape_text(c.value)) + '</span>'
 
     def update_replacement_map(self):
         self.replace_syms = {}
@@ -308,7 +308,7 @@ class LabelManager(object):
                 return False
             else:
                 repl = event.string or event.symbol
-                markup = glib.markup_escape_text(repl)
+                markup = unicode(glib.markup_escape_text(repl))
                 key_repl = KeyRepl(False, False, len(repl) > 1, markup)
 
         if event.modifiers['shift'] and \
@@ -365,7 +365,7 @@ class LabelManager(object):
                 return False
             else:
                 repl = event.string.upper() if event.string else event.symbol
-                markup = glib.markup_escape_text(repl)
+                markup = unicode(glib.markup_escape_text(repl))
                 key_repl = KeyRepl(False, False, len(repl) > 1, markup)
 
         if mod == '':
