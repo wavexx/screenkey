@@ -242,7 +242,7 @@ Authors and Copyright
 
 | "screenkey" is distributed under GNU GPLv3+, WITHOUT ANY WARRANTY.
 | Copyright(c) 2010-2012: Pablo Seminario <pabluk@gmail.com>
-| Copyright(c) 2015: wave++ "Yuri D'Elia" <wavexx@thregr.org>.
+| Copyright(c) 2015-2016: wave++ "Yuri D'Elia" <wavexx@thregr.org>.
 
 screenkey's GIT repository is publicly accessible at:
 
