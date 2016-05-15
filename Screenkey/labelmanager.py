@@ -372,7 +372,7 @@ class LabelManager(object):
                                          key_repl.silent, key_repl.spaced, repl))
                 return True
         else:
-            if key_repl.repl[0] != mod[-1]:
+            if self.mods_mode == 'emacs' or key_repl.repl[0] != mod[-1]:
                 repl = mod + key_repl.repl
             else:
                 repl = mod + '‟' + key_repl.repl + '”'
@@ -411,7 +411,7 @@ class LabelManager(object):
             self.data.append(KeyData(datetime.now(), False, key_repl.bk_stop,
                                      key_repl.silent, key_repl.spaced, repl))
         else:
-            if key_repl.repl[0] != mod[-1]:
+            if self.mods_mode == 'emacs' or key_repl.repl[0] != mod[-1]:
                 repl = mod + key_repl.repl
             else:
                 repl = mod + '‟' + key_repl.repl + '”'
