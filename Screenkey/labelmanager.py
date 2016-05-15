@@ -133,7 +133,7 @@ def keysym_to_mod(keysym):
 
 class LabelManager(object):
     def __init__(self, listener, logger, key_mode, bak_mode, mods_mode, mods_only,
-                 multiline, vis_shift, vis_space, recent_thr, ignore, pango_ctx):
+                 multiline, vis_shift, vis_space, recent_thr, compr_cnt, ignore, pango_ctx):
         self.key_mode = key_mode
         self.bak_mode = bak_mode
         self.mods_mode = mods_mode
@@ -147,6 +147,7 @@ class LabelManager(object):
         self.vis_shift = vis_shift
         self.vis_space = vis_space
         self.recent_thr = recent_thr
+        self.compr_cnt = compr_cnt
         self.ignore = ignore
         self.kl = None
         self.font_families = {x.get_name() for x in pango_ctx.list_families()}
@@ -201,16 +202,34 @@ class LabelManager(object):
         markup = ""
         recent = False
         stamp = datetime.now()
+        repeats = 0
         for i, key in enumerate(self.data):
             if i != 0:
-                # character block spacing
                 last = self.data[i - 1]
+
+                # compress repeats
+                if self.compr_cnt and key.markup == last.markup:
+                    repeats += 1
+                    if repeats < self.compr_cnt:
+                        pass
+                    elif i == len(self.data) - 1 or key.markup != self.data[i + 1].markup:
+                        if not recent and (stamp - key.stamp).total_seconds() < self.recent_thr:
+                            markup += '<u>'
+                            recent = True
+                        markup += '<sub><small>…{}x</small></sub>'.format(repeats + 1)
+                        continue
+                    else:
+                        continue
+
+                # character block spacing
                 if last.markup[-1] == '\n':
                     pass
                 elif key.is_ctrl or last.is_ctrl or key.spaced or last.spaced:
                     markup += ' '
-                elif key.bk_stop or last.bk_stop:
+                elif key.bk_stop or last.bk_stop or repeats > self.compr_cnt:
                     markup += '<span font_family="sans">\u2009</span>'
+                if key.markup != last.markup:
+                    repeats = 0
 
             key_markup = key.markup
             if not recent and (stamp - key.stamp).total_seconds() < self.recent_thr:

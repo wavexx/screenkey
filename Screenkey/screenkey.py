@@ -36,6 +36,7 @@ class Screenkey(gtk.Window):
         defaults = Options({'no_systray': False,
                             'timeout': 2.5,
                             'recent_thr': 0.1,
+                            'compr_cnt': 3,
                             'ignore': [],
                             'position': 'bottom',
                             'persist': False,
@@ -277,6 +278,7 @@ class Screenkey(gtk.Window):
                                       vis_shift=self.options.vis_shift,
                                       vis_space=self.options.vis_space,
                                       recent_thr=self.options.recent_thr,
+                                      compr_cnt=self.options.compr_cnt,
                                       ignore=self.options.ignore,
                                       pango_ctx=self.label.get_pango_context())
         self.labelmngr.start()
