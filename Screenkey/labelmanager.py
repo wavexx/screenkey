@@ -272,12 +272,14 @@ class LabelManager(object):
             self.logger.debug("Key {:8} {:5}(ks): {} ({}, mask: {:08b})".format
                               (state, event.keysym, string, event.symbol, event.mods_mask))
 
-        # Enable/disable handling
-        if not event.repeated and event.modifiers['ctrl'] \
-           and event.symbol in MODS_SYMS['ctrl']:
-            self.enabled = not self.enabled
-            self.logger.info("Ctrl+Ctrl detected: screenkey %s." %
-                             ('enabled' if self.enabled else 'disabled'))
+        # Stealth enable/disable handling
+        for mod in ['shift', 'ctrl', 'alt']:
+            if not event.repeated and event.modifiers[mod] \
+               and event.symbol in MODS_SYMS[mod]:
+                self.enabled = not self.enabled
+                state = 'enabled' if self.enabled else 'disabled'
+                self.logger.info("{mod}+{mod} detected: screenkey {state}".format(
+                    mod=mod.capitalize(), state=state))
         if not self.enabled:
             return False
 

@@ -15,7 +15,7 @@ This is an almost-complete rewrite of screenkey_ 0.2, featuring:
 - Improved backspace processing
 - Normal/Emacs/Mac caps modes
 - Multi-monitor support
-- Dynamic recording control by pressing both control keys
+- Dynamic recording control
 - Switch for visible shift and modifier sequences only
 - Repeats compression
 - Countless bug fixes
@@ -151,12 +151,18 @@ Advanced usage
 Controlling visibility
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Press both control keys during a recording to disable screenkey (for example,
-during password prompts). Press both again to resume it.
+To disable screenkey while recording (for example, during password prompts),
+press both control keys, or both shift keys, or both alt keys at the same time.
+
+Press the same combination again to resume it.
+
+This has the same effect of toggling the state from the system tray icon, but
+it's completely stealth: there's no feedback that screenkey is being switched
+on/off.
 
 If you need the viewer to focus on a sentence you just typed, you can press a
 silent modifier (such as Shift, or Control) to keep the output window visible a
-little longer.
+little longer without prolonging the default timeout.
 
 
 Interactive placement
