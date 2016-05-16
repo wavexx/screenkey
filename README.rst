@@ -37,7 +37,6 @@ Dependencies:
 - Python 2.7 (Python 3 support yet incomplete)
 - PyGTK
 - setuptools (build only)
-- setuptools-git (build only)
 - DistUtils-Extra (build only)
 - slop (https://github.com/naelstrof/slop)
 - FontAwesome_ (for multimedia symbols)

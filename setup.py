@@ -30,7 +30,7 @@ setup(name='screenkey', version='0.9',
 
       scripts=['screenkey'],
       packages=['Screenkey'],
-      setup_requires=['setuptools', 'setuptools-git', 'python-distutils-extra'],
+      setup_requires=['setuptools', 'python-distutils-extra'],
       data_files=[('share/applications', ['data/screenkey.desktop']),
                   ('share/doc/screenkey', ['README.rst', 'NEWS.rst'])],
 )
