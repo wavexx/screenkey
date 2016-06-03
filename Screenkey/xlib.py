@@ -48,6 +48,40 @@ class XKeyEvent(Structure):
 XKeyPressedEvent = XKeyEvent
 XKeyReleasedEvent = XKeyEvent
 
+class XButtonEvent(Structure):
+    _fields_ = [('type', c_int),
+                ('serial', c_ulong),
+                ('send_event', Bool),
+                ('display', POINTER(Display)),
+                ('window', Window),
+                ('root', Window),
+                ('subwindow', Window),
+                ('time', Time),
+                ('x', c_int),
+                ('y', c_int),
+                ('x_root', c_int),
+                ('y_root', c_int),
+                ('state', c_uint),
+                ('button', c_uint),
+                ('same_screen', Bool)]
+
+class XMotionEvent(Structure):
+    _fields_ = [('type', c_int),
+                ('serial', c_ulong),
+                ('send_event', Bool),
+                ('display', POINTER(Display)),
+                ('window', Window),
+                ('root', Window),
+                ('subwindow', Window),
+                ('time', Time),
+                ('x', c_int),
+                ('y', c_int),
+                ('x_root', c_int),
+                ('y_root', c_int),
+                ('state', c_uint),
+                ('is_hint', c_ubyte),
+                ('same_screen', Bool)]
+
 class XClientMessageEvent(Structure):
     _fields_ = [('type', c_int),
                 ('serial', c_ulong),
@@ -61,6 +95,8 @@ class XClientMessageEvent(Structure):
 class XEvent(Union):
     _fields_ = [('type', c_int),
                 ('xkey', XKeyEvent),
+                ('xbutton', XButtonEvent),
+                ('xmotion', XMotionEvent),
                 ('xclient', XClientMessageEvent),
                 ('pad', c_long * 24)]
 
@@ -85,6 +121,9 @@ class XSetWindowAttributes(Structure):
 # constants
 KeyPress = 2
 KeyRelease = 3
+ButtonPress = 4
+ButtonRelease = 5
+MotionNotify = 6
 FocusIn = 9
 FocusOut = 10
 ClientMessage = 33
@@ -367,9 +406,53 @@ def _kbd_wire_to_event(dpy, wev):
     return ev
 
 
+def _btn_wire_to_event(dpy, wev):
+    ev = XEvent()
+    ev.xbutton.type = wev.u.type
+    ev.xbutton.serial = wev.u.sequenceNumber
+    ev.xbutton.send_event = ((wev.u.type & 0x80) != 0)
+    ev.xbutton.display = dpy
+    ev.xbutton.window = wev.keyButtonPointer.event
+    ev.xbutton.root = wev.keyButtonPointer.root
+    ev.xbutton.subwindow = wev.keyButtonPointer.child
+    ev.xbutton.time = wev.keyButtonPointer.time
+    ev.xbutton.x = wev.keyButtonPointer.eventX
+    ev.xbutton.y = wev.keyButtonPointer.eventY
+    ev.xbutton.x_root = wev.keyButtonPointer.rootX
+    ev.xbutton.y_root = wev.keyButtonPointer.rootY
+    ev.xbutton.state = wev.keyButtonPointer.state
+    ev.xbutton.button = wev.u.detail
+    ev.xbutton.same_screen = wev.keyButtonPointer.sameScreen
+    return ev
+
+
+def _mtn_wire_to_event(dpy, wev):
+    ev = XEvent()
+    ev.xmotion.type = wev.u.type
+    ev.xmotion.serial = wev.u.sequenceNumber
+    ev.xmotion.send_event = ((wev.u.type & 0x80) != 0)
+    ev.xmotion.display = dpy
+    ev.xmotion.window = wev.keyButtonPointer.event
+    ev.xmotion.root = wev.keyButtonPointer.root
+    ev.xmotion.subwindow = wev.keyButtonPointer.child
+    ev.xmotion.time = wev.keyButtonPointer.time
+    ev.xmotion.x = wev.keyButtonPointer.eventX
+    ev.xmotion.y = wev.keyButtonPointer.eventY
+    ev.xmotion.x_root = wev.keyButtonPointer.rootX
+    ev.xmotion.y_root = wev.keyButtonPointer.rootY
+    ev.xmotion.state = wev.keyButtonPointer.state
+    ev.xmotion.is_hint = wev.u.detail
+    ev.xmotion.same_screen = wev.keyButtonPointer.sameScreen
+    return ev
+
+
 def XWireToEvent(dpy, data):
     # this could have been avoided if _XWireToEvent didn't have internal state
     wev = cast(data, POINTER(xEvent)).contents
     if wev.u.type in [KeyPress, KeyRelease]:
         return _kbd_wire_to_event(dpy, wev)
+    elif wev.u.type in [ButtonPress, ButtonRelease]:
+        return _btn_wire_to_event(dpy, wev)
+    elif wev.u.type == MotionNotify:
+        return _mtn_wire_to_event(dpy, wev)
     return XEvent(wev.u.type)
