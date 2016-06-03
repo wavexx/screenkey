@@ -229,7 +229,7 @@ class KeyListener(threading.Thread):
 
         # note that we never ever map the window
         self.replay_dpy = xlib.XOpenDisplay(None)
-        self.custom_atom = xlib.XInternAtom(self.replay_dpy, "SCREENKEY", False)
+        self.custom_atom = xlib.XInternAtom(self.replay_dpy, b"SCREENKEY", False)
         replay_fd = xlib.XConnectionNumber(self.replay_dpy)
         self.replay_win = create_replay_window(self.replay_dpy)
 
