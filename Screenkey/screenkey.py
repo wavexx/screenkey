@@ -213,11 +213,11 @@ class Screenkey(gtk.Window):
         self.resize(area_geometry[2], window_height)
 
         if self.options.position == 'top':
-            window_y = area_geometry[1] + window_height * 2
+            window_y = area_geometry[1] + area_geometry[3] // 10
         elif self.options.position == 'center':
-            window_y = area_geometry[1] + area_geometry[3] // 2
+            window_y = area_geometry[1] + area_geometry[3] // 2 - window_height // 2
         else:
-            window_y = area_geometry[1] + area_geometry[3] - window_height * 2
+            window_y = area_geometry[1] + area_geometry[3] * 9 // 10 - window_height
         self.move(area_geometry[0], window_y)
 
 
