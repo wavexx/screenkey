@@ -5,7 +5,7 @@
 
 from __future__ import print_function, unicode_literals, absolute_import, generators
 
-from .keylistener import KeyListener
+from .inputlistener import InputListener, InputType
 import glib
 
 from collections import namedtuple
@@ -173,7 +173,7 @@ class LabelManager(object):
         self.stop()
         compose = (self.key_mode == 'composed')
         translate = (self.key_mode in ['composed', 'translated'])
-        self.kl = KeyListener(self.key_press, compose, translate)
+        self.kl = InputListener(self.key_press, InputType.keyboard, compose, translate)
         self.kl.start()
         self.logger.debug("Thread started.")
 

@@ -54,17 +54,41 @@ import select
 
 
 # convenience wrappers
-def record_context(dpy, ev_range, dev_range):
-    range_spec = xlib.XRecordAllocRange()
-    range_spec.contents.delivered_events.first = ev_range[0]
-    range_spec.contents.delivered_events.last = ev_range[1]
-    range_spec.contents.device_events.first = dev_range[0]
-    range_spec.contents.device_events.last = dev_range[1]
+def coalesce_ranges(ranges):
+    ranges = sorted(ranges, key=lambda x: x[0])
+    ret = ranges[:1]
+    for r in ranges[1:]:
+        if ret[-1][1] < r[0] - 1:
+            ret.append(r)
+        else:
+            ret[-1][1] = max(ret[-1][1], r[1])
+    return ret
+
+
+def record_context(dpy, ev_ranges, dev_ranges):
+    ev_ranges = coalesce_ranges(ev_ranges)
+    dev_ranges = coalesce_ranges(dev_ranges)
+
+    specs = max(len(ev_ranges), len(dev_ranges))
+    range_specs = (xlib.POINTER(xlib.XRecordRange) * specs)()
+
+    for i in range(specs):
+        range_specs[i] = xlib.XRecordAllocRange()
+        if len(ev_ranges) > i:
+            range_specs[i].contents.delivered_events.first = ev_ranges[i][0]
+            range_specs[i].contents.delivered_events.last = ev_ranges[i][1]
+        if len(dev_ranges) > i:
+            range_specs[i].contents.device_events.first = dev_ranges[i][0]
+            range_specs[i].contents.device_events.last = dev_ranges[i][1]
+
     rec_ctx = xlib.XRecordCreateContext(
         dpy, 0,
         xlib.byref(xlib.c_ulong(xlib.XRecordAllClients)), 1,
-        xlib.byref(range_spec), 1)
-    xlib.XFree(range_spec)
+        range_specs, specs)
+
+    for i in range(specs):
+        xlib.XFree(range_specs[i])
+
     return rec_ctx
 
 
@@ -134,18 +158,27 @@ class KeyData():
         self.modifiers = modifiers
 
 
-class KeyListener(threading.Thread):
-    def __init__(self, callback, compose, translate):
-        super(KeyListener, self).__init__()
+class InputType:
+    keyboard = 0b001
+    button   = 0b010
+    movement = 0b100
+    all      = 0b111
+
+
+
+class InputListener(threading.Thread):
+    def __init__(self, callback, input_types=InputType.all, kbd_compose=True, kbd_translate=True):
+        super(InputListener, self).__init__()
         self.callback = callback
-        self.compose = compose
-        self.translate = translate
+        self.input_types = input_types
+        self.kbd_compose = kbd_compose
+        self.kbd_translate = kbd_translate
         self.lock = threading.Lock()
         self.stopped = True
 
 
     def _event_received(self, ev):
-        if ev.type in [xlib.KeyPress, xlib.KeyRelease]:
+        if xlib.KeyPress <= ev.type <= xlib.MotionNotify:
             xlib.XSendEvent(self.replay_dpy, self.replay_win, False, 0, ev)
         elif ev.type in [xlib.FocusIn, xlib.FocusOut]:
             # Forward the event as a custom message in the same queue instead
@@ -208,7 +241,7 @@ class KeyListener(threading.Thread):
     def start(self):
         self.lock.acquire()
         self.stopped = False
-        super(KeyListener, self).start()
+        super(InputListener, self).start()
 
 
     def stop(self):
@@ -218,42 +251,100 @@ class KeyListener(threading.Thread):
                 xlib.XRecordDisableContext(self.control_dpy, self.record_ctx)
 
 
-    def run(self):
-        self.control_dpy = xlib.XOpenDisplay(None)
-        xlib.XSynchronize(self.control_dpy, True)
-        self.record_ctx = record_context(self.control_dpy,
-                                         [xlib.FocusIn, xlib.FocusOut],
-                                         [xlib.KeyPress, xlib.KeyRelease])
-        record_dpy = xlib.XOpenDisplay(None)
-        record_fd = xlib.XConnectionNumber(record_dpy)
-
-        # note that we never ever map the window
-        self.replay_dpy = xlib.XOpenDisplay(None)
-        self.custom_atom = xlib.XInternAtom(self.replay_dpy, b"SCREENKEY", False)
-        replay_fd = xlib.XConnectionNumber(self.replay_dpy)
-        self.replay_win = create_replay_window(self.replay_dpy)
-
-        if self.compose:
+    def _kbd_init(self):
+        if self.kbd_compose:
             style = xlib.XIMPreeditNothing | xlib.XIMStatusNothing
         else:
             style = xlib.XIMPreeditNone | xlib.XIMStatusNone
 
         # TODO: implement preedit callbacks for on-the-spot composition
         #       (this would fix focus-stealing for the global IM state)
-        replay_xim = xlib.XOpenIM(self.replay_dpy, None, None, None)
-        if not replay_xim:
+        self.replay_xim = xlib.XOpenIM(self.replay_dpy, None, None, None)
+        if not self.replay_xim:
             raise Exception("Cannot initialize input method")
 
-        self.replay_xic = xlib.XCreateIC(replay_xim,
+        self.replay_xic = xlib.XCreateIC(self.replay_xim,
                                          xlib.XNClientWindow, self.replay_win,
                                          xlib.XNInputStyle, style,
                                          None)
         xlib.XSetICFocus(self.replay_xic)
 
-        # we need to keep the proc_ref alive
-        proc_ref = record_enable(record_dpy, self.record_ctx, self._event_received)
-        last_ev = xlib.XEvent()
 
+    def _kbd_del(self):
+        xlib.XDestroyIC(self.replay_xic)
+        xlib.XCloseIM(self.replay_xim)
+
+
+    def _kbd_process(self, ev, last_ev):
+        if ev.type == xlib.ClientMessage and \
+           ev.xclient.message_type == self.custom_atom:
+            if ev.xclient.data[0] in [xlib.FocusIn, xlib.FocusOut]:
+                # we do not keep track of multiple XICs, just reset
+                xic = xlib.Xutf8ResetIC(self.replay_xic)
+                if xic is not None: xlib.XFree(xic)
+                return
+            elif ev.type in [xlib.KeyPress, xlib.KeyRelease]:
+                # fake keyboard event data for XFilterEvent
+                ev.xkey.send_event = False
+                ev.xkey.window = self.replay_win
+
+        # pass _all_ events to XFilterEvent
+        filtered = bool(xlib.XFilterEvent(ev, 0))
+        if ev.type == xlib.KeyRelease and \
+           phantom_release(self.replay_dpy, ev.xkey):
+            return
+        if ev.type not in [xlib.KeyPress, xlib.KeyRelease]:
+            return
+
+        # generate new keyboard event
+        data = KeyData()
+        data.filtered = filtered
+        data.pressed = (ev.type == xlib.KeyPress)
+        data.repeated = (ev.type == last_ev.type and \
+                         ev.xkey.state == last_ev.xkey.state and \
+                         ev.xkey.keycode == last_ev.xkey.keycode)
+        data.mods_mask = ev.xkey.state
+        self._event_modifiers(ev.xkey, data)
+        if not data.filtered and data.pressed and self.kbd_translate:
+            self._event_keypress(ev.xkey, data)
+        else:
+            self._event_lookup(ev.xkey, data)
+        self._event_processed(data)
+
+
+    def run(self):
+        # control connection
+        self.control_dpy = xlib.XOpenDisplay(None)
+        xlib.XSynchronize(self.control_dpy, True)
+
+        # unmapped replay window
+        self.replay_dpy = xlib.XOpenDisplay(None)
+        self.custom_atom = xlib.XInternAtom(self.replay_dpy, b"SCREENKEY", False)
+        replay_fd = xlib.XConnectionNumber(self.replay_dpy)
+        self.replay_win = create_replay_window(self.replay_dpy)
+
+        if self.input_types & InputType.keyboard:
+            self._kbd_init()
+
+        # initialize recording context
+        ev_ranges = []
+        dev_ranges = []
+        if self.input_types & InputType.keyboard:
+            ev_ranges.append([xlib.FocusIn, xlib.FocusOut])
+            dev_ranges.append([xlib.KeyPress, xlib.KeyRelease])
+        if self.input_types & InputType.button:
+            dev_ranges.append([xlib.ButtonPress, xlib.ButtonRelease])
+        if self.input_types & InputType.movement:
+            dev_ranges.append([xlib.MotionNotify, xlib.MotionNotify])
+        self.record_ctx = record_context(self.control_dpy, ev_ranges, dev_ranges);
+
+        record_dpy = xlib.XOpenDisplay(None)
+        record_fd = xlib.XConnectionNumber(record_dpy)
+        # we need to keep the record_ref alive(!)
+        record_ref = record_enable(record_dpy, self.record_ctx, self._event_received)
+
+        # event loop
+        last_ev = xlib.XEvent()
         self.lock.release()
         while True:
             with self.lock:
@@ -277,48 +368,22 @@ class KeyListener(threading.Thread):
             if replay_fd in r_fd:
                 ev = xlib.XEvent()
                 xlib.XNextEvent(self.replay_dpy, xlib.byref(ev))
-                if ev.type == xlib.ClientMessage and \
-                   ev.xclient.message_type == self.custom_atom:
-                    if ev.xclient.data[0] in [xlib.FocusIn, xlib.FocusOut]:
-                        # We do not keep track of multiple XICs, just reset
-                        xic = xlib.Xutf8ResetIC(self.replay_xic)
-                        if xic is not None: xlib.XFree(xic)
-                    continue
-                elif ev.type in [xlib.KeyPress, xlib.KeyRelease]:
-                    ev.xkey.send_event = False
-                    ev.xkey.window = self.replay_win
-
-                filtered = bool(xlib.XFilterEvent(ev, 0))
-                if ev.type not in [xlib.KeyPress, xlib.KeyRelease]:
-                    continue
-                if ev.type == xlib.KeyRelease and \
-                   phantom_release(self.replay_dpy, ev.xkey):
-                    continue
-
-                data = KeyData()
-                data.filtered = filtered
-                data.pressed = (ev.type == xlib.KeyPress)
-                data.repeated = (ev.type == last_ev.type and \
-                                 ev.xkey.state == last_ev.xkey.state and \
-                                 ev.xkey.keycode == last_ev.xkey.keycode)
-                data.mods_mask = ev.xkey.state
-                self._event_modifiers(ev.xkey, data)
-                if not data.filtered and data.pressed and self.translate:
-                    self._event_keypress(ev.xkey, data)
-                else:
-                    self._event_lookup(ev.xkey, data)
-                self._event_processed(data)
+                if self.input_types & InputType.keyboard:
+                    self._kbd_process(ev, last_ev)
                 last_ev = ev
 
+        # finalize
         xlib.XRecordFreeContext(self.control_dpy, self.record_ctx)
         xlib.XCloseDisplay(self.control_dpy)
         xlib.XCloseDisplay(record_dpy)
-        del proc_ref
+        del record_ref
 
-        xlib.XDestroyIC(self.replay_xic)
-        xlib.XCloseIM(replay_xim)
+        if self.input_types & InputType.keyboard:
+            self._kbd_del()
+
         xlib.XDestroyWindow(self.replay_dpy, self.replay_win)
         xlib.XCloseDisplay(self.replay_dpy)
+
 
 
 if __name__ == '__main__':
@@ -330,7 +395,7 @@ if __name__ == '__main__':
         print(values)
 
     glib.threads_init()
-    kl = KeyListener(callback, True, True)
+    kl = InputListener(callback)
     try:
         kl.start()
         glib.MainLoop().run()
