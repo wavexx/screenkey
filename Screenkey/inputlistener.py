@@ -218,7 +218,7 @@ class InputListener(threading.Thread):
         buf = xlib.create_string_buffer(16)
         keysym = xlib.KeySym()
         status = xlib.Status()
-        ret = xlib.Xutf8LookupString(self.replay_xic, kev, buf, len(buf),
+        ret = xlib.Xutf8LookupString(self._kbd_replay_xic, kev, buf, len(buf),
                                      xlib.byref(keysym), xlib.byref(status))
         if ret != xlib.NoSymbol:
             if 32 <= keysym.value <= 126:
@@ -252,6 +252,8 @@ class InputListener(threading.Thread):
 
 
     def _kbd_init(self):
+        self._kbd_last_ev = xlib.XEvent()
+
         if self.kbd_compose:
             style = xlib.XIMPreeditNothing | xlib.XIMStatusNothing
         else:
@@ -259,28 +261,28 @@ class InputListener(threading.Thread):
 
         # TODO: implement preedit callbacks for on-the-spot composition
         #       (this would fix focus-stealing for the global IM state)
-        self.replay_xim = xlib.XOpenIM(self.replay_dpy, None, None, None)
-        if not self.replay_xim:
+        self._kbd_replay_xim = xlib.XOpenIM(self.replay_dpy, None, None, None)
+        if not self._kbd_replay_xim:
             raise Exception("Cannot initialize input method")
 
-        self.replay_xic = xlib.XCreateIC(self.replay_xim,
-                                         xlib.XNClientWindow, self.replay_win,
-                                         xlib.XNInputStyle, style,
-                                         None)
-        xlib.XSetICFocus(self.replay_xic)
+        self._kbd_replay_xic = xlib.XCreateIC(self._kbd_replay_xim,
+                                              xlib.XNClientWindow, self.replay_win,
+                                              xlib.XNInputStyle, style,
+                                              None)
+        xlib.XSetICFocus(self._kbd_replay_xic)
 
 
     def _kbd_del(self):
-        xlib.XDestroyIC(self.replay_xic)
-        xlib.XCloseIM(self.replay_xim)
+        xlib.XDestroyIC(self._kbd_replay_xic)
+        xlib.XCloseIM(self._kbd_replay_xim)
 
 
-    def _kbd_process(self, ev, last_ev):
+    def _kbd_process(self, ev):
         if ev.type == xlib.ClientMessage and \
            ev.xclient.message_type == self.custom_atom:
             if ev.xclient.data[0] in [xlib.FocusIn, xlib.FocusOut]:
                 # we do not keep track of multiple XICs, just reset
-                xic = xlib.Xutf8ResetIC(self.replay_xic)
+                xic = xlib.Xutf8ResetIC(self._kbd_replay_xic)
                 if xic is not None: xlib.XFree(xic)
                 return
             elif ev.type in [xlib.KeyPress, xlib.KeyRelease]:
@@ -300,9 +302,9 @@ class InputListener(threading.Thread):
         data = KeyData()
         data.filtered = filtered
         data.pressed = (ev.type == xlib.KeyPress)
-        data.repeated = (ev.type == last_ev.type and \
-                         ev.xkey.state == last_ev.xkey.state and \
-                         ev.xkey.keycode == last_ev.xkey.keycode)
+        data.repeated = (ev.type == self._kbd_last_ev.type and \
+                         ev.xkey.state == self._kbd_last_ev.xkey.state and \
+                         ev.xkey.keycode == self._kbd_last_ev.xkey.keycode)
         data.mods_mask = ev.xkey.state
         self._event_modifiers(ev.xkey, data)
         if not data.filtered and data.pressed and self.kbd_translate:
@@ -310,6 +312,7 @@ class InputListener(threading.Thread):
         else:
             self._event_lookup(ev.xkey, data)
         self._event_processed(data)
+        self._kbd_last_ev = ev
 
 
     def run(self):
@@ -344,7 +347,6 @@ class InputListener(threading.Thread):
         record_ref = record_enable(record_dpy, self.record_ctx, self._event_received)
 
         # event loop
-        last_ev = xlib.XEvent()
         self.lock.release()
         while True:
             with self.lock:
@@ -369,8 +371,7 @@ class InputListener(threading.Thread):
                 ev = xlib.XEvent()
                 xlib.XNextEvent(self.replay_dpy, xlib.byref(ev))
                 if self.input_types & InputType.keyboard:
-                    self._kbd_process(ev, last_ev)
-                last_ev = ev
+                    self._kbd_process(ev)
 
         # finalize
         xlib.XRecordFreeContext(self.control_dpy, self.record_ctx)
