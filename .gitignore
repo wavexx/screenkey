@@ -1,5 +1,6 @@
 *.py[co]
 /*.egg-info
+/.eggs/
 /po/*.pot
 /dist
 /build
