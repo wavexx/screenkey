@@ -43,7 +43,7 @@ Dependencies:
 
 Install dependencies (on Debian/Ubuntu)::
 
-  sudo apt-get install python-gtk2 python-setuptools python-setuptools-git python-distutils-extra
+  sudo apt-get install python-gtk2 python-setuptools python-distutils-extra
 
 You can also install "screenkey" via ArchLinux's AUR package:
 
