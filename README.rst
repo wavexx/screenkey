@@ -40,6 +40,7 @@ Dependencies:
 - DistUtils-Extra (build only)
 - slop (https://github.com/naelstrof/slop)
 - FontAwesome_ (for multimedia symbols)
+- Python AppIndicator (required for Unity / GNOME Shell)
 
 Install dependencies (on Debian/Ubuntu)::
 
