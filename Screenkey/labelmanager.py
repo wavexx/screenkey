@@ -110,12 +110,6 @@ REPLACE_SYMS = {
 
 WHITESPACE_SYMS = {'Tab', 'ISO_Left_Tab', 'Return', 'space', 'KP_Enter'}
 
-MODS_MAP = {
-    'normal': 0,
-    'emacs': 1,
-    'mac': 2,
-}
-
 MODS_SYMS = {
     'shift':  {'Shift_L', 'Shift_R'},
     'ctrl':   {'Control_L', 'Control_R'},
@@ -126,12 +120,14 @@ MODS_SYMS = {
 }
 
 REPLACE_MODS = {
-    'shift':  (_('Shift+'), 'S-',     _('⇧+')),
-    'ctrl':   (_('Ctrl+'),  'C-',     _('⌘+')),
-    'alt':    (_('Alt+'),   'M-',     _('⌥+')),
-    'super':  (_('Super+'), 's-',     _('Super+')),
-    'hyper':  (_('Hyper+'), 'H-',     _('Hyper+')),
-    'alt_gr': (_('AltGr+'), 'AltGr-', _('AltGr+')),
+    'shift':  {None: _('Shift+'), 'emacs': 'S-', 'mac': _('⇧+')},
+    'ctrl':   {None: _('Ctrl+'),  'emacs': 'C-', 'mac': _('⌘+')},
+    'alt':    {None: _('Alt+'),   'emacs': 'M-', 'mac': _('⌥+')},
+    'super':  {None: _('Super+'), 'emacs': 's-',
+               'win': [ReplData(_('\uf17a+'), 'FontAwesome'), ReplData(_('Win+'),   None)],
+               'tux': [ReplData(_('\uf17c+'), 'FontAwesome'), ReplData(_('Super+'), None)]},
+    'hyper':  {None: _('Hyper+'), 'emacs': 'H-'},
+    'alt_gr': {None: _('AltGr+'), 'emacs': 'AltGr-'},
 }
 
 
@@ -148,7 +144,6 @@ class LabelManager(object):
         self.key_mode = key_mode
         self.bak_mode = bak_mode
         self.mods_mode = mods_mode
-        self.mods_index = MODS_MAP[mods_mode]
         self.logger = logger
         self.listener = listener
         self.data = []
@@ -207,6 +202,11 @@ class LabelManager(object):
         for k, v in REPLACE_SYMS.items():
             markup = self.get_repl_markup(v.repl)
             self.replace_syms[k] = KeyRepl(v.bk_stop, v.silent, v.spaced, markup)
+
+        self.replace_mods = {}
+        for k, v in REPLACE_MODS.items():
+            data = v.get(self.mods_mode, v.get(None))
+            self.replace_mods[k] = self.get_repl_markup(data)
 
 
     def update_text(self):
@@ -313,7 +313,7 @@ class LabelManager(object):
         mod = ''
         for cap in ['ctrl', 'alt', 'super', 'hyper']:
             if event.modifiers[cap]:
-                mod = mod + REPLACE_MODS[cap][self.mods_index]
+                mod = mod + self.replace_mods[cap]
 
         # Backspace handling
         if event.symbol == 'BackSpace' and not self.mods_only and \
@@ -355,7 +355,7 @@ class LabelManager(object):
                          self.vis_shift and \
                          self.mods_mode != 'emacs')):
             # add back shift for translated keys
-            mod = mod + REPLACE_MODS['shift'][self.mods_index]
+            mod = mod + self.replace_mods['shift']
 
         # Whitespace handling
         if not self.vis_space and mod == '' and event.symbol in WHITESPACE_SYMS:
@@ -401,7 +401,7 @@ class LabelManager(object):
         mod = ''
         for cap in REPLACE_MODS.keys():
             if event.modifiers[cap]:
-                mod = mod + REPLACE_MODS[cap][self.mods_index]
+                mod = mod + self.replace_mods[cap]
 
         # keycaps
         key_repl = self.replace_syms.get(event.symbol)
