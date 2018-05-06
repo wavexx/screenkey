@@ -188,7 +188,7 @@ class Screenkey(gtk.Window):
                             self.bg_color.green_float,
                             self.bg_color.blue_float,
                             self.options.opacity)
-        ctx.set_operator(cairo.Operator.SOURCE)
+        ctx.set_operator(cairo.OPERATOR_SOURCE)
         ctx.paint()
         return False
 
