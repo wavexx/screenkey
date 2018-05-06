@@ -36,6 +36,7 @@ Dependencies:
 
 - Python 2.7 (Python 3 support yet incomplete)
 - PyGTK
+- Pycairo
 - setuptools (build only)
 - DistUtils-Extra (build only)
 - slop (https://github.com/naelstrof/slop)

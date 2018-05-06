@@ -21,6 +21,7 @@ pygtk.require('2.0')
 
 import gtk
 import pango
+import cairo
 
 
 class Screenkey(gtk.Window):
@@ -71,6 +72,7 @@ class Screenkey(gtk.Window):
         self.set_keep_above(True)
         self.set_accept_focus(False)
         self.set_focus_on_map(False)
+        self.set_app_paintable(True)
 
         self.label = gtk.Label()
         self.label.set_attributes(pango.AttrList())
@@ -84,10 +86,16 @@ class Screenkey(gtk.Window):
 
         self.set_gravity(gtk.gdk.GRAVITY_CENTER)
         self.connect("configure-event", self.on_configure)
+        self.connect("expose-event", self.on_expose)
+
         scr = self.get_screen()
         scr.connect("size-changed", self.on_configure)
         scr.connect("monitors-changed", self.on_monitors_changed)
         self.set_active_monitor(self.options.screen)
+
+        cmap = scr.get_rgba_colormap()
+        if cmap is not None:
+            self.set_colormap(cmap)
 
         self.labelmngr = None
         self.enabled = True
@@ -171,8 +179,18 @@ class Screenkey(gtk.Window):
 
     def update_colors(self):
         self.label.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse(self.options.font_color))
-        self.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse(self.options.bg_color))
-        self.set_opacity(self.options.opacity)
+        self.bg_color = gtk.gdk.color_parse(self.options.bg_color)
+
+
+    def on_expose(self, widget, *_):
+        ctx = widget.get_window().cairo_create()
+        ctx.set_source_rgba(self.bg_color.red_float,
+                            self.bg_color.green_float,
+                            self.bg_color.blue_float,
+                            self.options.opacity)
+        ctx.set_operator(cairo.Operator.SOURCE)
+        ctx.paint()
+        return False
 
 
     def on_configure(self, *_):
@@ -571,7 +589,7 @@ class Screenkey(gtk.Window):
         hbox4_aspect = gtk.HBox()
 
         lbl_opacity = gtk.Label(_("Opacity"))
-        adj_opacity = gtk.Adjustment(self.options.opacity, 0.1, 1.0, 0.1, 0, 0)
+        adj_opacity = gtk.Adjustment(self.options.opacity, 0, 1.0, 0.1, 0, 0)
         adj_opacity.connect("value-changed", on_adj_opacity_changed)
         adj_scale = gtk.HScale(adj_opacity)
 
