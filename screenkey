@@ -14,15 +14,6 @@ import re
 from argparse import ArgumentParser
 
 
-def detach():
-    if os.fork() != 0:
-        os._exit(0)
-    os.setsid()
-    if os.fork() != 0:
-        os._exit(0)
-    os.close(0)
-
-
 def geometry(string):
     size = re.match(r'^(\d+)x(\d+)(\+\d+\+\d+)?$', string)
     if size is None:
@@ -38,10 +29,8 @@ def geometry(string):
 
 def main():
     ap = ArgumentParser(description=APP_DESC, version=VERSION)
-    ap.add_argument("--no-detach", action="store_true",
-                    help=_("do not detach from the parent"))
     ap.add_argument("-d", "--debug", action="store_true",
-                    help=_("enable debugging (implies --no-detach)"))
+                    help=_("enable debugging"))
     ap.add_argument("--no-systray", action="store_true",
                     help=_("do not create system tray icon"))
     ap.add_argument("-t", "--timeout", type=float, help=_("timeout in seconds"))
@@ -96,14 +85,10 @@ def main():
 
     # Initialize logger
     if args.debug:
-        args.no_detach = True
         logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(APP_NAME)
-
-    if args.no_detach == False:
-        detach()
 
     import Screenkey.screenkey as sc
     sc.Screenkey(logger=logger, options=options, show_settings=args.show_settings)
