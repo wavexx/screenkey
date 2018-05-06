@@ -79,16 +79,15 @@ class Screenkey(gtk.Window):
         self.label.show()
         self.add(self.label)
 
+        self.font = pango.FontDescription(self.options.font_desc)
+        self.update_colors()
+
         self.set_gravity(gtk.gdk.GRAVITY_CENTER)
         self.connect("configure-event", self.on_configure)
         scr = self.get_screen()
         scr.connect("size-changed", self.on_configure)
         scr.connect("monitors-changed", self.on_monitors_changed)
         self.set_active_monitor(self.options.screen)
-
-        self.font = pango.FontDescription(self.options.font_desc)
-        self.update_colors()
-        self.update_label()
 
         self.labelmngr = None
         self.enabled = True
@@ -196,6 +195,7 @@ class Screenkey(gtk.Window):
         if self.options.position == 'fixed' and self.options.geometry is not None:
             self.move(*self.options.geometry[0:2])
             self.resize(*self.options.geometry[2:4])
+            self.update_label()
             return
 
         if self.options.geometry is not None:
@@ -219,6 +219,7 @@ class Screenkey(gtk.Window):
         else:
             window_y = area_geometry[1] + area_geometry[3] * 9 // 10 - window_height
         self.move(area_geometry[0], window_y)
+        self.update_label()
 
 
     def on_statusicon_popup(self, widget, button, timestamp, data=None):
@@ -229,7 +230,6 @@ class Screenkey(gtk.Window):
 
 
     def show(self):
-        self.update_geometry()
         super(Screenkey, self).show()
 
 
@@ -369,9 +369,6 @@ class Screenkey(gtk.Window):
                 if not new_geom:
                     self.cbox_positions.set_active(POSITIONS.keys().index(self.options.position))
                     return
-            elif self.options.position == 'fixed':
-                # automatically clear geometry
-                self.options.geometry = None
             self.options.position = new_position
             self.update_geometry()
             self.logger.debug("Window position changed: %s." % self.options.position)
