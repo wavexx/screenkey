@@ -364,7 +364,7 @@ class Screenkey(gtk.Window):
         def on_cbox_position_changed(widget, data=None):
             index = widget.get_active()
             new_position = POSITIONS.keys()[index]
-            if new_position == 'fixed':
+            if self.options.position != 'fixed' and new_position == 'fixed':
                 new_geom = on_btn_sel_geom(widget)
                 if not new_geom:
                     self.cbox_positions.set_active(POSITIONS.keys().index(self.options.position))
@@ -400,7 +400,7 @@ class Screenkey(gtk.Window):
 
         def on_btn_sel_geom(widget, data=None):
             try:
-                ret = subprocess.check_output(['slop', '-f', '%x %y %w %h'])
+                ret = subprocess.check_output(['slop', '-f', '%x %y %w %h %i'])
             except subprocess.CalledProcessError:
                 return False
             except OSError:
@@ -415,7 +415,16 @@ class Screenkey(gtk.Window):
                 msg.destroy()
                 return False
 
-            self.options.geometry = map(int, ret.split(' '))
+            data = map(int, ret.split(' '))
+            self.options.geometry = data[0:4]
+            self.options.window = data[4]
+            if not self.options.window or \
+               self.options.window == self.get_screen().get_root_window().xid:
+                # region selected, switch to fixed
+                self.options.window = None
+                self.options.position = 'fixed'
+                self.cbox_positions.set_active(POSITIONS.keys().index(self.options.position))
+
             self.update_geometry()
             self.btn_reset_geom.set_sensitive(True)
             return True
