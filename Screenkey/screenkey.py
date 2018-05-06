@@ -544,7 +544,7 @@ class Screenkey(gtk.Window):
         btn_sel_geom.connect("clicked", on_btn_sel_geom)
         vbox_position.pack_start(btn_sel_geom)
 
-        frm_aspect = gtk.Frame("<b>%s</b>" % _("Aspect"))
+        frm_aspect = gtk.Frame("<b>%s</b>" % _("Font"))
         frm_aspect.set_border_width(4)
         frm_aspect.get_label_widget().set_use_markup(True)
         frm_aspect.set_shadow_type(gtk.SHADOW_NONE)
@@ -574,32 +574,8 @@ class Screenkey(gtk.Window):
         hbox2_aspect.pack_start(lbl_sizes, expand=False, fill=False, padding=6)
         hbox2_aspect.pack_start(cbox_sizes, expand=False, fill=False, padding=4)
 
-        hbox3_font_color = gtk.HBox()
-
-        lbl_font_color = gtk.Label(_("Font color"))
-        btn_font_color = gtk.ColorButton(color=gtk.gdk.color_parse(self.options.font_color))
-        btn_font_color.connect("color-set", on_font_color_changed)
-        btn_bg_color = gtk.ColorButton(color=gtk.gdk.color_parse(self.options.bg_color))
-        btn_bg_color.connect("color-set", on_bg_color_changed)
-
-        hbox3_font_color.pack_start(lbl_font_color, expand=False, fill=False, padding=6)
-        hbox3_font_color.pack_start(btn_font_color, expand=False, fill=False, padding=4)
-        hbox3_font_color.pack_start(btn_bg_color, expand=False, fill=False, padding=4)
-
-        hbox4_aspect = gtk.HBox()
-
-        lbl_opacity = gtk.Label(_("Opacity"))
-        adj_opacity = gtk.Adjustment(self.options.opacity, 0, 1.0, 0.1, 0, 0)
-        adj_opacity.connect("value-changed", on_adj_opacity_changed)
-        adj_scale = gtk.HScale(adj_opacity)
-
-        hbox4_aspect.pack_start(lbl_opacity, expand=False, fill=False, padding=6)
-        hbox4_aspect.pack_start(adj_scale, expand=True, fill=True, padding=4)
-
         vbox_aspect.pack_start(hbox0_font)
         vbox_aspect.pack_start(hbox2_aspect)
-        vbox_aspect.pack_start(hbox3_font_color)
-        vbox_aspect.pack_start(hbox4_aspect)
 
         frm_aspect.add(vbox_aspect)
 
@@ -675,6 +651,47 @@ class Screenkey(gtk.Window):
 
         frm_kbd.add(vbox_kbd)
 
+        frm_color = gtk.Frame("<b>%s</b>" % _("Color"))
+        frm_color.set_border_width(4)
+        frm_color.get_label_widget().set_use_markup(True)
+        frm_color.set_shadow_type(gtk.SHADOW_NONE)
+        vbox_color = gtk.VBox(spacing=6)
+
+        hbox3_font_color = gtk.HBox()
+
+        lbl_font_color = gtk.Label(_("Font color"))
+        btn_font_color = gtk.ColorButton(color=gtk.gdk.color_parse(self.options.font_color))
+        btn_font_color.set_title(_("Text color"))
+        btn_font_color.connect("color-set", on_font_color_changed)
+
+        hbox3_font_color.pack_start(lbl_font_color, expand=False, fill=False, padding=6)
+        hbox3_font_color.pack_start(btn_font_color, expand=False, fill=False, padding=4)
+
+        hbox4_bg_color = gtk.HBox()
+
+        lbl_bg_color = gtk.Label(_("Background color"))
+        btn_bg_color = gtk.ColorButton(color=gtk.gdk.color_parse(self.options.bg_color))
+        btn_bg_color.set_title(_("Background color"))
+        btn_bg_color.connect("color-set", on_bg_color_changed)
+
+        hbox4_bg_color.pack_start(lbl_bg_color, expand=False, fill=False, padding=6)
+        hbox4_bg_color.pack_start(btn_bg_color, expand=False, fill=False, padding=4)
+
+        hbox5_opacity = gtk.HBox()
+
+        lbl_opacity = gtk.Label(_("Opacity"))
+        adj_opacity = gtk.Adjustment(self.options.opacity, 0, 1.0, 0.1, 0, 0)
+        adj_opacity.connect("value-changed", on_adj_opacity_changed)
+        adj_scale = gtk.HScale(adj_opacity)
+
+        hbox5_opacity.pack_start(lbl_opacity, expand=False, fill=False, padding=6)
+        hbox5_opacity.pack_start(adj_scale, expand=True, fill=True, padding=4)
+
+        vbox_color.pack_start(hbox3_font_color)
+        vbox_color.pack_start(hbox4_bg_color)
+        vbox_color.pack_start(hbox5_opacity)
+        frm_color.add(vbox_color)
+
         hbox_main = gtk.HBox()
         vbox_main = gtk.VBox()
         vbox_main.pack_start(frm_time, False, False, 6)
@@ -683,6 +700,7 @@ class Screenkey(gtk.Window):
         hbox_main.pack_start(vbox_main)
         vbox_main = gtk.VBox()
         vbox_main.pack_start(frm_kbd, False, False, 6)
+        vbox_main.pack_start(frm_color, False, False, 6)
         hbox_main.pack_start(vbox_main)
         frm_main.add(hbox_main)
 
