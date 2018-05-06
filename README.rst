@@ -34,7 +34,7 @@ To install::
 
 Dependencies:
 
-- Python 2.7 (Python 3 support yet incomplete)
+- Python 2.7 (no Python 3 support yet)
 - PyGTK
 - Pycairo
 - setuptools (build only)
