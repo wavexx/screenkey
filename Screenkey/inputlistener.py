@@ -45,7 +45,6 @@ import sys
 if sys.version_info.major < 3:
     import glib
 else:
-    import gi
     from gi.repository import GLib as glib
 
 import threading
