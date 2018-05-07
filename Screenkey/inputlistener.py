@@ -284,11 +284,11 @@ class InputListener(threading.Thread):
                 # we do not keep track of multiple XICs, just reset
                 xic = xlib.Xutf8ResetIC(self._kbd_replay_xic)
                 if xic is not None: xlib.XFree(xic)
-                return
-            elif ev.type in [xlib.KeyPress, xlib.KeyRelease]:
-                # fake keyboard event data for XFilterEvent
-                ev.xkey.send_event = False
-                ev.xkey.window = self.replay_win
+            return
+        elif ev.type in [xlib.KeyPress, xlib.KeyRelease]:
+            # fake keyboard event data for XFilterEvent
+            ev.xkey.send_event = False
+            ev.xkey.window = self.replay_win
 
         # pass _all_ events to XFilterEvent
         filtered = bool(xlib.XFilterEvent(ev, 0))
