@@ -84,6 +84,7 @@ class Screenkey(gtk.Window):
         self.font = pango.FontDescription(self.options.font_desc)
         self.update_colors()
 
+        self.set_size_request(0, 0)
         self.set_gravity(gtk.gdk.GRAVITY_CENTER)
         self.connect("configure-event", self.on_configure)
         self.connect("expose-event", self.on_expose)
