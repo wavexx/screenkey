@@ -7,95 +7,590 @@ msgid ""
 msgstr ""
 "Project-Id-Version: screenkey 0.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-06-15 16:22+0200\n"
-"PO-Revision-Date: 2010-06-15 16:34+0200\n"
+"POT-Creation-Date: 2017-10-29 21:31+0100\n"
+"PO-Revision-Date: 2017-10-29 22:04+0100\n"
 "Last-Translator: Pablo Seminario <pabluk@gmail.com>\n"
 "Language-Team: French\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: screenkey:36
+#: ../screenkey:42
 msgid "do not detach from the parent"
-msgstr ""
+msgstr "ne pas détacher du parent"
 
-#: screenkey:38
-msgid "show debug information"
-msgstr ""
+#: ../screenkey:44
+msgid "enable debugging (implies --no-detach)"
+msgstr "active le débogage (implique --no-detach)"
 
-#: Screenkey/__init__.py:3
+#: ../screenkey:46
+msgid "do not create system tray icon"
+msgstr "ne pas créer d'icône dans la barre système"
+
+#: ../screenkey:47
+msgid "timeout in seconds"
+msgstr "délai maximal en secondes"
+
+#: ../screenkey:49
+msgid "set vertical position"
+msgstr "réglage de la position verticale"
+
+#: ../screenkey:51
+msgid "make window persistent"
+msgstr "rendre la fenêtre persistante"
+
+#: ../screenkey:53
+msgid "set font size"
+msgstr "régler la taille de police"
+
+#: ../screenkey:55
+msgid "set fixed area/window geometry"
+msgstr "régler la géométrique de zone fixe/fenêtre"
+
+#: ../screenkey:57
+msgid "set key processing mode"
+msgstr "régler le mode de traitement des touches"
+
+#: ../screenkey:59
+msgid "backspace processing mode"
+msgstr "mode de traitement de l'effacement arrière"
+
+#: ../screenkey:61
+msgid "modifiers visualization mode"
+msgstr "mode de visualisation des modifieurs"
+
+#: ../screenkey:63
+msgid "show only keys with modifiers pressed"
+msgstr "Ne montrer que les touches avec un modifieur pressé"
+
+#: ../screenkey:65
+msgid "span text over multiple lines"
+msgstr "écrire le texte sur plusieurs lignes"
+
+#: ../screenkey:67
+msgid "always show Shift when modifiers are pressed"
+msgstr "toujours montrer Maj quand les modifieurs sont pressés"
+
+#: ../screenkey:69
+msgid "disable visualization of whitespace"
+msgstr "désactiver la visualisation de l'espace"
+
+#: ../screenkey:71
+msgid "show settings dialog on start"
+msgstr "montrer le dialogue de réglages au démarrage"
+
+#: ../screenkey:73
+msgid "show on the specified screen number"
+msgstr "montrer sur le numéro d'écran spécifié"
+
+#: ../screenkey:75
+msgid "set font family/weight"
+msgstr "régler la famille de police/l'épaisseur"
+
+#: ../screenkey:77
+msgid "set font color"
+msgstr "régler la couleur de la police"
+
+#: ../screenkey:79
+msgid "background color"
+msgstr "couleur de fond"
+
+#: ../screenkey:81
+msgid "window opacity (in range 0.0-1.0)"
+msgstr "opacité de la fenêtre (dans l'intervalle 0.0-1.0)"
+
+#: ../screenkey:83
+msgid "Ignore the specified KeySym"
+msgstr "ignorer le KeySym spécifié"
+
+#: ../screenkey:85
+msgid "Compress key repeats after the specified count"
+msgstr "Comprimer les répétitions de touches après le nombre spécifié"
+
+#: ../Screenkey/__init__.py:6
 msgid "Screencast your keys"
-msgstr ""
+msgstr "Montre vos frappes à l'écran"
 
-#: Screenkey/screenkey.py:42
+#: ../Screenkey/__init__.py:12
 msgid "Top"
-msgstr ""
+msgstr "Haut"
 
-#: Screenkey/screenkey.py:43
+#: ../Screenkey/__init__.py:13
 msgid "Center"
 msgstr "Centre"
 
-#: Screenkey/screenkey.py:44
+#: ../Screenkey/__init__.py:14
 msgid "Bottom"
-msgstr ""
+msgstr "Bas"
 
-#: Screenkey/screenkey.py:47
+#: ../Screenkey/__init__.py:15
+msgid "Fixed"
+msgstr "Fixe"
+
+#: ../Screenkey/__init__.py:19
 msgid "Large"
-msgstr ""
+msgstr "Grand"
 
-#: Screenkey/screenkey.py:48
+#: ../Screenkey/__init__.py:20
 msgid "Medium"
-msgstr ""
+msgstr "Moyen"
 
-#: Screenkey/screenkey.py:49
+#: ../Screenkey/__init__.py:21
 msgid "Small"
-msgstr ""
+msgstr "Petit"
 
-#: Screenkey/screenkey.py:52
+#: ../Screenkey/__init__.py:25
+msgid "Composed"
+msgstr "Composé"
+
+#: ../Screenkey/__init__.py:26
+msgid "Translated"
+msgstr "Traduit"
+
+#: ../Screenkey/__init__.py:27
+msgid "Keysyms"
+msgstr "Keysyms"
+
+#: ../Screenkey/__init__.py:28
 msgid "Raw"
-msgstr ""
+msgstr "Brut"
 
-#: Screenkey/screenkey.py:53
+#: ../Screenkey/__init__.py:32 ../Screenkey/__init__.py:38
 msgid "Normal"
-msgstr ""
+msgstr "Normal"
 
-#: Screenkey/screenkey.py:113
-msgid "Show keys"
-msgstr ""
+#: ../Screenkey/__init__.py:33
+msgid "Baked"
+msgstr "Tout cuit"
 
-#: Screenkey/screenkey.py:295
+#: ../Screenkey/__init__.py:34
+msgid "Full"
+msgstr "Complet"
+
+#: ../Screenkey/__init__.py:39
+msgid "Emacs"
+msgstr "Emacs"
+
+#: ../Screenkey/__init__.py:40
+msgid "Mac"
+msgstr "Mac"
+
+#: ../Screenkey/screenkey.py:451
 msgid "Preferences"
 msgstr "Préférences"
 
-#: Screenkey/screenkey.py:299
-msgid "<b>Time</b>"
-msgstr ""
+#: ../Screenkey/screenkey.py:454
+msgid "Time"
+msgstr "Temps"
 
-#: Screenkey/screenkey.py:304
+#: ../Screenkey/screenkey.py:460
 msgid "Display for"
-msgstr ""
+msgstr "Affichage pour"
 
-#: Screenkey/screenkey.py:305
+#: ../Screenkey/screenkey.py:461
 msgid "seconds"
-msgstr ""
+msgstr "secondes"
 
-#: Screenkey/screenkey.py:322
-msgid "<b>Aspect</b>"
-msgstr ""
+#: ../Screenkey/screenkey.py:474
+msgid "Persistent window"
+msgstr "Fenêtre persistante"
 
-#: Screenkey/screenkey.py:330
+#: ../Screenkey/screenkey.py:482 ../Screenkey/screenkey.py:501
 msgid "Position"
 msgstr "Position"
 
-#: Screenkey/screenkey.py:345
+#: ../Screenkey/screenkey.py:488
+msgid "Screen"
+msgstr "Écran"
+
+#: ../Screenkey/screenkey.py:509
+msgid "Reset"
+msgstr "Redémarrer"
+
+#: ../Screenkey/screenkey.py:519
+msgid "Select window/region"
+msgstr "Sélectionner la fenêtre/région"
+
+#: ../Screenkey/screenkey.py:523
+msgid "Aspect"
+msgstr "Aspect"
+
+#: ../Screenkey/screenkey.py:532
+msgid "Font"
+msgstr "Police"
+
+#: ../Screenkey/screenkey.py:542
 msgid "Size"
 msgstr "Taille"
 
-#: Screenkey/screenkey.py:362
-msgid "<b>Keys</b>"
+#: ../Screenkey/screenkey.py:555
+msgid "Font color"
+msgstr "Couleur de police"
+
+#: ../Screenkey/screenkey.py:567
+msgid "Opacity"
+msgstr "Opacité"
+
+#: ../Screenkey/screenkey.py:582
+msgid "Keys"
+msgstr "Touches"
+
+#: ../Screenkey/screenkey.py:589
+msgid "Keyboard mode"
+msgstr "Mode du clavier"
+
+#: ../Screenkey/screenkey.py:601
+msgid "Backspace mode"
+msgstr "Mode de l'effacement arrière"
+
+#: ../Screenkey/screenkey.py:612
+msgid "Modifiers mode"
+msgstr "Mode des modifieurs"
+
+#: ../Screenkey/screenkey.py:622
+msgid "Show Modifier sequences only"
+msgstr "Montrer seulement les séquences de modifieurs"
+
+#: ../Screenkey/screenkey.py:627
+msgid "Always show Shift"
+msgstr "Toujours montrer Maj"
+
+#: ../Screenkey/screenkey.py:632
+msgid "Show Whitespace characters"
+msgstr "Montrer les caractères d'espacement"
+
+#: ../Screenkey/screenkey.py:638
+msgid "Compress repeats after"
+msgstr "Comprimer les répétitions après"
+
+#: ../Screenkey/screenkey.py:676
+msgid "Show keys"
+msgstr "Montrer les touches"
+
+#. Regular keys
+#: ../Screenkey/labelmanager.py:28
+msgid "Esc"
+msgstr "Échap"
+
+#: ../Screenkey/labelmanager.py:29
+msgid "↹"
+msgstr "↹"
+
+#: ../Screenkey/labelmanager.py:30 ../Screenkey/labelmanager.py:71
+msgid "⏎"
+msgstr "⏎"
+
+#: ../Screenkey/labelmanager.py:31
+msgid "␣"
+msgstr "␣"
+
+#: ../Screenkey/labelmanager.py:32
+msgid "⌫"
+msgstr "⌫"
+
+#: ../Screenkey/labelmanager.py:33
+msgid "Caps"
+msgstr "Verr.Maj"
+
+#: ../Screenkey/labelmanager.py:34
+msgid "F1"
+msgstr "F1"
+
+#: ../Screenkey/labelmanager.py:35
+msgid "F2"
+msgstr "F2"
+
+#: ../Screenkey/labelmanager.py:36
+msgid "F3"
+msgstr "F3"
+
+#: ../Screenkey/labelmanager.py:37
+msgid "F4"
+msgstr "F4"
+
+#: ../Screenkey/labelmanager.py:38
+msgid "F5"
+msgstr "F5"
+
+#: ../Screenkey/labelmanager.py:39
+msgid "F6"
+msgstr "F6"
+
+#: ../Screenkey/labelmanager.py:40
+msgid "F7"
+msgstr "F7"
+
+#: ../Screenkey/labelmanager.py:41
+msgid "F8"
+msgstr "F8"
+
+#: ../Screenkey/labelmanager.py:42
+msgid "F9"
+msgstr "F9"
+
+#: ../Screenkey/labelmanager.py:43
+msgid "F10"
+msgstr "F10"
+
+#: ../Screenkey/labelmanager.py:44
+msgid "F11"
+msgstr "F11"
+
+#: ../Screenkey/labelmanager.py:45
+msgid "F12"
+msgstr "F12"
+
+#: ../Screenkey/labelmanager.py:46
+msgid "↑"
+msgstr "↑"
+
+#: ../Screenkey/labelmanager.py:47
+msgid "←"
+msgstr "←"
+
+#: ../Screenkey/labelmanager.py:48
+msgid "→"
+msgstr "→"
+
+#: ../Screenkey/labelmanager.py:49
+msgid "↓"
+msgstr "↓"
+
+#: ../Screenkey/labelmanager.py:50
+msgid "PgUp"
+msgstr "PgHaut"
+
+#: ../Screenkey/labelmanager.py:51
+msgid "PgDn"
+msgstr "PgBas"
+
+#: ../Screenkey/labelmanager.py:52
+msgid "Home"
+msgstr "Début"
+
+#: ../Screenkey/labelmanager.py:53
+msgid "End"
+msgstr "Fin"
+
+#: ../Screenkey/labelmanager.py:54
+msgid "Ins"
+msgstr "Ins"
+
+#: ../Screenkey/labelmanager.py:55
+msgid "Del"
+msgstr "Suppr"
+
+#: ../Screenkey/labelmanager.py:56
+msgid "(1)"
+msgstr "(1)"
+
+#: ../Screenkey/labelmanager.py:57
+msgid "(2)"
+msgstr "(2)"
+
+#: ../Screenkey/labelmanager.py:58
+msgid "(3)"
+msgstr "(3)"
+
+#: ../Screenkey/labelmanager.py:59
+msgid "(4)"
+msgstr "(4)"
+
+#: ../Screenkey/labelmanager.py:60
+msgid "(5)"
+msgstr "(5)"
+
+#: ../Screenkey/labelmanager.py:61
+msgid "(6)"
+msgstr "(6)"
+
+#: ../Screenkey/labelmanager.py:62
+msgid "(7)"
+msgstr "(7)"
+
+#: ../Screenkey/labelmanager.py:63
+msgid "(8)"
+msgstr "(8)"
+
+#: ../Screenkey/labelmanager.py:64
+msgid "(9)"
+msgstr "(9)"
+
+#: ../Screenkey/labelmanager.py:65
+msgid "(0)"
+msgstr "(0)"
+
+#: ../Screenkey/labelmanager.py:66
+msgid "(.)"
+msgstr "(.)"
+
+#: ../Screenkey/labelmanager.py:67
+msgid "(+)"
+msgstr "(+)"
+
+#: ../Screenkey/labelmanager.py:68
+msgid "(-)"
+msgstr "(-)"
+
+#: ../Screenkey/labelmanager.py:69
+msgid "(*)"
+msgstr "(*)"
+
+#: ../Screenkey/labelmanager.py:70
+msgid "(/)"
+msgstr "(/)"
+
+#: ../Screenkey/labelmanager.py:72
+msgid "NumLck"
+msgstr "Verr.Num"
+
+#: ../Screenkey/labelmanager.py:73
+msgid "ScrLck"
+msgstr "Verr.Écran"
+
+#: ../Screenkey/labelmanager.py:74
+msgid "Pause"
+msgstr "Pause"
+
+#: ../Screenkey/labelmanager.py:75
+msgid "Break"
+msgstr "Break"
+
+#: ../Screenkey/labelmanager.py:76
+msgid "Print"
+msgstr "Impr.Écran"
+
+#: ../Screenkey/labelmanager.py:77
+msgid "Compose"
+msgstr "Compose"
+
+#. Multimedia keys
+#: ../Screenkey/labelmanager.py:80
+msgid "\\uf026"
 msgstr ""
 
-#: Screenkey/screenkey.py:367
-msgid "Mode"
-msgstr "Mode"
+#: ../Screenkey/labelmanager.py:81
+msgid "Mute"
+msgstr "Mute"
+
+#: ../Screenkey/labelmanager.py:82
+msgid "\\uf131"
+msgstr ""
+
+#: ../Screenkey/labelmanager.py:83
+msgid "Rec"
+msgstr "Enr"
+
+#: ../Screenkey/labelmanager.py:84
+msgid "\\uf028"
+msgstr ""
+
+#: ../Screenkey/labelmanager.py:85
+msgid "Vol+"
+msgstr "Vol+"
+
+#: ../Screenkey/labelmanager.py:86
+msgid "\\uf027"
+msgstr ""
+
+#: ../Screenkey/labelmanager.py:87
+msgid "Vol-"
+msgstr "Vol-"
+
+#: ../Screenkey/labelmanager.py:88
+msgid "\\uf186"
+msgstr ""
+
+#: ../Screenkey/labelmanager.py:89
+msgid "Bright+"
+msgstr "Lum+"
+
+#: ../Screenkey/labelmanager.py:90
+msgid "\\uf185"
+msgstr ""
+
+#: ../Screenkey/labelmanager.py:91
+msgid "Bright-"
+msgstr "Lum-"
+
+#: ../Screenkey/labelmanager.py:92
+msgid "\\uf108"
+msgstr ""
+
+#: ../Screenkey/labelmanager.py:93
+msgid "Display"
+msgstr "Affichage"
+
+#: ../Screenkey/labelmanager.py:94
+msgid "\\uf1eb"
+msgstr ""
+
+#: ../Screenkey/labelmanager.py:95
+msgid "WLAN"
+msgstr "WIFI"
+
+#: ../Screenkey/labelmanager.py:96
+msgid "\\uf002"
+msgstr ""
+
+#: ../Screenkey/labelmanager.py:97
+msgid "Search"
+msgstr "Recherche"
+
+#: ../Screenkey/labelmanager.py:118
+msgid "Shift+"
+msgstr "Maj+"
+
+#: ../Screenkey/labelmanager.py:118
+msgid "⇧+"
+msgstr "⇧+"
+
+#: ../Screenkey/labelmanager.py:119
+msgid "Ctrl+"
+msgstr "Ctrl+"
+
+#: ../Screenkey/labelmanager.py:119
+msgid "⌘+"
+msgstr "⌘+"
+
+#: ../Screenkey/labelmanager.py:120
+msgid "Alt+"
+msgstr "Alt+"
+
+#: ../Screenkey/labelmanager.py:120
+msgid "⌥+"
+msgstr "⌥+"
+
+#: ../Screenkey/labelmanager.py:121
+msgid "Super+"
+msgstr "Super+"
+
+#: ../Screenkey/labelmanager.py:122
+msgid "Hyper+"
+msgstr "Hyper+"
+
+#: ../Screenkey/labelmanager.py:123
+msgid "AltGr+"
+msgstr "AltGr+"
+
+#: ../Screenkey/labelmanager.py:369 ../Screenkey/labelmanager.py:409
+msgid "off"
+msgstr "off"
+
+#: ../Screenkey/labelmanager.py:369 ../Screenkey/labelmanager.py:409
+msgid "on"
+msgstr "on"
+
+#~ msgid "show debug information"
+#~ msgstr "montrer l'information de débogage"
+
+#~ msgid "<b>Time</b>"
+#~ msgstr "<b>Temps</b>"
+
+#~ msgid "<b>Keys</b>"
+#~ msgstr "<b>Touches</b>"
+
+#~ msgid "Mode"
+#~ msgstr "Mode"
