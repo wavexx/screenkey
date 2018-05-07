@@ -120,14 +120,14 @@ MODS_SYMS = {
 }
 
 REPLACE_MODS = {
-    'shift':  {None: _('Shift+'), 'emacs': 'S-', 'mac': _('⇧+')},
-    'ctrl':   {None: _('Ctrl+'),  'emacs': 'C-', 'mac': _('⌘+')},
-    'alt':    {None: _('Alt+'),   'emacs': 'M-', 'mac': _('⌥+')},
-    'super':  {None: _('Super+'), 'emacs': 's-',
+    'shift':  {'normal': _('Shift+'), 'emacs': 'S-', 'mac': _('⇧+')},
+    'ctrl':   {'normal': _('Ctrl+'),  'emacs': 'C-', 'mac': _('⌘+')},
+    'alt':    {'normal': _('Alt+'),   'emacs': 'M-', 'mac': _('⌥+')},
+    'super':  {'normal': _('Super+'), 'emacs': 's-',
                'win': [ReplData(_('\uf17a+'), 'FontAwesome'), ReplData(_('Win+'),   None)],
                'tux': [ReplData(_('\uf17c+'), 'FontAwesome'), ReplData(_('Super+'), None)]},
-    'hyper':  {None: _('Hyper+'), 'emacs': 'H-'},
-    'alt_gr': {None: _('AltGr+'), 'emacs': 'AltGr-'},
+    'hyper':  {'normal': _('Hyper+'), 'emacs': 'H-'},
+    'alt_gr': {'normal': _('AltGr+'), 'emacs': 'AltGr-'},
 }
 
 
@@ -205,7 +205,7 @@ class LabelManager(object):
 
         self.replace_mods = {}
         for k, v in REPLACE_MODS.items():
-            data = v.get(self.mods_mode, v.get(None))
+            data = v.get(self.mods_mode, v['normal'])
             self.replace_mods[k] = self.get_repl_markup(data)
 
 
