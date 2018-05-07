@@ -174,6 +174,7 @@ class InputListener(threading.Thread):
         self.kbd_translate = kbd_translate
         self.lock = threading.Lock()
         self.stopped = True
+        self.error = None
 
 
     def _event_received(self, ev):
@@ -325,8 +326,20 @@ class InputListener(threading.Thread):
         replay_fd = xlib.XConnectionNumber(self.replay_dpy)
         self.replay_win = create_replay_window(self.replay_dpy)
 
-        if self.input_types & InputType.keyboard:
-            self._kbd_init()
+        # bail during initialization errors
+        try:
+            if self.input_types & InputType.keyboard:
+                self._kbd_init()
+        except Exception as e:
+            self.error = e
+            xlib.XCloseDisplay(self.control_dpy)
+            xlib.XDestroyWindow(self.replay_dpy, self.replay_win)
+            xlib.XCloseDisplay(self.replay_dpy)
+            self.lock.release()
+
+            # cheap wakeup() equivalent for compatibility
+            glib.idle_add(lambda: None)
+            return
 
         # initialize recording context
         ev_ranges = []
@@ -397,9 +410,20 @@ if __name__ == '__main__':
     glib.threads_init()
     kl = InputListener(callback)
     try:
+        # keep running only while the listener is alive
         kl.start()
-        glib.MainLoop().run()
+        while kl.is_alive():
+            glib.main_context_default().iteration()
     except KeyboardInterrupt:
         pass
-    kl.stop()
-    kl.join()
+
+    # check if the thread terminated unexpectedly
+    if kl.is_alive():
+        kl.stop()
+        kl.join()
+    elif kl.error:
+        print("initialization error: {}".format(kl.error))
+        if '__traceback__' in dir(kl.error):
+            import traceback
+            traceback.print_tb(kl.error.__traceback__)
+        exit(1)
