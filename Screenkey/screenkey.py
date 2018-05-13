@@ -262,7 +262,7 @@ class Screenkey(gtk.Window):
         text = _('Screenkey failed to initialize. This is usually a sign of an improperly '
                  'configured input method or desktop keyboard settings. Please see the <a '
                  'href="{url}">troubleshooting documentation</a> for further diagnosing '
-                 ' instructions.\n\nScreenkey cannot recover and will now quit!')
+                 'instructions.\n\nScreenkey cannot recover and will now quit!')
         msg.format_secondary_markup(text.format(url=ERROR_URL))
         msg.run()
         msg.destroy()
