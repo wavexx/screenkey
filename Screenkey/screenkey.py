@@ -427,9 +427,8 @@ class Screenkey(gtk.Window):
                                         type=gtk.MESSAGE_ERROR,
                                         buttons=gtk.BUTTONS_OK,
                                         message_format="Error running \"slop\"")
-                msg.format_secondary_markup("\"slop\" is required for interactive selection. "
-                                            "See <a href=\"https://github.com/naelstrof/slop\">"
-                                            "https://github.com/naelstrof/slop</a>")
+                msg.format_secondary_markup(_("\"slop\" is required for interactive selection. "
+                                              "See <a href=\"{url}\">{url}</a>").format(url=SLOP_URL))
                 msg.run()
                 msg.destroy()
                 return False
