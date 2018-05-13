@@ -19,7 +19,7 @@ from datetime import datetime
 #          these keys generally do not emit output in the text and cannot be processed
 # spaced:  strong spacing is required around the symbol
 
-ReplData = namedtuple('ReplData', ['value', 'font'])
+ReplData = namedtuple('ReplData', ['value', 'font', 'suffix'])
 KeyRepl  = namedtuple('KeyRepl',  ['bk_stop', 'silent', 'spaced', 'repl'])
 KeyData  = namedtuple('KeyData',  ['stamp', 'is_ctrl', 'bk_stop', 'silent', 'spaced', 'markup'])
 
@@ -78,34 +78,34 @@ REPLACE_SYMS = {
     'Multi_key':    KeyRepl(False, True,  True,  _('Compose')),
 
     # Multimedia keys
-    'XF86AudioMute':         KeyRepl(True, True, True, [ReplData(_('\uf026'),  'FontAwesome'),
-                                                        ReplData(_('Mute'),    None)]),
-    'XF86AudioMicMute':      KeyRepl(True, True, True, [ReplData(_('\uf131'),  'FontAwesome'),
-                                                        ReplData(_('Rec'),     None)]),
-    'XF86AudioRaiseVolume':  KeyRepl(True, True, True, [ReplData(_('\uf028'),  'FontAwesome'),
-                                                        ReplData(_('Vol+'),    None)]),
-    'XF86AudioLowerVolume':  KeyRepl(True, True, True, [ReplData(_('\uf027'),  'FontAwesome'),
-                                                        ReplData(_('Vol-'),    None)]),
-    'XF86AudioPrev':         KeyRepl(True, True, True, [ReplData(_('\uf048'),  'FontAwesome'),
-                                                        ReplData(_('Prev'),    None)]),
-    'XF86AudioNext':         KeyRepl(True, True, True, [ReplData(_('\uf051'),  'FontAwesome'),
-                                                        ReplData(_('Next'),    None)]),
-    'XF86AudioPlay':         KeyRepl(True, True, True, [ReplData(_('\uf04b'),  'FontAwesome'),
-                                                        ReplData(_('▶'),       None)]),
-    'XF86AudioStop':         KeyRepl(True, True, True, [ReplData(_('\uf04d'),  'FontAwesome'),
-                                                        ReplData(_('⬛'),       None)]),
-    'XF86Eject':             KeyRepl(True, True, True, [ReplData(_('\uf052'),  'FontAwesome'),
-                                                        ReplData(_('Eject'),   None)]),
-    'XF86MonBrightnessDown': KeyRepl(True, True, True, [ReplData(_('\uf185-'), 'FontAwesome'),
-                                                        ReplData(_('Bright-'), None)]),
-    'XF86MonBrightnessUp':   KeyRepl(True, True, True, [ReplData(_('\uf185+'), 'FontAwesome'),
-                                                        ReplData(_('Bright+'), None)]),
-    'XF86Display':           KeyRepl(True, True, True, [ReplData(_('\uf108'),  'FontAwesome'),
-                                                        ReplData(_('Display'), None)]),
-    'XF86WLAN':              KeyRepl(True, True, True, [ReplData(_('\uf1eb'),  'FontAwesome'),
-                                                        ReplData(_('WLAN'),    None)]),
-    'XF86Search':            KeyRepl(True, True, True, [ReplData(_('\uf002'),  'FontAwesome'),
-                                                        ReplData(_('Search'),  None)]),
+    'XF86AudioMute':         KeyRepl(True, True, True, [ReplData(_('\uf026'),  'FontAwesome', None),
+                                                        ReplData(_('Mute'),    None,          None)]),
+    'XF86AudioMicMute':      KeyRepl(True, True, True, [ReplData(_('\uf131'),  'FontAwesome', None),
+                                                        ReplData(_('Rec'),     None,          None)]),
+    'XF86AudioRaiseVolume':  KeyRepl(True, True, True, [ReplData(_('\uf028'),  'FontAwesome', None),
+                                                        ReplData(_('Vol'),     None,          '+')]),
+    'XF86AudioLowerVolume':  KeyRepl(True, True, True, [ReplData(_('\uf027'),  'FontAwesome', None),
+                                                        ReplData(_('Vol'),     None,          '-')]),
+    'XF86AudioPrev':         KeyRepl(True, True, True, [ReplData(_('\uf048'),  'FontAwesome', None),
+                                                        ReplData(_('Prev'),    None,          None)]),
+    'XF86AudioNext':         KeyRepl(True, True, True, [ReplData(_('\uf051'),  'FontAwesome', None),
+                                                        ReplData(_('Next'),    None,          None)]),
+    'XF86AudioPlay':         KeyRepl(True, True, True, [ReplData(_('\uf04b'),  'FontAwesome', None),
+                                                        ReplData(_('▶'),       None,          None)]),
+    'XF86AudioStop':         KeyRepl(True, True, True, [ReplData(_('\uf04d'),  'FontAwesome', None),
+                                                        ReplData(_('⬛'),       None,          None)]),
+    'XF86Eject':             KeyRepl(True, True, True, [ReplData(_('\uf052'),  'FontAwesome', None),
+                                                        ReplData(_('Eject'),   None,          None)]),
+    'XF86MonBrightnessDown': KeyRepl(True, True, True, [ReplData(_('\uf185'),  'FontAwesome', '-'),
+                                                        ReplData(_('Bright'),  None,          '-')]),
+    'XF86MonBrightnessUp':   KeyRepl(True, True, True, [ReplData(_('\uf185'),  'FontAwesome', '+'),
+                                                        ReplData(_('Bright'),  None,          '+')]),
+    'XF86Display':           KeyRepl(True, True, True, [ReplData(_('\uf108'),  'FontAwesome', None),
+                                                        ReplData(_('Display'), None,          None)]),
+    'XF86WLAN':              KeyRepl(True, True, True, [ReplData(_('\uf1eb'),  'FontAwesome', None),
+                                                        ReplData(_('WLAN'),    None,          None)]),
+    'XF86Search':            KeyRepl(True, True, True, [ReplData(_('\uf002'),  'FontAwesome', None),
+                                                        ReplData(_('Search'),  None,          None)]),
 }
 
 WHITESPACE_SYMS = {'Tab', 'ISO_Left_Tab', 'Return', 'space', 'KP_Enter'}
@@ -124,8 +124,10 @@ REPLACE_MODS = {
     'ctrl':   {'normal': _('Ctrl+'),  'emacs': 'C-', 'mac': _('⌘+')},
     'alt':    {'normal': _('Alt+'),   'emacs': 'M-', 'mac': _('⌥+')},
     'super':  {'normal': _('Super+'), 'emacs': 's-',
-               'win': [ReplData(_('\uf17a+'), 'FontAwesome'), ReplData(_('Win+'),   None)],
-               'tux': [ReplData(_('\uf17c+'), 'FontAwesome'), ReplData(_('Super+'), None)]},
+               'win': [ReplData(_('\uf17a'), 'FontAwesome', '+'),
+                       ReplData(_('Win'),    None,          '+')],
+               'tux': [ReplData(_('\uf17c'), 'FontAwesome', '+'),
+                       ReplData(_('Super'),  None,          '+')]},
     'hyper':  {'normal': _('Hyper+'), 'emacs': 'H-'},
     'alt_gr': {'normal': _('AltGr+'), 'emacs': 'AltGr-'},
 }
@@ -189,13 +191,24 @@ class LabelManager(object):
         if type(repl) != list:
             repl = [repl]
         for c in repl:
+            # no replacement data
             if type(c) != ReplData:
                 return unicode(glib.markup_escape_text(c))
+
+            # plain suffix
+            if c.suffix is None:
+                sfx = ''
+            else:
+                sfx = unicode(glib.markup_escape_text(c.suffix))
+
             if c.font is None:
-                return unicode(glib.markup_escape_text(c.value))
+                # regular font
+                return unicode(glib.markup_escape_text(c.value)) + sfx;
             elif c.font in self.font_families:
-                return '<span font_family="' + c.font + '">' + \
-                    unicode(glib.markup_escape_text(c.value)) + '</span>'
+                # custom symbol
+                return '<span font_family="' + c.font + '" font_weight="regular">' + \
+                    unicode(glib.markup_escape_text(c.value)) + '</span>' + sfx;
+
 
     def update_replacement_map(self):
         self.replace_syms = {}
