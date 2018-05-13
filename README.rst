@@ -280,6 +280,141 @@ key-mon and screenkey complete each-other and can be used at the same
 time.
 
 
+Troubleshooting
+---------------
+
+Initialization failure
+~~~~~~~~~~~~~~~~~~~~~~
+
+Screenkey is very sensitive to improperly configured input methods or
+keyboard settings. Installing, removing or "playing around" with some
+packages such as ``im-config``, ``ibus``, ``fcitx`` or ``scim`` might
+leave the current settings in a half-broken state. Some distributions
+are also known to have broken settings by *default*.
+
+In short: the various environment flags (``XMODIFIERS``,
+``GTK_IM_MODULE``, ``QT_IM_MODULE`` to name a few) need to be
+*consistent*. They either should be all unset, or all set to the *same*
+input method. When using ``ibus``, ``fcitx`` or other complex methods,
+the corresponding daemon *must* be running.
+
+An "input method" is the mechanism which handles the task of
+transforming key presses into characters. Latin languages mostly use a
+straightforward key -> character mechanism, but other languages don't
+have a key for each possible character and thus need extra logic.
+Programs need to be told *which* input method to use, and this is
+usually done through environment variables. There is one environment
+variable for each graphical toolkit and it's set at the start of the
+session, usually by a command in the ``~/.profile`` file. Screenkey can
+only record a program correctly if it's using the *same* input method as
+the target.
+
+To check the status of the environment, run the following inside a
+terminal::
+
+  echo XMODIFIERS=$XMODIFIERS
+  echo GTK_IM_MODULE=$GTK_IM_MODULE
+  echo QT_IM_MODULE=$QT_IM_MODULE
+
+On a system with a Latin language and without any complex input method
+running you should see everything empty::
+
+  XMODIFIERS=
+  GTK_IM_MODULE=
+  QT_IM_MODULE=
+
+On a system running "ibus" you should see::
+
+  XMODIFIERS=@im=ibus
+  GTK_IM_MODULE=ibus
+  QT_IM_MODULE=ibus
+
+Additionally, the ibus package must be installed and the ibus daemon
+should be running. Check the output of::
+
+  $ pgrep -ax ibus-daemon
+  982 /usr/bin/ibus-daemon --xim
+
+``ibus-daemon`` should be present and *must* include ``--xim`` in the
+command line. Likewise on a system using "fcitx" the following output
+has to be expected::
+
+  XMODIFIERS=@im=fcitx
+  GTK_IM_MODULE=fcitx
+  QT_IM_MODULE=fcitx
+
+In this case ``fcitx`` daemon should be running as well::
+
+  $ pgrep -ax fcitx
+  1053 /usr/bin/fcitx
+
+If you see *any* mixture of the above, your system is likely to be
+incorrectly configured.
+
+If the "ibus" or "fcitx" package are not installed, there are no daemons
+running and the variables are mostly empty, try simply unsetting all of
+them before running Screenkey in a terminal::
+
+  unset XMODIFIERS
+  unset GTK_IM_MODULES
+  unset QT_IM_MODULES
+  screenkey
+
+If screenkey runs correctly after these changes, check your startup
+files such as ``~/.profile``, ``~/.bash_profile``,
+``~/.pam_environment`` files and remove the offending variables to make
+the change permanent. You must log-out and log-in in order to be able to
+run Screenkey normally after the change.
+
+If you're running either ``ibus`` or ``fcitx`` but the variables contain
+mixed values, set them manually using::
+
+  export XMODIFIERS=@im=ibus
+  export GTK_IM_MODULE=ibus
+  export QT_IM_MODULE=ibus
+  screenkey
+
+Again, if Screenkey works correctly after the change, inspect the
+content of your startup files to make the change permanent.
+
+You should always check the documentation of your distribution for more
+details: the above guide is not meant to be exhaustive. There are other
+subtle ways to set the input method and daemon parameters. If all else
+fails, get in touch with the authors or file an issue on Github.
+
+
+Cannot stop Screenkey or no status icon
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can exit from Screenkey by right-clicking on it's status icon and
+selecting "Quit".
+
+If you're using GNOME/Unity and cannot see any status icon please make
+sure the ``python-appindicator`` package is installed. Run the following
+inside a terminal to install as required::
+
+  sudo apt-get install python-appindicator
+
+On any other desktop system Screenkey uses the regular system tray. If
+you don't have a systray or you cannot quit an existing Screenkey, use
+the following command in a terminal to kill it::
+
+  pkill -f screenkey
+
+The proper way to exit when running Screenkey from a terminal is simply
+by interrupting it with ``Ctrl+C``.
+
+
+No output when using GNOME Terminal in Wayland
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Screenkey cannot currently capture any input directed to native Wayland
+programs such as the GNOME Terminal: only X11 programs are supported.
+
+If you need to record a terminal session you'll have to switch to
+another X11 terminal emulator such as xterm, urxvt, mlterm, ...
+
+
 Authors and Copyright
 ---------------------
 
