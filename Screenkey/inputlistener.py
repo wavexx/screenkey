@@ -173,7 +173,7 @@ class InputListener(threading.Thread):
         self.kbd_compose = kbd_compose
         self.kbd_translate = kbd_translate
         self.lock = threading.Lock()
-        self.stopped = True
+        self._stop = True
         self.error = None
 
 
@@ -240,14 +240,15 @@ class InputListener(threading.Thread):
 
     def start(self):
         self.lock.acquire()
-        self.stopped = False
+        self._stop = False
+        self.error = None
         super(InputListener, self).start()
 
 
     def stop(self):
         with self.lock:
-            if not self.stopped:
-                self.stopped = True
+            if not self._stop:
+                self._stop = True
                 xlib.XRecordDisableContext(self.control_dpy, self.record_ctx)
 
 
@@ -335,10 +336,12 @@ class InputListener(threading.Thread):
             xlib.XCloseDisplay(self.control_dpy)
             xlib.XDestroyWindow(self.replay_dpy, self.replay_win)
             xlib.XCloseDisplay(self.replay_dpy)
-            self.lock.release()
 
             # cheap wakeup() equivalent for compatibility
-            glib.idle_add(lambda: None)
+            glib.idle_add(self._event_callback, None)
+
+            self._stop = True
+            self.lock.release()
             return
 
         # initialize recording context
@@ -362,7 +365,7 @@ class InputListener(threading.Thread):
         self.lock.release()
         while True:
             with self.lock:
-                if self.stopped:
+                if self._stop:
                     break
 
             r_fd = []
@@ -386,6 +389,8 @@ class InputListener(threading.Thread):
                     self._kbd_process(ev)
 
         # finalize
+        self.lock.acquire()
+
         xlib.XRecordFreeContext(self.control_dpy, self.record_ctx)
         xlib.XCloseDisplay(self.control_dpy)
         xlib.XCloseDisplay(record_dpy)
@@ -396,6 +401,9 @@ class InputListener(threading.Thread):
 
         xlib.XDestroyWindow(self.replay_dpy, self.replay_win)
         xlib.XCloseDisplay(self.replay_dpy)
+
+        self._stop = True
+        self.lock.release()
 
 
 
