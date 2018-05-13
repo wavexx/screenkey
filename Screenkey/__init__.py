@@ -4,10 +4,11 @@ gettext.install('screenkey', unicode=True)
 # Screenkey version
 APP_NAME = "Screenkey"
 APP_DESC = _("Screencast your keys")
-APP_URL = 'http://www.thregr.org/~wavexx/software/screenkey/'
+APP_URL = 'https://www.thregr.org/~wavexx/software/screenkey/'
 VERSION = '0.9'
 
 SLOP_URL = 'https://github.com/naelstrof/slop'
+ERROR_URL = 'https://www.thregr.org/~wavexx/software/screenkey/#troubleshooting'
 
 
 # CLI/Interface options

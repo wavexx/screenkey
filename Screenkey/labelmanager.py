@@ -281,6 +281,10 @@ class LabelManager(object):
 
 
     def key_press(self, event):
+        if event is None:
+            self.logger.debug("inputlistener failure: {}".format(str(self.kl.error)))
+            self.listener(None)
+            return
         if event.pressed == False:
             self.logger.debug("Key released {:5}(ks): {}".format(event.keysym, event.symbol))
             return

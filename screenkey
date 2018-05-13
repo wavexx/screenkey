@@ -91,9 +91,9 @@ def main():
     logger = logging.getLogger(APP_NAME)
 
     import Screenkey.screenkey as sc
-    sc.Screenkey(logger=logger, options=options, show_settings=args.show_settings)
+    app = sc.Screenkey(logger=logger, options=options, show_settings=args.show_settings)
     try:
-        sc.run()
+        exit(app.run())
     except KeyboardInterrupt:
         os._exit(0)
 

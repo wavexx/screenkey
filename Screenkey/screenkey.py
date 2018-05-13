@@ -30,6 +30,7 @@ class Screenkey(gtk.Window):
     def __init__(self, logger, options, show_settings=False):
         gtk.Window.__init__(self, gtk.WINDOW_POPUP)
 
+        self.exit_status = None
         self.timer_hide = None
         self.timer_min = None
         self.logger = logger
@@ -116,8 +117,9 @@ class Screenkey(gtk.Window):
             self.show()
 
 
-    def quit(self, widget, data=None):
+    def quit(self, widget=None, data=None, exit_status=os.EX_OK):
         self.labelmngr.stop()
+        self.exit_status = exit_status
         gtk.main_quit()
 
 
@@ -252,7 +254,26 @@ class Screenkey(gtk.Window):
         super(Screenkey, self).show()
 
 
+    def on_labelmngr_error(self):
+        msg = gtk.MessageDialog(parent=self,
+                                type=gtk.MESSAGE_ERROR,
+                                buttons=gtk.BUTTONS_OK,
+                                message_format="Error initializing Screenkey")
+        text = _('Screenkey failed to initialize. This is usually a sign of an improperly '
+                 'configured input method or desktop keyboard settings. Please see the <a '
+                 'href="{url}">troubleshooting documentation</a> for further diagnosing '
+                 ' instructions.\n\nScreenkey cannot recover and will now quit!')
+        msg.format_secondary_markup(text.format(url=ERROR_URL))
+        msg.run()
+        msg.destroy()
+        self.quit(exit_status=os.EX_SOFTWARE)
+
+
     def on_label_change(self, markup):
+        if markup is None:
+            self.on_labelmngr_error()
+            return
+
         attr, text, _ = pango.parse_markup(markup)
         self.override_font_attributes(attr, text)
         self.label.set_text(text)
@@ -782,6 +803,6 @@ class Screenkey(gtk.Window):
         self.about.show()
 
 
-
-def run():
-    gtk.main()
+    def run(self):
+        gtk.main()
+        return self.exit_status
